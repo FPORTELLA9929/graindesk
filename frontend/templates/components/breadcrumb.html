@@ -1,0 +1,33 @@
+{% macro breadcrumb(items=[]) %}
+
+<nav class="mb-4">
+
+    <ol class="flex items-center text-sm text-slate-500">
+
+        {% for item in items %}
+
+            <li class="flex items-center">
+
+                {% if not loop.first %}
+                    <span class="mx-2">›</span>
+                {% endif %}
+
+                {% if item.url %}
+                    <a href="{{ item.url }}" class="hover:text-blue-600">
+                        {{ item.label }}
+                    </a>
+                {% else %}
+                    <span class="font-medium text-slate-700">
+                        {{ item.label }}
+                    </span>
+                {% endif %}
+
+            </li>
+
+        {% endfor %}
+
+    </ol>
+
+</nav>
+
+{% endmacro %}

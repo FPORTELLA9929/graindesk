@@ -1,0 +1,86 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Empresas", "url": "/empresas"},
+    {"label": "Nova Empresa", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Nova Empresa",
+    "Cadastro de exportadores, tradings, cooperativas e parceiros operacionais."
+) }}
+
+<form class="space-y-6">
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Dados Gerais</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" placeholder="Razão Social">
+            <input class="nexport-input" placeholder="Nome Fantasia">
+            <input class="nexport-input" placeholder="CNPJ">
+            <input class="nexport-input" placeholder="Inscrição Estadual">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Endereço</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <input class="nexport-input" placeholder="CEP">
+            <input class="nexport-input md:col-span-2" placeholder="Logradouro">
+            <input class="nexport-input" placeholder="Número">
+            <input class="nexport-input" placeholder="Bairro">
+            <input class="nexport-input" placeholder="Cidade">
+            <input class="nexport-input" placeholder="UF">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Contato</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <input class="nexport-input" placeholder="Responsável">
+            <input class="nexport-input" placeholder="Telefone">
+            <input class="nexport-input" placeholder="E-mail">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Perfil Operacional</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label class="nexport-check"><input type="checkbox"> Exportador</label>
+            <label class="nexport-check"><input type="checkbox"> Trading</label>
+            <label class="nexport-check"><input type="checkbox"> Cooperativa</label>
+            <label class="nexport-check"><input type="checkbox"> Despachante</label>
+            <label class="nexport-check"><input type="checkbox"> Transportadora</label>
+            <label class="nexport-check"><input type="checkbox"> Cliente</label>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Observações</h3>
+        <textarea class="nexport-input min-h-32" placeholder="Observações internas"></textarea>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <a href="/empresas" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+            Cancelar
+        </a>
+
+        <button type="button" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+            Salvar Empresa
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+{% import "components/status_badge.html" as badges %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Empresas", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Empresas",
+    "Gestão de exportadores, tradings, cooperativas e parceiros operacionais.",
+    "Nova Empresa",
+    "/empresas/novo"
+) }}
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+
+    <div class="p-5 border-b border-slate-200">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+            <input
+                type="text"
+                placeholder="Pesquisar por CNPJ, razão social ou cidade..."
+                class="nexport-input lg:col-span-2"
+            >
+
+            <select class="nexport-input">
+                <option>Todos os tipos</option>
+                <option>Exportador</option>
+                <option>Trading</option>
+                <option>Cooperativa</option>
+                <option>Despachante</option>
+                <option>Transportadora</option>
+            </select>
+
+            <select class="nexport-input">
+                <option>Todos os status</option>
+                <option>Ativo</option>
+                <option>Inativo</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full nexport-table">
+
+            <thead class="bg-slate-50">
+
+                <tr>
+                    <th class="text-left p-4">CNPJ</th>
+                    <th class="text-left p-4">Razão Social</th>
+                    <th class="text-left p-4">Cidade/UF</th>
+                    <th class="text-left p-4">Tipo</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-right p-4">Ações</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for empresa in empresas %}
+
+                <tr class="border-t border-slate-100">
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ empresa.cnpj }}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="font-semibold text-slate-800">
+                            {{ empresa.razao_social }}
+                        </div>
+                        <div class="text-xs text-slate-500">
+                            {{ empresa.nome_fantasia }}
+                        </div>
+                    </td>
+
+                    <td class="p-4">
+                        {{ empresa.cidade }}/{{ empresa.uf }}
+                    </td>
+
+                    <td class="p-4">
+                        {{ empresa.tipo }}
+                    </td>
+
+                    <td class="p-4">
+                        {{ badges.status_badge(empresa.status) }}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="flex justify-end gap-2">
+
+                            <a
+                                href="/empresas/ver/{{ empresa.id }}"
+                                class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+                            >
+                                Ver
+                            </a>
+
+                            <a
+                                href="/empresas/editar/{{ empresa.id }}"
+                                class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100"
+                            >
+                                Editar
+                            </a>
+
+                            {% if empresa.status == "Ativo" %}
+                                <button
+                                    type="button"
+                                    class="px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100"
+                                >
+                                    Inativar
+                                </button>
+                            {% else %}
+                                <button
+                                    type="button"
+                                    class="px-3 py-2 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100"
+                                >
+                                    Ativar
+                                </button>
+                            {% endif %}
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="p-5 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <div class="text-sm text-slate-500">
+            Exibindo {{ empresas|length }} registros
+        </div>
+
+        <div class="flex items-center gap-2">
+
+            <button class="px-3 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm">
+                Anterior
+            </button>
+
+            <button class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">
+                1
+            </button>
+
+            <button class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm">
+                Próxima
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

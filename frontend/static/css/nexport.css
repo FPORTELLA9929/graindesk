@@ -1,0 +1,162 @@
+body {
+    font-family: Inter, Arial, sans-serif;
+}
+
+/* ===== SIDEBAR ===== */
+
+.nexport-menu-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    font-weight: 600;
+}
+
+.nexport-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 14px;
+    margin-bottom: 4px;
+
+    border-radius: 12px;
+
+    color: #cbd5e1;
+    text-decoration: none;
+
+    transition: all 0.2s ease;
+}
+
+.nexport-menu-item:hover {
+    background: rgba(255,255,255,0.08);
+    color: white;
+}
+
+.nexport-menu-active {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    background: #2563eb;
+
+    color: white;
+    text-decoration: none;
+
+    font-weight: 600;
+
+    box-shadow: 0 4px 14px rgba(37,99,235,.35);
+}
+
+/* ===== CARDS ===== */
+
+.nexport-card {
+    background: white;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+
+    padding: 24px;
+
+    transition: all 0.2s ease;
+}
+
+.nexport-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(15,23,42,.08);
+}
+
+/* ===== FORMULÁRIOS ===== */
+
+.nexport-input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 12px 14px;
+    outline: none;
+    background: #ffffff;
+
+    transition: all 0.2s ease;
+}
+
+.nexport-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37,99,235,.15);
+}
+
+.nexport-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 14px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    background: #f8fafc;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.nexport-check:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+/* ===== TABELAS ===== */
+
+.nexport-table th {
+    font-weight: 600;
+    color: #475569;
+}
+
+.nexport-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* ===== BADGES ===== */
+
+.badge-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-info {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ===== SCROLL ===== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0b1f3a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1e40af;
+    border-radius: 20px;
+}

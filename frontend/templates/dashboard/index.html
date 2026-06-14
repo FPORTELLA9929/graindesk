@@ -1,0 +1,133 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+{% import "components/status_badge.html" as badges %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Dashboard Executivo",
+    "Visão geral da operação aduaneira, exportações, pendências e embarques."
+) }}
+
+<div class="space-y-6">
+
+    <div class="bg-gradient-to-r from-blue-700 to-blue-900 rounded-3xl p-8 text-white shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold">Bom dia, Felipe 👋</h2>
+                <p class="mt-2 text-blue-100">
+                    Você possui <strong>7 pendências</strong> aguardando ação.
+                </p>
+                <p class="mt-1 text-sm text-blue-200">
+                    Última sincronização: 11/06/2026 21:45
+                </p>
+            </div>
+
+            <div class="hidden lg:block text-right">
+                <div class="text-5xl font-black">GRAINDESK</div>
+                <div class="text-blue-200 text-sm tracking-widest">
+                    EXPORT • TRADE • LOGISTICS
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div class="nexport-card">
+            <div class="text-4xl mb-3">📦</div>
+            <div class="text-4xl font-bold">38</div>
+            <div class="text-slate-600 mt-2">Processos Ativos</div>
+            <div class="text-green-600 text-sm mt-3">▲ +12% este mês</div>
+        </div>
+
+        <div class="nexport-card">
+            <div class="text-4xl mb-3">📄</div>
+            <div class="text-4xl font-bold">24</div>
+            <div class="text-slate-600 mt-2">DUEs Abertas</div>
+            <div class="text-blue-600 text-sm mt-3">Em andamento</div>
+        </div>
+
+        <div class="nexport-card">
+            <div class="text-4xl mb-3">🧾</div>
+            <div class="text-4xl font-bold">812</div>
+            <div class="text-slate-600 mt-2">NF-es Vinculadas</div>
+            <div class="text-slate-500 text-sm mt-3">Operação atual</div>
+        </div>
+
+        <div class="nexport-card">
+            <div class="text-4xl mb-3">⚠️</div>
+            <div class="text-4xl font-bold text-red-600">7</div>
+            <div class="text-slate-600 mt-2">Pendências</div>
+            <div class="text-red-500 text-sm mt-3">Requer atenção</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="p-5 border-b border-slate-200">
+                <h3 class="font-bold text-lg">Processos Recentes</h3>
+            </div>
+
+            <table class="w-full">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="text-left p-4">Processo</th>
+                        <th class="text-left p-4">Cliente</th>
+                        <th class="text-left p-4">Produto</th>
+                        <th class="text-left p-4">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="border-t">
+                        <td class="p-4">EXP-000001</td>
+                        <td class="p-4">SIPAL</td>
+                        <td class="p-4">Soja</td>
+                        <td class="p-4">{{ badges.status_badge("Ativo") }}</td>
+                    </tr>
+
+                    <tr class="border-t">
+                        <td class="p-4">EXP-000002</td>
+                        <td class="p-4">Trading ABC</td>
+                        <td class="p-4">Milho</td>
+                        <td class="p-4">{{ badges.status_badge("Conferência") }}</td>
+                    </tr>
+
+                    <tr class="border-t">
+                        <td class="p-4">EXP-000003</td>
+                        <td class="p-4">Cliente XYZ</td>
+                        <td class="p-4">Trigo</td>
+                        <td class="p-4">{{ badges.status_badge("Embarque") }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="p-5 border-b border-slate-200">
+                <h3 class="font-bold text-lg">Pendências</h3>
+            </div>
+
+            <div class="p-5 space-y-4">
+                <div class="p-4 rounded-xl bg-red-50 border border-red-100">
+                    DUE aguardando conferência
+                </div>
+                <div class="p-4 rounded-xl bg-yellow-50 border border-yellow-100">
+                    NF-e sem vínculo
+                </div>
+                <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                    Booking próximo do deadline
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

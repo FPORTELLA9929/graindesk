@@ -1,0 +1,26 @@
+{% macro status_badge(status) %}
+
+    {% set status_lower = status|lower %}
+
+    {% if status_lower in ["ativo", "concluído", "concluido", "sucesso"] %}
+        <span class="badge-success px-3 py-1 rounded-full text-xs font-semibold">
+            {{ status }}
+        </span>
+
+    {% elif status_lower in ["pendente", "em conferência", "conferencia", "atenção", "atencao"] %}
+        <span class="badge-warning px-3 py-1 rounded-full text-xs font-semibold">
+            {{ status }}
+        </span>
+
+    {% elif status_lower in ["erro", "cancelado", "inativo", "vencido"] %}
+        <span class="badge-danger px-3 py-1 rounded-full text-xs font-semibold">
+            {{ status }}
+        </span>
+
+    {% else %}
+        <span class="badge-info px-3 py-1 rounded-full text-xs font-semibold">
+            {{ status }}
+        </span>
+    {% endif %}
+
+{% endmacro %}
