@@ -1,118 +1,149 @@
-from pathlib import Path
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Request
-from fastapi.templating import Jinja2Templates
-
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
-
-templates = Jinja2Templates(
-    directory=str(BASE_DIR / "frontend" / "templates")
-)
-
-router = APIRouter()
+from app.database.session import get_db
+from app.schemas.empresa import EmpresaCreate, EmpresaUpdate
+from app.services import empresa_service
 
 
-empresas_mock = [
-    {
-        "id": 1,
-        "cnpj": "00.000.000/0001-00",
-        "razao_social": "SIPAL INDUSTRIA E COMERCIO LTDA",
-        "nome_fantasia": "SIPAL",
-        "cidade": "Ibiporã",
-        "uf": "PR",
-        "tipo": "Exportador",
-        "status": "Ativo",
-        "responsavel": "Felipe Portella",
-        "telefone": "(43) 99999-9999",
-        "email": "contato@sipal.com.br",
-    },
-    {
-        "id": 2,
-        "cnpj": "11.111.111/0001-11",
-        "razao_social": "TRADING ABC LTDA",
-        "nome_fantasia": "Trading ABC",
-        "cidade": "Londrina",
-        "uf": "PR",
-        "tipo": "Trading",
-        "status": "Ativo",
-        "responsavel": "Operacional ABC",
-        "telefone": "(43) 98888-8888",
-        "email": "operacional@tradingabc.com.br",
-    },
-    {
-        "id": 3,
-        "cnpj": "22.222.222/0001-22",
-        "razao_social": "COOPERATIVA EXEMPLO",
-        "nome_fantasia": "Cooperativa Exemplo",
-        "cidade": "Maringá",
-        "uf": "PR",
-        "tipo": "Cooperativa",
-        "status": "Inativo",
-        "responsavel": "Departamento Exportação",
-        "telefone": "(44) 97777-7777",
-        "email": "exportacao@cooperativa.com.br",
-    },
-]
+router = APIRouter(prefix="/empresas", tags=["Empresas"])
 
 
-def buscar_empresa_por_id(empresa_id: int):
-    for empresa in empresas_mock:
-        if empresa["id"] == empresa_id:
-            return empresa
-    return None
+@router.get("/")
+def listar_empresas(request: Request, db: Session = Depends(get_db)):
+    empresas = empresa_service.listar_empresas(db)
 
-
-@router.get("/empresas")
-async def listar_empresas(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "cadastros/empresas.html",
-        {
+    return request.app.state.templates.TemplateResponse(
+        request=request,
+        name="cadastros/empresas.html",
+        context={
+            "empresas": empresas,
             "page_title": "Empresas - GrainDesk",
-            "empresas": empresas_mock,
         },
     )
 
 
-@router.get("/empresas/novo")
-async def nova_empresa(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "cadastros/empresa_form.html",
-        {
-            "page_title": "Nova Empresa - GrainDesk",
-            "modo": "novo",
+@router.get("/nova")
+def nova_empresa(request: Request):
+    return request.app.state.templates.TemplateResponse(
+        request=request,
+        name="cadastros/empresa_form.html",
+        context={
             "empresa": None,
+            "modo": "nova",
+            "page_title": "Nova Empresa - GrainDesk",
         },
     )
 
 
-@router.get("/empresas/ver/{empresa_id}")
-async def visualizar_empresa(request: Request, empresa_id: int):
-    empresa = buscar_empresa_por_id(empresa_id)
+@router.post("/nova")
+def criar_empresa(
+    razao_social: str = Form(...),
+    nome_fantasia: str | None = Form(None),
+    cnpj: str = Form(...),
+    inscricao_estadual: str | None = Form(None),
+    logradouro: str | None = Form(None),
+    numero: str | None = Form(None),
+    bairro: str | None = Form(None),
+    cidade: str | None = Form(None),
+    estado: str | None = Form(None),
+    cep: str | None = Form(None),
+    telefone: str | None = Form(None),
+    email: str | None = Form(None),
+    ativo: bool = Form(False),
+    db: Session = Depends(get_db),
+):
+    if empresa_service.buscar_por_cnpj(db, cnpj):
+        raise HTTPException(status_code=400, detail="Já existe empresa cadastrada com este CNPJ.")
 
-    return templates.TemplateResponse(
-        request,
-        "cadastros/empresa_form.html",
-        {
-            "page_title": "Visualizar Empresa - GrainDesk",
-            "modo": "visualizar",
+    dados = EmpresaCreate(
+        razao_social=razao_social,
+        nome_fantasia=nome_fantasia,
+        cnpj=cnpj,
+        inscricao_estadual=inscricao_estadual,
+        logradouro=logradouro,
+        numero=numero,
+        bairro=bairro,
+        cidade=cidade,
+        estado=estado,
+        cep=cep,
+        telefone=telefone,
+        email=email,
+        ativo=ativo,
+    )
+
+    empresa_service.criar_empresa(db, dados)
+    return RedirectResponse(url="/empresas/", status_code=303)
+
+
+@router.get("/{empresa_id}/editar")
+def editar_empresa(empresa_id: int, request: Request, db: Session = Depends(get_db)):
+    empresa = empresa_service.buscar_empresa(db, empresa_id)
+
+    if not empresa:
+        raise HTTPException(status_code=404, detail="Empresa não encontrada.")
+
+    return request.app.state.templates.TemplateResponse(
+        request=request,
+        name="cadastros/empresa_form.html",
+        context={
             "empresa": empresa,
-        },
-    )
-
-
-@router.get("/empresas/editar/{empresa_id}")
-async def editar_empresa(request: Request, empresa_id: int):
-    empresa = buscar_empresa_por_id(empresa_id)
-
-    return templates.TemplateResponse(
-        request,
-        "cadastros/empresa_form.html",
-        {
-            "page_title": "Editar Empresa - GrainDesk",
             "modo": "editar",
-            "empresa": empresa,
+            "page_title": "Editar Empresa - GrainDesk",
         },
     )
+
+
+@router.post("/{empresa_id}/editar")
+def atualizar_empresa(
+    empresa_id: int,
+    razao_social: str = Form(...),
+    nome_fantasia: str | None = Form(None),
+    cnpj: str = Form(...),
+    inscricao_estadual: str | None = Form(None),
+    logradouro: str | None = Form(None),
+    numero: str | None = Form(None),
+    bairro: str | None = Form(None),
+    cidade: str | None = Form(None),
+    estado: str | None = Form(None),
+    cep: str | None = Form(None),
+    telefone: str | None = Form(None),
+    email: str | None = Form(None),
+    ativo: bool = Form(False),
+    db: Session = Depends(get_db),
+):
+    empresa = empresa_service.buscar_empresa(db, empresa_id)
+
+    if not empresa:
+        raise HTTPException(status_code=404, detail="Empresa não encontrada.")
+
+    dados = EmpresaUpdate(
+        razao_social=razao_social,
+        nome_fantasia=nome_fantasia,
+        cnpj=cnpj,
+        inscricao_estadual=inscricao_estadual,
+        logradouro=logradouro,
+        numero=numero,
+        bairro=bairro,
+        cidade=cidade,
+        estado=estado,
+        cep=cep,
+        telefone=telefone,
+        email=email,
+        ativo=ativo,
+    )
+
+    empresa_service.atualizar_empresa(db, empresa, dados)
+    return RedirectResponse(url="/empresas/", status_code=303)
+
+
+@router.post("/{empresa_id}/excluir")
+def excluir_empresa(empresa_id: int, db: Session = Depends(get_db)):
+    empresa = empresa_service.buscar_empresa(db, empresa_id)
+
+    if not empresa:
+        raise HTTPException(status_code=404, detail="Empresa não encontrada.")
+
+    empresa_service.excluir_empresa(db, empresa)
+    return RedirectResponse(url="/empresas/", status_code=303)
