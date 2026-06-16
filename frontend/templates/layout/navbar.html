@@ -2,10 +2,11 @@
 
     <div>
         <h1 class="text-2xl font-bold text-slate-800">
-            Dashboard
+            {{ titulo_pagina if titulo_pagina else "Dashboard" }}
         </h1>
+
         <p class="text-sm text-slate-500">
-            Visão geral da operação
+            {{ subtitulo_pagina if subtitulo_pagina else "Visão geral da operação" }}
         </p>
     </div>
 
@@ -20,30 +21,51 @@
         </div>
 
         <button class="relative">
-            <span class="text-xl">🔔</span>
+
+            <span class="text-xl">
+                🔔
+            </span>
 
             <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full px-1.5 py-0.5">
-                3
+                0
             </span>
+
         </button>
+
+        <div class="h-10 w-px bg-slate-200"></div>
 
         <div class="flex items-center gap-3">
 
-            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                FP
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
+
+                {{ request.session.get("usuario_iniciais", "U") }}
+
             </div>
 
             <div>
+
                 <div class="font-semibold text-slate-800">
-                    Felipe Portella
+
+                    {{ request.session.get("usuario_nome_abreviado", "Usuário") }}
+
                 </div>
 
-                <div class="text-xs text-slate-500">
-                    Administrador
+                <div class="text-xs text-slate-500 capitalize">
+
+                    {{ request.session.get("usuario_perfil", "operacional") }}
+
                 </div>
+
             </div>
 
         </div>
+
+        <a href="/logout"
+           class="px-4 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition">
+
+            Sair
+
+        </a>
 
     </div>
 

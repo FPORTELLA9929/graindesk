@@ -18,18 +18,32 @@ def buscar_por_cnpj(db: Session, cnpj: str):
 
 def criar_empresa(db: Session, dados: EmpresaCreate):
     empresa = Empresa(**dados.model_dump())
+
     db.add(empresa)
     db.commit()
     db.refresh(empresa)
+
     return empresa
 
 
 def atualizar_empresa(db: Session, empresa: Empresa, dados: EmpresaUpdate):
-    for campo, valor in dados.model_dump().items():
+    dados_dict = dados.model_dump()
+
+    for campo, valor in dados_dict.items():
         setattr(empresa, campo, valor)
 
     db.commit()
     db.refresh(empresa)
+
+    return empresa
+
+
+def atualizar_logo_empresa(db: Session, empresa: Empresa, logo_path: str):
+    empresa.logo_path = logo_path
+
+    db.commit()
+    db.refresh(empresa)
+
     return empresa
 
 

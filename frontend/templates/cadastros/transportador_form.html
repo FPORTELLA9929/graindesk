@@ -1,0 +1,314 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Transportadores", "url": "/cadastros/transportadores/"},
+    {"label": "Novo Transportador" if modo == "novo" else "Editar Transportador", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Novo Transportador" if modo == "novo" else "Editar Transportador",
+    "Cadastro de transportador pessoa física ou jurídica."
+) }}
+
+<form
+    method="post"
+    action="{% if modo == 'novo' %}/cadastros/transportadores/novo{% else %}/cadastros/transportadores/{{ transportador.id }}/editar{% endif %}"
+    class="space-y-6"
+>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Identificação</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Tipo de Pessoa
+                </label>
+
+                <select name="tipo_pessoa" id="tipo_pessoa" class="nexport-input" required onchange="alternarTipoPessoa()">
+                    <option value="PF" {% if not transportador or transportador.tipo_pessoa == "PF" %}selected{% endif %}>Pessoa Física</option>
+                    <option value="PJ" {% if transportador and transportador.tipo_pessoa == "PJ" %}selected{% endif %}>Pessoa Jurídica</option>
+                </select>
+            </div>
+
+            <div>
+                <label id="label_documento" class="block text-sm font-semibold text-slate-700 mb-2">
+                    CPF/CNPJ
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="cpf_cnpj"
+                    type="text"
+                    placeholder="CPF ou CNPJ"
+                    value="{{ transportador.cpf_cnpj if transportador else '' }}"
+                    required
+                >
+            </div>
+
+            <div>
+                <label id="label_nome" class="block text-sm font-semibold text-slate-700 mb-2">
+                    Nome/Razão Social
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="nome_razao_social"
+                    type="text"
+                    placeholder="Nome ou razão social"
+                    value="{{ transportador.nome_razao_social if transportador else '' }}"
+                    required
+                >
+            </div>
+
+            <div id="campo_nome_fantasia">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Nome Fantasia
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="nome_fantasia"
+                    type="text"
+                    placeholder="Nome fantasia"
+                    value="{{ transportador.nome_fantasia if transportador and transportador.nome_fantasia else '' }}"
+                >
+            </div>
+
+            <div>
+                <label id="label_rg_ie" class="block text-sm font-semibold text-slate-700 mb-2">
+                    RG/IE
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="rg_ie"
+                    type="text"
+                    placeholder="RG ou Inscrição Estadual"
+                    value="{{ transportador.rg_ie if transportador and transportador.rg_ie else '' }}"
+                >
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Contato e Localização</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Telefone
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="telefone"
+                    type="text"
+                    placeholder="Telefone"
+                    value="{{ transportador.telefone if transportador and transportador.telefone else '' }}"
+                >
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    E-mail
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="email"
+                    type="email"
+                    placeholder="E-mail"
+                    value="{{ transportador.email if transportador and transportador.email else '' }}"
+                >
+            </div>
+
+            <div class="relative">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Município
+                </label>
+
+                <input
+                    type="text"
+                    id="municipio_busca"
+                    class="nexport-input"
+                    placeholder="Digite o município..."
+                    autocomplete="off"
+                    value="{{ municipio.nome if municipio else '' }}"
+                    required
+                >
+
+                <input
+                    type="hidden"
+                    name="municipio_id"
+                    id="municipio_id"
+                    value="{{ municipio.codigo_ibge if municipio else '' }}"
+                >
+
+                <div
+                    id="municipio_resultados"
+                    class="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg hidden max-h-60 overflow-auto"
+                ></div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Endereço
+                </label>
+
+                <input
+                    class="nexport-input"
+                    name="endereco"
+                    type="text"
+                    placeholder="Endereço"
+                    value="{{ transportador.endereco if transportador and transportador.endereco else '' }}"
+                >
+            </div>
+
+            <label class="nexport-check flex items-center md:col-span-2">
+                <input
+                    type="checkbox"
+                    name="ativo"
+                    value="true"
+                    {% if not transportador or transportador.ativo %}checked{% endif %}
+                >
+                Transportador ativo
+            </label>
+
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <a href="/cadastros/transportadores/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+            Cancelar
+        </a>
+
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+            Salvar Transportador
+        </button>
+    </div>
+
+</form>
+
+<script>
+    function alternarTipoPessoa() {
+        const tipoPessoa = document.getElementById("tipo_pessoa").value;
+
+        const labelDocumento = document.getElementById("label_documento");
+        const labelNome = document.getElementById("label_nome");
+        const labelRgIe = document.getElementById("label_rg_ie");
+        const campoNomeFantasia = document.getElementById("campo_nome_fantasia");
+
+        if (tipoPessoa === "PF") {
+            labelDocumento.textContent = "CPF";
+            labelNome.textContent = "Nome";
+            labelRgIe.textContent = "RG";
+            campoNomeFantasia.classList.add("hidden");
+        } else {
+            labelDocumento.textContent = "CNPJ";
+            labelNome.textContent = "Razão Social";
+            labelRgIe.textContent = "Inscrição Estadual";
+            campoNomeFantasia.classList.remove("hidden");
+        }
+    }
+
+    function configurarAutocompleteMunicipio() {
+        const input = document.getElementById("municipio_busca");
+        const hidden = document.getElementById("municipio_id");
+        const resultados = document.getElementById("municipio_resultados");
+
+        let timeoutBusca = null;
+
+        input.addEventListener("input", function () {
+            const termo = input.value.trim();
+
+            hidden.value = "";
+
+            clearTimeout(timeoutBusca);
+
+            if (termo.length < 2) {
+                resultados.innerHTML = "";
+                resultados.classList.add("hidden");
+                return;
+            }
+
+            timeoutBusca = setTimeout(async function () {
+                try {
+                    const response = await fetch(`/api/municipios?q=${encodeURIComponent(termo)}`);
+
+                    if (!response.ok) {
+                        resultados.innerHTML = "";
+                        resultados.classList.add("hidden");
+                        return;
+                    }
+
+                    const municipios = await response.json();
+
+                    resultados.innerHTML = "";
+
+                    if (!municipios.length) {
+                        resultados.innerHTML = `
+                            <div class="px-4 py-3 text-sm text-slate-500">
+                                Nenhum município encontrado
+                            </div>
+                        `;
+                        resultados.classList.remove("hidden");
+                        return;
+                    }
+
+                    municipios.forEach(function (municipio) {
+                        const item = document.createElement("button");
+                        item.type = "button";
+                        item.className = "w-full text-left px-4 py-3 text-sm hover:bg-slate-100 border-b border-slate-100";
+                        item.textContent = municipio.nome;
+
+                        item.addEventListener("click", function () {
+                            input.value = municipio.nome;
+                            hidden.value = municipio.codigo_ibge;
+                            resultados.innerHTML = "";
+                            resultados.classList.add("hidden");
+                        });
+
+                        resultados.appendChild(item);
+                    });
+
+                    resultados.classList.remove("hidden");
+
+                } catch (error) {
+                    resultados.innerHTML = "";
+                    resultados.classList.add("hidden");
+                }
+            }, 250);
+        });
+
+        input.addEventListener("blur", function () {
+            setTimeout(function () {
+                resultados.classList.add("hidden");
+            }, 200);
+        });
+    }
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const municipio = document.getElementById("municipio_id").value;
+
+        if (!municipio) {
+            event.preventDefault();
+            alert("Selecione um município válido.");
+        }
+    });
+
+    alternarTipoPessoa();
+    configurarAutocompleteMunicipio();
+</script>
+
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{% set modo = "nova" if not fornecedor else "editar" %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Fornecedores", "url": "/cadastros/fornecedores/"},
+    {"label": "Novo Fornecedor" if modo == "nova" else "Editar Fornecedor", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Novo Fornecedor" if modo == "nova" else "Editar Fornecedor",
+    "Cadastro de fornecedores vinculados às operações administrativas e logísticas."
+) }}
+
+<form
+    method="post"
+    action="{% if modo == 'nova' %}/cadastros/fornecedores/novo{% else %}/cadastros/fornecedores/{{ fornecedor.id }}/editar{% endif %}"
+    class="space-y-6"
+>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Dados Gerais</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" name="razao_social" placeholder="Razão Social / Nome" required value="{{ fornecedor.razao_social if fornecedor else '' }}">
+            <input class="nexport-input" name="nome_fantasia" placeholder="Nome Fantasia / Apelido" value="{{ fornecedor.nome_fantasia if fornecedor else '' }}">
+            <input class="nexport-input" name="cpf_cnpj" placeholder="CPF/CNPJ" required value="{{ fornecedor.cpf_cnpj if fornecedor else '' }}">
+            <input class="nexport-input" name="inscricao_estadual" placeholder="Inscrição Estadual" value="{{ fornecedor.inscricao_estadual if fornecedor else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Endereço</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <input class="nexport-input" name="cep" placeholder="CEP" value="{{ fornecedor.cep if fornecedor else '' }}">
+            <input class="nexport-input md:col-span-2" name="logradouro" placeholder="Logradouro" value="{{ fornecedor.logradouro if fornecedor else '' }}">
+            <input class="nexport-input" name="numero" placeholder="Número" value="{{ fornecedor.numero if fornecedor else '' }}">
+            <input class="nexport-input" name="bairro" placeholder="Bairro" value="{{ fornecedor.bairro if fornecedor else '' }}">
+            <input class="nexport-input" name="cidade" placeholder="Cidade" value="{{ fornecedor.cidade if fornecedor else '' }}">
+            <input class="nexport-input" name="estado" placeholder="UF" maxlength="2" value="{{ fornecedor.estado if fornecedor else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Contato</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" name="telefone" placeholder="Telefone" value="{{ fornecedor.telefone if fornecedor else '' }}">
+            <input class="nexport-input" name="email" placeholder="E-mail" value="{{ fornecedor.email if fornecedor else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <label class="nexport-check">
+            <input type="checkbox" name="ativo" value="true" {% if not fornecedor or fornecedor.ativo %}checked{% endif %}>
+            Fornecedor ativo
+        </label>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <a href="/cadastros/fornecedores/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+            Cancelar
+        </a>
+
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+            Salvar Fornecedor
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

@@ -1,9 +1,16 @@
+{% set path = request.url.path %}
+{% set permissoes = request.session.get("permissoes", []) %}
+
+{% set active_class = "flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-900/30" %}
+{% set normal_class = "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition" %}
+
 <aside class="w-72 bg-[#071B33] text-white min-h-screen flex flex-col shadow-xl">
 
     <div class="px-6 py-6 border-b border-white/10">
         <div class="text-3xl font-black tracking-wide">
             GRAIN<span class="text-green-400">DESK</span>
         </div>
+
         <div class="text-[11px] text-slate-300 tracking-widest mt-1">
             EXPORT • TRADE • LOGISTICS
         </div>
@@ -12,108 +19,182 @@
     <nav class="flex-1 px-4 py-5 space-y-5 text-sm overflow-y-auto">
 
         <div>
-            <a href="/" class="nexport-menu-active">
+            <a href="/dashboard"
+               class="{% if path == '/dashboard' or path == '/' %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
                 <span>🏠</span>
                 <span>Dashboard</span>
             </a>
         </div>
 
         <div>
-            <div class="nexport-menu-title">Operacional</div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Operacional
+            </div>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📦</span>
                 <span>Processos de Exportação</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📄</span>
                 <span>DUE</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>🧾</span>
                 <span>NF-e de Exportação</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>🔗</span>
                 <span>CCT / Siscomex</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📑</span>
                 <span>Contratos</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>🚢</span>
                 <span>Booking / Embarque</span>
             </a>
         </div>
 
         <div>
-            <div class="nexport-menu-title">Documental</div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Documental
+            </div>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📁</span>
                 <span>Dossiês</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📎</span>
                 <span>Documentos Anexos</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>🧾</span>
                 <span>XML / DANFE</span>
             </a>
         </div>
 
         <div>
-            <div class="nexport-menu-title">Gestão</div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Gestão
+            </div>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>💰</span>
                 <span>Financeiro</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
+            <a href="#" class="{{ normal_class }}">
                 <span>📊</span>
                 <span>Relatórios</span>
-            </a>
-
-            <a href="/empresas" class="nexport-menu-item">
-                <span>⚙️</span>
-                <span>Cadastros</span>
             </a>
         </div>
 
         <div>
-            <div class="nexport-menu-title">Administração</div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Entidades
+            </div>
 
-            <a href="#" class="nexport-menu-item">
-                <span>👤</span>
-                <span>Usuários</span>
+            <a href="/cadastros/empresas/"
+               class="{% if path.startswith('/cadastros/empresas') or path.startswith('/empresas') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🏢</span>
+                <span>Filiais</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
-                <span>🔐</span>
-                <span>Perfis e Permissões</span>
+            <a href="/cadastros/clientes/"
+               class="{% if path.startswith('/cadastros/clientes') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🤝</span>
+                <span>Clientes</span>
             </a>
 
-            <a href="#" class="nexport-menu-item">
-                <span>🛠️</span>
-                <span>Configurações</span>
+            <a href="/cadastros/fornecedores/"
+               class="{% if path.startswith('/cadastros/fornecedores') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🏭</span>
+                <span>Fornecedores</span>
+            </a>
+
+            <a href="/cadastros/transportadores/"
+               class="{% if path.startswith('/cadastros/transportadores') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🚛</span>
+                <span>Transportadores</span>
+            </a>
+
+            <a href="/cadastros/motoristas/"
+               class="{% if path.startswith('/cadastros/motoristas') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>👨‍✈️</span>
+                <span>Motoristas</span>
             </a>
         </div>
 
+        <div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Logística
+            </div>
+
+            <a href="/cadastros/rotas/"
+               class="{% if path.startswith('/cadastros/rotas') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🛣️</span>
+                <span>Rotas</span>
+            </a>
+
+            <a href="/cadastros/tipos-veiculo/"
+               class="{% if path.startswith('/cadastros/tipos-veiculo') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🚚</span>
+                <span>Tipos de Veículo</span>
+            </a>
+
+            <a href="/cadastros/veiculos/"
+               class="{% if path.startswith('/cadastros/veiculos') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🚛</span>
+                <span>Veículos</span>
+            </a>
+        </div>
+
+        {% if "usuarios" in permissoes or "perfis" in permissoes %}
+        <div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Administração
+            </div>
+
+            {% if "usuarios" in permissoes %}
+            <a href="/admin/usuarios/"
+               class="{% if path.startswith('/admin/usuarios') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>👤</span>
+                <span>Usuários</span>
+            </a>
+            {% endif %}
+
+            {% if "perfis" in permissoes %}
+            <a href="/admin/perfis/"
+               class="{% if path.startswith('/admin/perfis') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🔐</span>
+                <span>Perfis e Permissões</span>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
     </nav>
 
-    <div class="p-5 border-t border-white/10 text-xs text-slate-400">
-        <div class="font-semibold text-white">GrainDesk</div>
-        <div>Versão 1.0.0</div>
+    <div class="p-5 border-t border-white/10">
+        <div class="text-xs text-slate-400">
+            <div class="font-semibold text-white">
+                GrainDesk
+            </div>
+
+            <div>
+                Versão 1.0.0
+            </div>
+        </div>
     </div>
 
 </aside>

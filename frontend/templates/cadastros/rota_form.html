@@ -1,0 +1,296 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Rotas", "url": "/cadastros/rotas/"},
+    {"label": "Nova Rota" if modo == "nova" else "Editar Rota", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Nova Rota" if modo == "nova" else "Editar Rota",
+    "Cadastro de rota município x município, tarifa, pedágio e vigência."
+) }}
+
+<form
+    method="post"
+    action="{% if modo == 'nova' %}/cadastros/rotas/nova{% else %}/cadastros/rotas/{{ rota.id }}/editar{% endif %}"
+    class="space-y-6"
+>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Municípios</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div class="relative">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Município Origem
+                </label>
+
+                <input
+                    type="text"
+                    id="origem_busca"
+                    class="nexport-input"
+                    placeholder="Digite o município..."
+                    autocomplete="off"
+                    value="{{ municipio_origem.nome if municipio_origem else '' }}"
+                    required
+                >
+
+                <input
+                    type="hidden"
+                    name="municipio_origem_id"
+                    id="municipio_origem_id"
+                    value="{{ municipio_origem.codigo_ibge if municipio_origem else '' }}"
+                >
+
+                <div
+                    id="origem_resultados"
+                    class="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg hidden max-h-60 overflow-auto"
+                ></div>
+            </div>
+
+            <div class="relative">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                    Município Destino
+                </label>
+
+                <input
+                    type="text"
+                    id="destino_busca"
+                    class="nexport-input"
+                    placeholder="Digite o município..."
+                    autocomplete="off"
+                    value="{{ municipio_destino.nome if municipio_destino else '' }}"
+                    required
+                >
+
+                <input
+                    type="hidden"
+                    name="municipio_destino_id"
+                    id="municipio_destino_id"
+                    value="{{ municipio_destino.codigo_ibge if municipio_destino else '' }}"
+                >
+
+                <div
+                    id="destino_resultados"
+                    class="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg hidden max-h-60 overflow-auto"
+                ></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Dados da Rota</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <input
+                class="nexport-input"
+                name="distancia_km"
+                type="number"
+                step="0.01"
+                placeholder="Distância em KM"
+                value="{{ rota.distancia_km if rota and rota.distancia_km else '' }}"
+            >
+
+            <input
+                class="nexport-input"
+                name="tarifa"
+                type="number"
+                step="0.01"
+                placeholder="Tarifa"
+                value="{{ rota.tarifa if rota and rota.tarifa else '' }}"
+            >
+
+            <label class="nexport-check flex items-center">
+                <input type="checkbox" name="ativo" value="true" {% if not rota or rota.ativo %}checked{% endif %}>
+                Rota ativa
+            </label>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Vigência</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input
+                class="nexport-input"
+                name="vigencia_inicio"
+                type="date"
+                value="{{ rota.vigencia_inicio if rota and rota.vigencia_inicio else '' }}"
+            >
+
+            <input
+                class="nexport-input"
+                name="vigencia_fim"
+                type="date"
+                value="{{ rota.vigencia_fim if rota and rota.vigencia_fim else '' }}"
+            >
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Pedágio</h3>
+
+        <label class="nexport-check">
+            <input
+                type="checkbox"
+                id="possui_pedagio"
+                name="possui_pedagio"
+                value="true"
+                {% if rota and rota.possui_pedagio %}checked{% endif %}
+                onchange="alternarPedagio()"
+            >
+            Esta rota possui pedágio
+        </label>
+
+        <div id="campo_pedagio" class="mt-5 {% if not rota or not rota.possui_pedagio %}hidden{% endif %}">
+            <input
+                class="nexport-input max-w-md"
+                name="valor_pedagio_por_eixo"
+                type="number"
+                step="0.01"
+                placeholder="Valor do pedágio por eixo"
+                value="{{ rota.valor_pedagio_por_eixo if rota and rota.valor_pedagio_por_eixo else '' }}"
+            >
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Observações da Rota</h3>
+
+        <textarea
+            name="observacao"
+            class="nexport-input min-h-[120px]"
+            placeholder="Exemplo: rota via BR-376, rota usada para frete porto, rota preferencial..."
+        >{{ rota.observacao if rota and rota.observacao else '' }}</textarea>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <a href="/cadastros/rotas/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+            Cancelar
+        </a>
+
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+            Salvar Rota
+        </button>
+    </div>
+
+</form>
+
+<script>
+    function alternarPedagio() {
+        const checkbox = document.getElementById("possui_pedagio");
+        const campo = document.getElementById("campo_pedagio");
+
+        if (checkbox.checked) {
+            campo.classList.remove("hidden");
+        } else {
+            campo.classList.add("hidden");
+        }
+    }
+
+    function configurarAutocomplete(inputId, hiddenId, resultadoId) {
+        const input = document.getElementById(inputId);
+        const hidden = document.getElementById(hiddenId);
+        const resultados = document.getElementById(resultadoId);
+
+        let timeoutBusca = null;
+
+        input.addEventListener("input", function () {
+            const termo = input.value.trim();
+
+            hidden.value = "";
+
+            clearTimeout(timeoutBusca);
+
+            if (termo.length < 2) {
+                resultados.innerHTML = "";
+                resultados.classList.add("hidden");
+                return;
+            }
+
+            timeoutBusca = setTimeout(async function () {
+                try {
+                    const response = await fetch(`/api/municipios?q=${encodeURIComponent(termo)}`);
+
+                    if (!response.ok) {
+                        resultados.innerHTML = "";
+                        resultados.classList.add("hidden");
+                        return;
+                    }
+
+                    const municipios = await response.json();
+
+                    resultados.innerHTML = "";
+
+                    if (!municipios.length) {
+                        resultados.innerHTML = `
+                            <div class="px-4 py-3 text-sm text-slate-500">
+                                Nenhum município encontrado
+                            </div>
+                        `;
+                        resultados.classList.remove("hidden");
+                        return;
+                    }
+
+                    municipios.forEach(function (municipio) {
+                        const item = document.createElement("button");
+                        item.type = "button";
+                        item.className = "w-full text-left px-4 py-3 text-sm hover:bg-slate-100 border-b border-slate-100";
+                        item.textContent = municipio.nome;
+
+                        item.addEventListener("click", function () {
+                            input.value = municipio.nome;
+                            hidden.value = municipio.codigo_ibge;
+                            resultados.innerHTML = "";
+                            resultados.classList.add("hidden");
+                        });
+
+                        resultados.appendChild(item);
+                    });
+
+                    resultados.classList.remove("hidden");
+
+                } catch (error) {
+                    resultados.innerHTML = "";
+                    resultados.classList.add("hidden");
+                }
+            }, 250);
+        });
+
+        input.addEventListener("blur", function () {
+            setTimeout(function () {
+                resultados.classList.add("hidden");
+            }, 200);
+        });
+    }
+
+    configurarAutocomplete("origem_busca", "municipio_origem_id", "origem_resultados");
+    configurarAutocomplete("destino_busca", "municipio_destino_id", "destino_resultados");
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const origem = document.getElementById("municipio_origem_id").value;
+        const destino = document.getElementById("municipio_destino_id").value;
+
+        if (!origem || !destino) {
+            event.preventDefault();
+            alert("Selecione municípios válidos para origem e destino.");
+            return;
+        }
+
+        if (origem === destino) {
+            event.preventDefault();
+            alert("Origem e destino não podem ser iguais.");
+        }
+    });
+</script>
+
+{% endblock %}

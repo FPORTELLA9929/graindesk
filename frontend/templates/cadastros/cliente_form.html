@@ -1,0 +1,80 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{% set modo = "nova" if not cliente else "editar" %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Clientes", "url": "/cadastros/clientes/"},
+    {"label": "Novo Cliente" if modo == "nova" else "Editar Cliente", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Novo Cliente" if modo == "nova" else "Editar Cliente",
+    "Cadastro de clientes vinculados às operações comerciais e logísticas."
+) }}
+
+<form
+    method="post"
+    action="{% if modo == 'nova' %}/cadastros/clientes/novo{% else %}/cadastros/clientes/{{ cliente.id }}/editar{% endif %}"
+    class="space-y-6"
+>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Dados Gerais</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" name="razao_social" placeholder="Razão Social / Nome" required value="{{ cliente.razao_social if cliente else '' }}">
+            <input class="nexport-input" name="nome_fantasia" placeholder="Nome Fantasia / Apelido" value="{{ cliente.nome_fantasia if cliente else '' }}">
+            <input class="nexport-input" name="cpf_cnpj" placeholder="CPF/CNPJ" required value="{{ cliente.cpf_cnpj if cliente else '' }}">
+            <input class="nexport-input" name="inscricao_estadual" placeholder="Inscrição Estadual" value="{{ cliente.inscricao_estadual if cliente else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Endereço</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <input class="nexport-input" name="cep" placeholder="CEP" value="{{ cliente.cep if cliente else '' }}">
+            <input class="nexport-input md:col-span-2" name="logradouro" placeholder="Logradouro" value="{{ cliente.logradouro if cliente else '' }}">
+            <input class="nexport-input" name="numero" placeholder="Número" value="{{ cliente.numero if cliente else '' }}">
+            <input class="nexport-input" name="bairro" placeholder="Bairro" value="{{ cliente.bairro if cliente else '' }}">
+            <input class="nexport-input" name="cidade" placeholder="Cidade" value="{{ cliente.cidade if cliente else '' }}">
+            <input class="nexport-input" name="estado" placeholder="UF" maxlength="2" value="{{ cliente.estado if cliente else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Contato</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" name="telefone" placeholder="Telefone" value="{{ cliente.telefone if cliente else '' }}">
+            <input class="nexport-input" name="email" placeholder="E-mail" value="{{ cliente.email if cliente else '' }}">
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <label class="nexport-check">
+            <input type="checkbox" name="ativo" value="true" {% if not cliente or cliente.ativo %}checked{% endif %}>
+            Cliente ativo
+        </label>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <a href="/cadastros/clientes/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+            Cancelar
+        </a>
+
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+            Salvar Cliente
+        </button>
+    </div>
+
+</form>
+
+{% endblock %}

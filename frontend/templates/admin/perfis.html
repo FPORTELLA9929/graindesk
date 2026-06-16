@@ -1,0 +1,105 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="grid grid-cols-3 gap-5">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <div class="text-slate-500 text-sm">Perfis cadastrados</div>
+            <div class="text-3xl font-bold text-slate-800 mt-2">
+                {{ perfis|length }}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <div class="text-slate-500 text-sm">Controle de acesso</div>
+            <div class="text-3xl font-bold text-blue-600 mt-2">
+                RBAC
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+            <div class="text-slate-500 text-sm">Status</div>
+            <div class="text-3xl font-bold text-green-600 mt-2">
+                Ativo
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+                <h2 class="font-bold text-slate-800">
+                    Perfis do Sistema
+                </h2>
+                <p class="text-sm text-slate-500 mt-1">
+                    Configure permissões por perfil de acesso.
+                </p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="text-left px-5 py-4 text-sm">Perfil</th>
+                        <th class="text-left px-5 py-4 text-sm">Descrição</th>
+                        <th class="text-left px-5 py-4 text-sm">Status</th>
+                        <th class="text-left px-5 py-4 text-sm">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for perfil in perfis %}
+
+                    <tr class="border-b border-slate-100">
+
+                        <td class="px-5 py-4 font-semibold text-slate-800">
+                            {{ perfil.nome }}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-600">
+                            {{ perfil.descricao or "-" }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {% if perfil.ativo %}
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Ativo
+                                </span>
+                            {% else %}
+                                <span class="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Inativo
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <a href="/admin/perfis/{{ perfil.id }}/permissoes"
+                               class="inline-flex items-center bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">
+                                Gerenciar permissões
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Rotas", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Rotas",
+    "Cadastro de rotas logísticas entre municípios.",
+    "Nova Rota",
+    "/cadastros/rotas/nova"
+) }}
+
+<form method="get" action="/cadastros/rotas/" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <input
+            type="text"
+            name="origem"
+            value="{{ filtro_origem }}"
+            class="nexport-input"
+            placeholder="Filtrar origem"
+        >
+
+        <input
+            type="text"
+            name="destino"
+            value="{{ filtro_destino }}"
+            class="nexport-input"
+            placeholder="Filtrar destino"
+        >
+
+        <select name="status" class="nexport-input">
+            <option value="" {% if not filtro_status %}selected{% endif %}>Todos os status</option>
+            <option value="ativas" {% if filtro_status == "ativas" %}selected{% endif %}>Ativas</option>
+            <option value="inativas" {% if filtro_status == "inativas" %}selected{% endif %}>Inativas</option>
+        </select>
+
+        <div class="flex gap-2">
+            <button type="submit" class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+                Filtrar
+            </button>
+
+            <a href="/cadastros/rotas/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+                Limpar
+            </a>
+        </div>
+
+    </div>
+</form>
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full nexport-table">
+
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="text-left p-4">Origem</th>
+                    <th class="text-left p-4">Destino</th>
+                    <th class="text-left p-4">Distância</th>
+                    <th class="text-left p-4">Tarifa</th>
+                    <th class="text-left p-4">Vigência</th>
+                    <th class="text-left p-4">Pedágio</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-right p-4">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in rotas %}
+
+                {% set rota = item[0] %}
+                {% set origem_nome = item.origem_nome %}
+                {% set destino_nome = item.destino_nome %}
+
+                <tr class="border-t border-slate-100">
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ origem_nome or "-" }}
+                    </td>
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ destino_nome or "-" }}
+                    </td>
+
+                    <td class="p-4">
+                        {% if rota.distancia_km %}
+                            {{ rota.distancia_km }} km
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if rota.tarifa %}
+                            R$ {{ rota.tarifa }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if rota.vigencia_inicio %}
+                            {{ rota.vigencia_inicio.strftime("%d/%m/%Y") }}
+                        {% else %}
+                            -
+                        {% endif %}
+
+                        até
+
+                        {% if rota.vigencia_fim %}
+                            {{ rota.vigencia_fim.strftime("%d/%m/%Y") }}
+                        {% else %}
+                            indeterminado
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if rota.possui_pedagio %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                                R$ {{ rota.valor_pedagio_por_eixo }} / eixo
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                                Sem pedágio
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if rota.ativo %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="flex justify-end gap-2">
+
+                            <a
+                                href="/cadastros/rotas/{{ rota.id }}/editar"
+                                class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100"
+                            >
+                                Editar
+                            </a>
+
+                            <form method="post" action="/cadastros/rotas/{{ rota.id }}/excluir">
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100"
+                                    onclick="return confirm('Deseja realmente excluir esta rota?')"
+                                >
+                                    Excluir
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr class="border-t border-slate-100">
+                    <td colspan="8" class="p-8 text-center text-slate-500">
+                        Nenhuma rota cadastrada.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="p-5 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div class="text-sm text-slate-500">
+            Exibindo {{ rotas|length }} de {{ total }} registros
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="flex items-center gap-2">
+
+            {% if page > 1 %}
+            <a
+                href="/cadastros/rotas/?origem={{ filtro_origem }}&destino={{ filtro_destino }}&status={{ filtro_status }}&page={{ page - 1 }}"
+                class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold"
+            >
+                Anterior
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-sm font-semibold">
+                Página {{ page }} de {{ total_pages }}
+            </span>
+
+            {% if page < total_pages %}
+            <a
+                href="/cadastros/rotas/?origem={{ filtro_origem }}&destino={{ filtro_destino }}&status={{ filtro_status }}&page={{ page + 1 }}"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold"
+            >
+                Próxima
+            </a>
+            {% endif %}
+
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

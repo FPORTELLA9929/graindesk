@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
+</head>
+
+<body class="auth-screen">
+
+<div class="auth-bg">
+
+    <section class="auth-left">
+
+        <div class="brand">
+            <div class="brand-icon">G</div>
+
+            <div>
+                <div class="brand-name">
+                    GRAIN<span>DESK</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    EXPORT • TRADE • LOGISTICS
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-copy">
+            <h1>
+                Plataforma Integrada de<br>
+                Comércio Exterior e Logística
+            </h1>
+
+            <p>
+                Centralize processos, documentos e operações<br>
+                de comércio exterior em um único sistema.
+            </p>
+        </div>
+
+        <div class="auth-metrics">
+
+            <div class="metric">
+                <div class="metric-icon">▢</div>
+                <strong>1.248</strong>
+                <span>Processos<br>em andamento</span>
+            </div>
+
+            <div class="metric-line"></div>
+
+            <div class="metric">
+                <div class="metric-icon">⚓</div>
+                <strong>856</strong>
+                <span>Embarques<br>realizados</span>
+            </div>
+
+            <div class="metric-line"></div>
+
+            <div class="metric">
+                <div class="metric-icon">▤</div>
+                <strong>2.451</strong>
+                <span>Documentos<br>emitidos</span>
+            </div>
+
+        </div>
+
+        <div class="auth-copyright">
+            © 2025 GrainDesk. Todos os direitos reservados.
+        </div>
+
+    </section>
+
+    <section class="auth-right">
+
+        <div class="auth-card login-card">
+
+            <div class="auth-lock">
+                ⌕
+            </div>
+
+            <h2>Acesse sua conta</h2>
+
+            <p>
+                Entre com suas credenciais para acessar o sistema.
+            </p>
+
+            {% if erro %}
+            <div class="auth-alert">
+                {{ erro }}
+            </div>
+            {% endif %}
+
+            {% if request.query_params.get("cadastro") == "pendente" %}
+            <div class="auth-alert">
+                Solicitação enviada com sucesso.
+                Aguarde aprovação do administrador.
+            </div>
+            {% endif %}
+
+            <form method="post" action="/login">
+
+                <label>
+                    E-mail
+
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </label>
+
+                <label>
+                    Senha
+
+                    <input
+                        type="password"
+                        name="senha"
+                        placeholder="Sua senha"
+                        required
+                    >
+                </label>
+
+                <div class="auth-row">
+
+                    <label class="check-label">
+                        <input type="checkbox" name="lembrar">
+                        <span>Lembrar-me</span>
+                    </label>
+
+                    <a href="#">
+                        Esqueci minha senha
+                    </a>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Entrar
+                </button>
+
+            </form>
+
+            <div class="divider">
+                <span></span>
+                <small>ou</small>
+                <span></span>
+            </div>
+
+            <a
+                href="/register"
+                class="outline-btn"
+            >
+                Solicitar acesso
+            </a>
+
+        </div>
+
+        <div class="secure-text">
+            🔒 Acesso seguro e criptografado
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

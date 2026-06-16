@@ -1,0 +1,266 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+```
+<!-- CARDS -->
+
+<div class="grid grid-cols-4 gap-5">
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="text-slate-500 text-sm">Total de Usuários</div>
+        <div class="text-3xl font-bold text-slate-800 mt-2">
+            {{ total_usuarios }}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="text-slate-500 text-sm">Usuários Ativos</div>
+        <div class="text-3xl font-bold text-green-600 mt-2">
+            {{ total_ativos }}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="text-slate-500 text-sm">Pendentes</div>
+        <div class="text-3xl font-bold text-amber-500 mt-2">
+            {{ total_pendentes }}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="text-slate-500 text-sm">Inativos</div>
+        <div class="text-3xl font-bold text-red-500 mt-2">
+            {{ total_inativos }}
+        </div>
+    </div>
+
+</div>
+
+<!-- FILTROS -->
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+
+    <form method="get" class="grid grid-cols-4 gap-4">
+
+        <input
+            type="text"
+            name="busca"
+            value="{{ filtro_busca }}"
+            placeholder="Nome, empresa ou e-mail"
+            class="border border-slate-300 rounded-xl px-4 py-2"
+        >
+
+        <select
+            name="status"
+            class="border border-slate-300 rounded-xl px-4 py-2"
+        >
+            <option value="">Todos Status</option>
+            <option value="ativo" {% if filtro_status == "ativo" %}selected{% endif %}>Ativo</option>
+            <option value="pendente" {% if filtro_status == "pendente" %}selected{% endif %}>Pendente</option>
+            <option value="inativo" {% if filtro_status == "inativo" %}selected{% endif %}>Inativo</option>
+            <option value="recusado" {% if filtro_status == "recusado" %}selected{% endif %}>Recusado</option>
+        </select>
+
+        <select
+            name="perfil"
+            class="border border-slate-300 rounded-xl px-4 py-2"
+        >
+            <option value="">Todos Perfis</option>
+            <option value="administrador" {% if filtro_perfil == "administrador" %}selected{% endif %}>Administrador</option>
+            <option value="operacional" {% if filtro_perfil == "operacional" %}selected{% endif %}>Operacional</option>
+        </select>
+
+        <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold"
+        >
+            Filtrar
+        </button>
+
+    </form>
+
+</div>
+
+<!-- TABELA -->
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+    <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+
+        <h2 class="font-bold text-slate-800">
+            Usuários Cadastrados
+        </h2>
+
+        <span class="text-sm text-slate-500">
+            {{ usuarios|length }} registro(s)
+        </span>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full">
+
+            <thead>
+
+                <tr class="bg-slate-50">
+
+                    <th class="text-left px-5 py-4 text-sm">Nome</th>
+                    <th class="text-left px-5 py-4 text-sm">Empresa</th>
+                    <th class="text-left px-5 py-4 text-sm">E-mail</th>
+                    <th class="text-left px-5 py-4 text-sm">Perfil</th>
+                    <th class="text-left px-5 py-4 text-sm">Status</th>
+                    <th class="text-left px-5 py-4 text-sm">Cadastro</th>
+                    <th class="text-left px-5 py-4 text-sm">Ações</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for usuario in usuarios %}
+
+                <tr class="border-b border-slate-100">
+
+                    <td class="px-5 py-4">{{ usuario.nome }}</td>
+
+                    <td class="px-5 py-4">
+                        {{ usuario.empresa }}
+                    </td>
+
+                    <td class="px-5 py-4">
+                        {{ usuario.email }}
+                    </td>
+
+                    <td class="px-5 py-4">
+
+                        <form
+                            method="post"
+                            action="/admin/usuarios/{{ usuario.id }}/alterar-perfil"
+                        >
+
+                            <select
+                                name="perfil"
+                                onchange="this.form.submit()"
+                                class="border border-slate-300 rounded-lg px-2 py-1"
+                            >
+
+                                <option value="administrador"
+                                {% if usuario.perfil == "administrador" %}
+                                selected
+                                {% endif %}
+                                >
+                                    Administrador
+                                </option>
+
+                                <option value="operacional"
+                                {% if usuario.perfil == "operacional" %}
+                                selected
+                                {% endif %}
+                                >
+                                    Operacional
+                                </option>
+
+                            </select>
+
+                        </form>
+
+                    </td>
+
+                    <td class="px-5 py-4">
+
+                        {% if usuario.status == "ativo" %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                Ativo
+                            </span>
+
+                        {% elif usuario.status == "pendente" %}
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                Pendente
+                            </span>
+
+                        {% elif usuario.status == "inativo" %}
+
+                            <span class="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                Inativo
+                            </span>
+
+                        {% else %}
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                Recusado
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="px-5 py-4">
+                        {{ usuario.criado_em.strftime('%d/%m/%Y') }}
+                    </td>
+
+                    <td class="px-5 py-4">
+
+                        <div class="flex gap-2 flex-wrap">
+
+                            {% if usuario.status == "pendente" %}
+
+                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/aprovar">
+                                <button class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    Aprovar
+                                </button>
+                            </form>
+
+                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/recusar">
+                                <button class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    Recusar
+                                </button>
+                            </form>
+
+                            {% endif %}
+
+                            {% if usuario.status == "ativo" %}
+
+                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/inativar">
+                                <button class="bg-amber-500 text-white px-3 py-1 rounded-lg text-xs">
+                                    Inativar
+                                </button>
+                            </form>
+
+                            {% endif %}
+
+                            {% if usuario.status in ["inativo","recusado"] %}
+
+                            <form method="post" action="/admin/usuarios/{{ usuario.id }}/reativar">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                                    Reativar
+                                </button>
+                            </form>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Veículos", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Veículos",
+    "Cadastro de conjuntos veiculares.",
+    "Novo Veículo",
+    "/cadastros/veiculos/novo"
+) }}
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+    <form method="get" action="/cadastros/veiculos/" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
+        <div>
+            <label class="block text-sm font-semibold mb-2">
+                Pesquisar
+            </label>
+            <input
+                type="text"
+                name="busca"
+                value="{{ filtros.busca }}"
+                class="nexport-input"
+                placeholder="Placa, transportador ou tipo..."
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold mb-2">
+                Tipo de Veículo
+            </label>
+            <select name="tipo_veiculo_id" class="nexport-input">
+                <option value="">Todos</option>
+                {% for tipo in tipos_veiculo %}
+                <option value="{{ tipo.id }}" {% if filtros.tipo_veiculo_id|string == tipo.id|string %}selected{% endif %}>
+                    {{ tipo.descricao }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold mb-2">
+                Status
+            </label>
+            <select name="status" class="nexport-input">
+                <option value="">Todos</option>
+                <option value="ativo" {% if filtros.status == "ativo" %}selected{% endif %}>Ativo</option>
+                <option value="inativo" {% if filtros.status == "inativo" %}selected{% endif %}>Inativo</option>
+            </select>
+        </div>
+
+        <div class="flex gap-3">
+            <button
+                type="submit"
+                class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+            >
+                Filtrar
+            </button>
+
+            <a
+                href="/cadastros/veiculos/"
+                class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold"
+            >
+                Limpar
+            </a>
+        </div>
+
+    </form>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full nexport-table">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="text-left p-4">ID</th>
+                    <th class="text-left p-4">Cavalo</th>
+                    <th class="text-left p-4">Carreta 1</th>
+                    <th class="text-left p-4">Dolly</th>
+                    <th class="text-left p-4">Carreta 2</th>
+                    <th class="text-left p-4">Transportador</th>
+                    <th class="text-left p-4">Tipo</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-right p-4">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in veiculos %}
+                {% set veiculo = item.veiculo %}
+
+                <tr class="border-t border-slate-100">
+                    <td class="p-4">{{ veiculo.id }}</td>
+                    <td class="p-4 font-semibold">{{ item.placa_cavalo or "-" }}</td>
+                    <td class="p-4">{{ item.placa_carreta_1 or "-" }}</td>
+                    <td class="p-4">{{ item.placa_dolly or "-" }}</td>
+                    <td class="p-4">{{ item.placa_carreta_2 or "-" }}</td>
+                    <td class="p-4">{{ item.transportador_nome }}</td>
+                    <td class="p-4">{{ item.tipo_nome }}</td>
+
+                    <td class="p-4">
+                        {% if veiculo.ativo %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Ativo</span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">Inativo</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <a
+                                href="/cadastros/veiculos/{{ veiculo.id }}/editar"
+                                class="px-3 py-2 rounded-lg bg-amber-100 text-amber-700 text-sm font-semibold hover:bg-amber-200"
+                            >
+                                Editar
+                            </a>
+
+                            <form
+                                method="post"
+                                action="/cadastros/veiculos/{{ veiculo.id }}/excluir"
+                                onsubmit="return confirm('Deseja realmente excluir este veículo?');"
+                            >
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 rounded-lg bg-red-100 text-red-700 text-sm font-semibold hover:bg-red-200"
+                                >
+                                    Excluir
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="9" class="p-8 text-center text-slate-500">
+                        Nenhum veículo cadastrado.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

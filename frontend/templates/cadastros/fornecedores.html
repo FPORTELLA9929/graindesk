@@ -1,0 +1,139 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Fornecedores", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Fornecedores",
+    "Gestão de fornecedores vinculados às operações administrativas e logísticas.",
+    "Novo Fornecedor",
+    "/cadastros/fornecedores/novo"
+) }}
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+
+    <div class="p-5 border-b border-slate-200">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            <input
+                type="text"
+                placeholder="Pesquisar por CPF/CNPJ, razão social ou cidade..."
+                class="nexport-input lg:col-span-2"
+            >
+
+            <select class="nexport-input">
+                <option>Todos os status</option>
+                <option>Ativo</option>
+                <option>Inativo</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full nexport-table">
+
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="text-left p-4">CPF/CNPJ</th>
+                    <th class="text-left p-4">Razão Social / Nome</th>
+                    <th class="text-left p-4">Cidade/UF</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-right p-4">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for fornecedor in fornecedores %}
+
+                <tr class="border-t border-slate-100">
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ fornecedor.cpf_cnpj }}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="font-semibold text-slate-800">
+                            {{ fornecedor.razao_social }}
+                        </div>
+                        <div class="text-xs text-slate-500">
+                            {{ fornecedor.nome_fantasia or "-" }}
+                        </div>
+                    </td>
+
+                    <td class="p-4">
+                        {{ fornecedor.cidade or "-" }}/{{ fornecedor.estado or "-" }}
+                    </td>
+
+                    <td class="p-4">
+                        {% if fornecedor.ativo %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="flex justify-end gap-2">
+
+                            <a
+                                href="/cadastros/fornecedores/{{ fornecedor.id }}/editar"
+                                class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100"
+                            >
+                                Editar
+                            </a>
+
+                            <form method="post" action="/cadastros/fornecedores/{{ fornecedor.id }}/excluir">
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100"
+                                    onclick="return confirm('Deseja realmente excluir este fornecedor?')"
+                                >
+                                    Excluir
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr class="border-t border-slate-100">
+                    <td colspan="5" class="p-8 text-center text-slate-500">
+                        Nenhum fornecedor cadastrado.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="p-5 border-t border-slate-200 flex justify-between">
+        <div class="text-sm text-slate-500">
+            Exibindo {{ fornecedores|length }} registros
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

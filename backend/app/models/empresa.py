@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -24,6 +25,7 @@ class Empresa(Base):
 
     telefone: Mapped[str | None] = mapped_column(String(50), nullable=True)
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    logo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     ativo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

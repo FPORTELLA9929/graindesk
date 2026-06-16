@@ -1,0 +1,198 @@
+{% extends "layout/base.html" %}
+
+{% import "components/breadcrumb.html" as breadcrumb_component %}
+{% import "components/page_header.html" as header_component %}
+
+{% block content %}
+
+{{ breadcrumb_component.breadcrumb([
+    {"label": "Dashboard", "url": "/dashboard"},
+    {"label": "Cadastros", "url": None},
+    {"label": "Tipos de Veículo", "url": None}
+]) }}
+
+{{ header_component.page_header(
+    "Tipos de Veículo",
+    "Cadastro de categorias de veículos, eixos, placas e capacidades.",
+    "Novo Tipo de Veículo",
+    "/cadastros/tipos-veiculo/novo"
+) }}
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+
+    <form method="get" action="/cadastros/tipos-veiculo/" class="p-5 border-b border-slate-200">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+            <input
+                type="text"
+                name="descricao"
+                value="{{ filtro_descricao }}"
+                placeholder="Pesquisar por descrição..."
+                class="nexport-input lg:col-span-2"
+            >
+
+            <select name="status" class="nexport-input">
+                <option value="" {% if not filtro_status %}selected{% endif %}>Todos os status</option>
+                <option value="ativos" {% if filtro_status == "ativos" %}selected{% endif %}>Ativos</option>
+                <option value="inativos" {% if filtro_status == "inativos" %}selected{% endif %}>Inativos</option>
+            </select>
+
+            <div class="flex gap-2">
+                <button
+                    type="submit"
+                    class="px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700"
+                >
+                    Filtrar
+                </button>
+
+                <a
+                    href="/cadastros/tipos-veiculo/"
+                    class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold"
+                >
+                    Limpar
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full nexport-table">
+
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="text-left p-4">Descrição</th>
+                    <th class="text-left p-4">Eixos</th>
+                    <th class="text-left p-4">Placas</th>
+                    <th class="text-left p-4">Capacidade KG</th>
+                    <th class="text-left p-4">Capacidade m³</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-right p-4">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for tipo in tipos_veiculo %}
+
+                <tr class="border-t border-slate-100">
+
+                    <td class="p-4 font-semibold text-slate-800">
+                        {{ tipo.descricao }}
+                    </td>
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ tipo.quantidade_eixos }}
+                    </td>
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ tipo.quantidade_placas }}
+                    </td>
+
+                    <td class="p-4">
+                        {% if tipo.capacidade_kg %}
+                            {{ tipo.capacidade_kg }} kg
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if tipo.capacidade_m3 %}
+                            {{ tipo.capacidade_m3 }} m³
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if tipo.ativo %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                                Inativo
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        <div class="flex justify-end gap-2">
+
+                            <a
+                                href="/cadastros/tipos-veiculo/{{ tipo.id }}/editar"
+                                class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100"
+                            >
+                                Editar
+                            </a>
+
+                            <form method="post" action="/cadastros/tipos-veiculo/{{ tipo.id }}/excluir">
+                                <button
+                                    type="submit"
+                                    class="px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100"
+                                    onclick="return confirm('Deseja realmente excluir este tipo de veículo?')"
+                                >
+                                    Excluir
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr class="border-t border-slate-100">
+                    <td colspan="7" class="p-8 text-center text-slate-500">
+                        Nenhum tipo de veículo cadastrado.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="p-5 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div class="text-sm text-slate-500">
+            Exibindo {{ tipos_veiculo|length }} de {{ total }} registros
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="flex items-center gap-2">
+
+            {% if page > 1 %}
+            <a
+                href="/cadastros/tipos-veiculo/?descricao={{ filtro_descricao }}&status={{ filtro_status }}&page={{ page - 1 }}"
+                class="px-4 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold"
+            >
+                Anterior
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-sm font-semibold">
+                Página {{ page }} de {{ total_pages }}
+            </span>
+
+            {% if page < total_pages %}
+            <a
+                href="/cadastros/tipos-veiculo/?descricao={{ filtro_descricao }}&status={{ filtro_status }}&page={{ page + 1 }}"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold"
+            >
+                Próxima
+            </a>
+            {% endif %}
+
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

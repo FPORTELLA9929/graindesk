@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ page_title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', path='css/auth.css') }}">
+</head>
+<body class="auth-screen">
+
+<div class="auth-bg">
+
+    <section class="auth-left">
+        <div class="brand">
+            <div class="brand-icon">G</div>
+            <div>
+                <div class="brand-name">GRAIN<span>DESK</span></div>
+                <div class="brand-subtitle">EXPORT • TRADE • LOGISTICS</div>
+            </div>
+        </div>
+
+        <div class="auth-copy">
+            <h1>Plataforma Integrada de<br>Comércio Exterior e Logística</h1>
+            <p>Centralize processos, documentos e operações<br>de comércio exterior em um único sistema.</p>
+        </div>
+
+        <div class="auth-metrics">
+            <div class="metric">
+                <div class="metric-icon">▢</div>
+                <strong>1.248</strong>
+                <span>Processos<br>em andamento</span>
+            </div>
+
+            <div class="metric-line"></div>
+
+            <div class="metric">
+                <div class="metric-icon">⚓</div>
+                <strong>856</strong>
+                <span>Embarques<br>realizados</span>
+            </div>
+
+            <div class="metric-line"></div>
+
+            <div class="metric">
+                <div class="metric-icon">▤</div>
+                <strong>2.451</strong>
+                <span>Documentos<br>emitidos</span>
+            </div>
+        </div>
+
+        <div class="auth-copyright">
+            © 2025 GrainDesk. Todos os direitos reservados.
+        </div>
+    </section>
+
+    <section class="auth-right">
+        <div class="auth-card register-card register-card-premium">
+            <div class="auth-user">♡</div>
+
+            <h2>Solicitar acesso</h2>
+            <p>Preencha os dados abaixo para solicitar acesso ao sistema.</p>
+
+            <form method="post" action="/register">
+                <div class="form-grid">
+                    <label>
+                        <span class="label-text">Nome completo <span class="required">*</span></span>
+                        <input type="text" name="nome" placeholder="Digite seu nome completo" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">E-mail <span class="required">*</span></span>
+                        <input type="email" name="email" placeholder="seu@email.com" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">Empresa <span class="required">*</span></span>
+                        <input type="text" name="empresa" placeholder="Nome da empresa" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">CNPJ <span class="required">*</span></span>
+                        <input type="text" name="cnpj" placeholder="00.000.000/0000-00" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">Telefone / WhatsApp <span class="required">*</span></span>
+                        <input type="text" name="telefone" placeholder="(00) 00000-0000" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">Cargo / Função</span>
+                        <input type="text" name="cargo" placeholder="Sua função">
+                    </label>
+                </div>
+
+                <div class="form-grid">
+                    <label>
+                        <span class="label-text">Senha <span class="required">*</span></span>
+                        <input type="password" name="senha" placeholder="Crie uma senha" required>
+                    </label>
+
+                    <label>
+                        <span class="label-text">Confirmar senha <span class="required">*</span></span>
+                        <input type="password" name="confirmar_senha" placeholder="Confirme sua senha" required>
+                    </label>
+                </div>
+
+                <button type="submit" class="primary-btn">
+                    Solicitar acesso
+                </button>
+            </form>
+
+            <div class="divider register-divider">
+                <span></span>
+                <small>ou</small>
+                <span></span>
+            </div>
+
+            <div class="auth-footer-link">
+                Já possui uma conta? <a href="/login">Entrar</a>
+            </div>
+        </div>
+
+        <div class="secure-text">
+            🔒 Acesso seguro e criptografado
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

@@ -2,12 +2,11 @@
 
 {% import "components/breadcrumb.html" as breadcrumb_component %}
 {% import "components/page_header.html" as header_component %}
-{% import "components/status_badge.html" as badges %}
 
 {% block content %}
 
 {{ breadcrumb_component.breadcrumb([
-    {"label": "Dashboard", "url": "/"},
+    {"label": "Dashboard", "url": "/dashboard"},
     {"label": "Cadastros", "url": None},
     {"label": "Empresas", "url": None}
 ]) }}
@@ -16,7 +15,7 @@
     "Empresas",
     "Gestão de exportadores, tradings, cooperativas e parceiros operacionais.",
     "Nova Empresa",
-    "/empresas/novo"
+    "/cadastros/empresas/nova"
 ) }}
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
@@ -53,16 +52,14 @@
         <table class="w-full nexport-table">
 
             <thead class="bg-slate-50">
-
                 <tr>
+                    <th class="text-left p-4">Logo</th>
                     <th class="text-left p-4">CNPJ</th>
                     <th class="text-left p-4">Razão Social</th>
                     <th class="text-left p-4">Cidade/UF</th>
-                    <th class="text-left p-4">Tipo</th>
                     <th class="text-left p-4">Status</th>
                     <th class="text-right p-4">Ações</th>
                 </tr>
-
             </thead>
 
             <tbody>
@@ -70,6 +67,16 @@
                 {% for empresa in empresas %}
 
                 <tr class="border-t border-slate-100">
+
+                    <td class="p-4">
+                        <div class="w-14 h-14 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
+                            {% if empresa.logo_path %}
+                                <img src="{{ empresa.logo_path }}" class="w-full h-full object-contain p-1">
+                            {% else %}
+                                <span class="text-xs text-slate-400">Sem logo</span>
+                            {% endif %}
+                        </div>
+                    </td>
 
                     <td class="p-4 font-medium text-slate-700">
                         {{ empresa.cnpj }}
@@ -80,58 +87,57 @@
                             {{ empresa.razao_social }}
                         </div>
                         <div class="text-xs text-slate-500">
-                            {{ empresa.nome_fantasia }}
+                            {{ empresa.nome_fantasia or "-" }}
                         </div>
                     </td>
 
                     <td class="p-4">
-                        {{ empresa.cidade }}/{{ empresa.uf }}
+                        {{ empresa.cidade or "-" }}/{{ empresa.estado or "-" }}
                     </td>
 
                     <td class="p-4">
-                        {{ empresa.tipo }}
-                    </td>
-
-                    <td class="p-4">
-                        {{ badges.status_badge(empresa.status) }}
+                        {% if empresa.ativo %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Ativo
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">
+                                Inativo
+                            </span>
+                        {% endif %}
                     </td>
 
                     <td class="p-4">
                         <div class="flex justify-end gap-2">
 
                             <a
-                                href="/empresas/ver/{{ empresa.id }}"
-                                class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
-                            >
-                                Ver
-                            </a>
-
-                            <a
-                                href="/empresas/editar/{{ empresa.id }}"
+                                href="/cadastros/empresas/{{ empresa.id }}/editar"
                                 class="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium hover:bg-blue-100"
                             >
                                 Editar
                             </a>
 
-                            {% if empresa.status == "Ativo" %}
+                            <form method="post" action="/cadastros/empresas/{{ empresa.id }}/excluir">
                                 <button
-                                    type="button"
+                                    type="submit"
                                     class="px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium hover:bg-red-100"
+                                    onclick="return confirm('Deseja realmente excluir esta empresa?')"
                                 >
-                                    Inativar
+                                    Excluir
                                 </button>
-                            {% else %}
-                                <button
-                                    type="button"
-                                    class="px-3 py-2 rounded-lg bg-green-50 text-green-700 text-sm font-medium hover:bg-green-100"
-                                >
-                                    Ativar
-                                </button>
-                            {% endif %}
+                            </form>
 
                         </div>
                     </td>
 
+                </tr>
+
+                {% else %}
+
+                <tr class="border-t border-slate-100">
+                    <td colspan="6" class="p-8 text-center text-slate-500">
+                        Nenhuma empresa cadastrada.
+                    </td>
                 </tr>
 
                 {% endfor %}
@@ -142,28 +148,10 @@
 
     </div>
 
-    <div class="p-5 border-t border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
+    <div class="p-5 border-t border-slate-200 flex justify-between">
         <div class="text-sm text-slate-500">
             Exibindo {{ empresas|length }} registros
         </div>
-
-        <div class="flex items-center gap-2">
-
-            <button class="px-3 py-2 rounded-lg bg-slate-100 text-slate-500 text-sm">
-                Anterior
-            </button>
-
-            <button class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">
-                1
-            </button>
-
-            <button class="px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm">
-                Próxima
-            </button>
-
-        </div>
-
     </div>
 
 </div>

@@ -6,27 +6,58 @@
 {% block content %}
 
 {{ breadcrumb_component.breadcrumb([
-    {"label": "Dashboard", "url": "/"},
+    {"label": "Dashboard", "url": "/dashboard"},
     {"label": "Cadastros", "url": None},
-    {"label": "Empresas", "url": "/empresas"},
-    {"label": "Nova Empresa", "url": None}
+    {"label": "Empresas", "url": "/cadastros/empresas/"},
+    {"label": "Nova Empresa" if modo == "nova" else "Editar Empresa", "url": None}
 ]) }}
 
 {{ header_component.page_header(
-    "Nova Empresa",
+    "Nova Empresa" if modo == "nova" else "Editar Empresa",
     "Cadastro de exportadores, tradings, cooperativas e parceiros operacionais."
 ) }}
 
-<form class="space-y-6">
+<form
+    method="post"
+    enctype="multipart/form-data"
+    action="{% if modo == 'nova' %}/cadastros/empresas/nova{% else %}/cadastros/empresas/{{ empresa.id }}/editar{% endif %}"
+    class="space-y-6"
+>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Logomarca</h3>
+
+        <div class="flex items-center gap-6">
+            <div class="w-28 h-28 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden">
+                {% if empresa and empresa.logo_path %}
+                    <img src="{{ empresa.logo_path }}" class="w-full h-full object-contain p-2">
+                {% else %}
+                    <span class="text-slate-400 text-sm">Sem logo</span>
+                {% endif %}
+            </div>
+
+            <div class="flex-1">
+                <input
+                    type="file"
+                    name="logo"
+                    accept="image/png,image/jpeg,image/webp"
+                    class="nexport-input"
+                >
+                <p class="text-xs text-slate-500 mt-2">
+                    Formatos aceitos: PNG, JPG ou WEBP.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <h3 class="text-lg font-bold text-slate-800 mb-4">Dados Gerais</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input class="nexport-input" placeholder="Razão Social">
-            <input class="nexport-input" placeholder="Nome Fantasia">
-            <input class="nexport-input" placeholder="CNPJ">
-            <input class="nexport-input" placeholder="Inscrição Estadual">
+            <input class="nexport-input" name="razao_social" placeholder="Razão Social" required value="{{ empresa.razao_social if empresa else '' }}">
+            <input class="nexport-input" name="nome_fantasia" placeholder="Nome Fantasia" value="{{ empresa.nome_fantasia if empresa else '' }}">
+            <input class="nexport-input" name="cnpj" placeholder="CNPJ" required value="{{ empresa.cnpj if empresa else '' }}">
+            <input class="nexport-input" name="inscricao_estadual" placeholder="Inscrição Estadual" value="{{ empresa.inscricao_estadual if empresa else '' }}">
         </div>
     </div>
 
@@ -34,49 +65,37 @@
         <h3 class="text-lg font-bold text-slate-800 mb-4">Endereço</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <input class="nexport-input" placeholder="CEP">
-            <input class="nexport-input md:col-span-2" placeholder="Logradouro">
-            <input class="nexport-input" placeholder="Número">
-            <input class="nexport-input" placeholder="Bairro">
-            <input class="nexport-input" placeholder="Cidade">
-            <input class="nexport-input" placeholder="UF">
+            <input class="nexport-input" name="cep" placeholder="CEP" value="{{ empresa.cep if empresa else '' }}">
+            <input class="nexport-input md:col-span-2" name="logradouro" placeholder="Logradouro" value="{{ empresa.logradouro if empresa else '' }}">
+            <input class="nexport-input" name="numero" placeholder="Número" value="{{ empresa.numero if empresa else '' }}">
+            <input class="nexport-input" name="bairro" placeholder="Bairro" value="{{ empresa.bairro if empresa else '' }}">
+            <input class="nexport-input" name="cidade" placeholder="Cidade" value="{{ empresa.cidade if empresa else '' }}">
+            <input class="nexport-input" name="estado" placeholder="UF" maxlength="2" value="{{ empresa.estado if empresa else '' }}">
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <h3 class="text-lg font-bold text-slate-800 mb-4">Contato</h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <input class="nexport-input" placeholder="Responsável">
-            <input class="nexport-input" placeholder="Telefone">
-            <input class="nexport-input" placeholder="E-mail">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input class="nexport-input" name="telefone" placeholder="Telefone" value="{{ empresa.telefone if empresa else '' }}">
+            <input class="nexport-input" name="email" placeholder="E-mail" value="{{ empresa.email if empresa else '' }}">
         </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h3 class="text-lg font-bold text-slate-800 mb-4">Perfil Operacional</h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <label class="nexport-check"><input type="checkbox"> Exportador</label>
-            <label class="nexport-check"><input type="checkbox"> Trading</label>
-            <label class="nexport-check"><input type="checkbox"> Cooperativa</label>
-            <label class="nexport-check"><input type="checkbox"> Despachante</label>
-            <label class="nexport-check"><input type="checkbox"> Transportadora</label>
-            <label class="nexport-check"><input type="checkbox"> Cliente</label>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h3 class="text-lg font-bold text-slate-800 mb-4">Observações</h3>
-        <textarea class="nexport-input min-h-32" placeholder="Observações internas"></textarea>
+        <label class="nexport-check">
+            <input type="checkbox" name="ativo" value="true" {% if not empresa or empresa.ativo %}checked{% endif %}>
+            Empresa ativa
+        </label>
     </div>
 
     <div class="flex justify-end gap-3">
-        <a href="/empresas" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
+        <a href="/cadastros/empresas/" class="px-5 py-3 rounded-xl bg-slate-200 text-slate-700 font-semibold">
             Cancelar
         </a>
 
-        <button type="button" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
+        <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700">
             Salvar Empresa
         </button>
     </div>
