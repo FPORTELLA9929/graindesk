@@ -27,7 +27,7 @@
                 type="text"
                 name="busca"
                 value="{{ filtro_busca }}"
-                placeholder="Pesquisar por nome, fantasia ou CPF/CNPJ..."
+                placeholder="Pesquisar por nome, fantasia, CPF/CNPJ ou RNTRC..."
                 class="nexport-input lg:col-span-2"
             >
 
@@ -71,6 +71,9 @@
                     <th class="text-left p-4">Tipo</th>
                     <th class="text-left p-4">Nome/Razão Social</th>
                     <th class="text-left p-4">CPF/CNPJ</th>
+                    <th class="text-left p-4">RNTRC</th>
+                    <th class="text-left p-4">Tipo Transportador</th>
+                    <th class="text-left p-4">ANTT</th>
                     <th class="text-left p-4">Município</th>
                     <th class="text-left p-4">Contato</th>
                     <th class="text-left p-4">Status</th>
@@ -110,6 +113,32 @@
 
                     <td class="p-4 font-medium text-slate-700">
                         {{ transportador.cpf_cnpj }}
+                    </td>
+
+                    <td class="p-4 font-medium text-slate-700">
+                        {{ transportador.rntrc or "-" }}
+                    </td>
+
+                    <td class="p-4">
+                        {% if transportador.tipo_transportador %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+                                {{ transportador.tipo_transportador }}
+                            </span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="p-4">
+                        {% if transportador.antt_ativa %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                Ativa
+                            </span>
+                        {% else %}
+                            <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                Inativa
+                            </span>
+                        {% endif %}
                     </td>
 
                     <td class="p-4">
@@ -161,7 +190,7 @@
                 {% else %}
 
                 <tr class="border-t border-slate-100">
-                    <td colspan="7" class="p-8 text-center text-slate-500">
+                    <td colspan="10" class="p-8 text-center text-slate-500">
                         Nenhum transportador cadastrado.
                     </td>
                 </tr>

@@ -31,6 +31,8 @@ def listar_transportadores(
             Transportador.nome_razao_social.ilike(termo)
             | Transportador.nome_fantasia.ilike(termo)
             | Transportador.cpf_cnpj.ilike(termo)
+            | Transportador.rntrc.ilike(termo)
+            | Transportador.tipo_transportador.ilike(termo)
         )
 
     if tipo_pessoa in ["PF", "PJ"]:
@@ -89,6 +91,7 @@ def criar_transportador(db: Session, dados: TransportadorCreate):
 
     db.add(transportador)
     db.commit()
+    db.refresh(transportador)
 
     return transportador
 
@@ -102,6 +105,7 @@ def atualizar_transportador(
         setattr(transportador, campo, valor)
 
     db.commit()
+    db.refresh(transportador)
 
     return transportador
 

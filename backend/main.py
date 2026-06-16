@@ -17,6 +17,7 @@ from app.models.municipio import Municipio
 from app.models.rota import Rota
 from app.models.tipo_veiculo import TipoVeiculo
 from app.models.transportador import Transportador
+from app.models.transportador_dado_bancario import TransportadorDadoBancario
 from app.models.veiculo import Veiculo, VeiculoPlaca
 from app.models.cliente import Cliente
 from app.models.fornecedor import Fornecedor

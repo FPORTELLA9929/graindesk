@@ -12,6 +12,10 @@ class TransportadorBase(BaseModel):
     cpf_cnpj: str
     rg_ie: str | None = None
 
+    rntrc: str | None = None
+    tipo_transportador: str | None = None
+    antt_ativa: bool = True
+
     telefone: str | None = None
     email: str | None = None
 

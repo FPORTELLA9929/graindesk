@@ -29,10 +29,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Tipo de Pessoa
-                </label>
-
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo de Pessoa</label>
                 <select name="tipo_pessoa" id="tipo_pessoa" class="nexport-input" required onchange="alternarTipoPessoa()">
                     <option value="PF" {% if not transportador or transportador.tipo_pessoa == "PF" %}selected{% endif %}>Pessoa Física</option>
                     <option value="PJ" {% if transportador and transportador.tipo_pessoa == "PJ" %}selected{% endif %}>Pessoa Jurídica</option>
@@ -40,62 +37,184 @@
             </div>
 
             <div>
-                <label id="label_documento" class="block text-sm font-semibold text-slate-700 mb-2">
-                    CPF/CNPJ
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="cpf_cnpj"
-                    type="text"
-                    placeholder="CPF ou CNPJ"
-                    value="{{ transportador.cpf_cnpj if transportador else '' }}"
-                    required
-                >
+                <label id="label_documento" class="block text-sm font-semibold text-slate-700 mb-2">CPF/CNPJ</label>
+                <input class="nexport-input" name="cpf_cnpj" type="text" placeholder="CPF ou CNPJ" value="{{ transportador.cpf_cnpj if transportador else '' }}" required>
             </div>
 
             <div>
-                <label id="label_nome" class="block text-sm font-semibold text-slate-700 mb-2">
-                    Nome/Razão Social
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="nome_razao_social"
-                    type="text"
-                    placeholder="Nome ou razão social"
-                    value="{{ transportador.nome_razao_social if transportador else '' }}"
-                    required
-                >
+                <label id="label_nome" class="block text-sm font-semibold text-slate-700 mb-2">Nome/Razão Social</label>
+                <input class="nexport-input" name="nome_razao_social" type="text" placeholder="Nome ou razão social" value="{{ transportador.nome_razao_social if transportador else '' }}" required>
             </div>
 
             <div id="campo_nome_fantasia">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Nome Fantasia
-                </label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Nome Fantasia</label>
+                <input class="nexport-input" name="nome_fantasia" type="text" placeholder="Nome fantasia" value="{{ transportador.nome_fantasia if transportador and transportador.nome_fantasia else '' }}">
+            </div>
 
+            <div>
+                <label id="label_rg_ie" class="block text-sm font-semibold text-slate-700 mb-2">RG/IE</label>
+                <input class="nexport-input" name="rg_ie" type="text" placeholder="RG ou Inscrição Estadual" value="{{ transportador.rg_ie if transportador and transportador.rg_ie else '' }}">
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Dados ANTT</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">RNTRC</label>
                 <input
                     class="nexport-input"
-                    name="nome_fantasia"
+                    name="rntrc"
                     type="text"
-                    placeholder="Nome fantasia"
-                    value="{{ transportador.nome_fantasia if transportador and transportador.nome_fantasia else '' }}"
+                    placeholder="Registro Nacional de Transportadores"
+                    value="{{ transportador.rntrc if transportador and transportador.rntrc else '' }}"
                 >
             </div>
 
             <div>
-                <label id="label_rg_ie" class="block text-sm font-semibold text-slate-700 mb-2">
-                    RG/IE
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="rg_ie"
-                    type="text"
-                    placeholder="RG ou Inscrição Estadual"
-                    value="{{ transportador.rg_ie if transportador and transportador.rg_ie else '' }}"
-                >
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo Transportador</label>
+                <select name="tipo_transportador" class="nexport-input">
+                    <option value="">Selecione...</option>
+                    <option value="TAC" {% if transportador and transportador.tipo_transportador == "TAC" %}selected{% endif %}>TAC - Autônomo</option>
+                    <option value="ETC" {% if transportador and transportador.tipo_transportador == "ETC" %}selected{% endif %}>ETC - Empresa</option>
+                    <option value="CTC" {% if transportador and transportador.tipo_transportador == "CTC" %}selected{% endif %}>CTC - Cooperativa</option>
+                </select>
             </div>
+
+            <label class="nexport-check flex items-center mt-8">
+                <input
+                    type="checkbox"
+                    name="antt_ativa"
+                    value="true"
+                    {% if not transportador or transportador.antt_ativa %}checked{% endif %}
+                >
+                ANTT ativa
+            </label>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-lg font-bold text-slate-800">Dados Bancários</h3>
+
+            <button
+                type="button"
+                onclick="adicionarContaBancaria()"
+                class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700"
+            >
+                + Adicionar Conta
+            </button>
+        </div>
+
+        <div id="contas-bancarias-container" class="space-y-4">
+
+            {% if dados_bancarios %}
+                {% for conta in dados_bancarios %}
+                <div class="conta-bancaria border border-slate-200 rounded-xl p-5 bg-slate-50">
+
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-bold text-slate-700">Conta Bancária</h4>
+
+                        <button
+                            type="button"
+                            onclick="this.closest('.conta-bancaria').remove()"
+                            class="text-red-600 text-sm font-semibold"
+                        >
+                            Remover
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Código Banco</label>
+                            <input class="nexport-input" name="banco_codigo" value="{{ conta.banco_codigo or '' }}" placeholder="001">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Banco</label>
+                            <input class="nexport-input" name="banco_nome" value="{{ conta.banco_nome or '' }}" placeholder="Banco do Brasil">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Agência</label>
+                            <input class="nexport-input" name="agencia" value="{{ conta.agencia or '' }}" placeholder="0000">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Conta</label>
+                            <input class="nexport-input" name="conta" value="{{ conta.conta or '' }}" placeholder="00000">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Dígito</label>
+                            <input class="nexport-input" name="digito_conta" value="{{ conta.digito_conta or '' }}" placeholder="0">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo Conta</label>
+                            <select name="tipo_conta" class="nexport-input">
+                                <option value="">Selecione...</option>
+                                <option value="CORRENTE" {% if conta.tipo_conta == "CORRENTE" %}selected{% endif %}>Corrente</option>
+                                <option value="POUPANCA" {% if conta.tipo_conta == "POUPANCA" %}selected{% endif %}>Poupança</option>
+                                <option value="SALARIO" {% if conta.tipo_conta == "SALARIO" %}selected{% endif %}>Salário</option>
+                                <option value="PAGAMENTO" {% if conta.tipo_conta == "PAGAMENTO" %}selected{% endif %}>Pagamento</option>
+                                <option value="OUTRA" {% if conta.tipo_conta == "OUTRA" %}selected{% endif %}>Outra</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Favorecido</label>
+                            <input class="nexport-input" name="favorecido" value="{{ conta.favorecido or '' }}" placeholder="Nome do favorecido">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">CPF/CNPJ Favorecido</label>
+                            <input class="nexport-input" name="cpf_cnpj_favorecido" value="{{ conta.cpf_cnpj_favorecido or '' }}" placeholder="CPF ou CNPJ">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo PIX</label>
+                            <select name="tipo_pix" class="nexport-input">
+                                <option value="">Selecione...</option>
+                                <option value="CPF" {% if conta.tipo_pix == "CPF" %}selected{% endif %}>CPF</option>
+                                <option value="CNPJ" {% if conta.tipo_pix == "CNPJ" %}selected{% endif %}>CNPJ</option>
+                                <option value="EMAIL" {% if conta.tipo_pix == "EMAIL" %}selected{% endif %}>E-mail</option>
+                                <option value="TELEFONE" {% if conta.tipo_pix == "TELEFONE" %}selected{% endif %}>Telefone</option>
+                                <option value="ALEATORIA" {% if conta.tipo_pix == "ALEATORIA" %}selected{% endif %}>Aleatória</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Chave PIX</label>
+                            <input class="nexport-input" name="chave_pix" value="{{ conta.chave_pix or '' }}" placeholder="Chave PIX">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Conta Principal</label>
+                            <select name="principal_bancario" class="nexport-input">
+                                <option value="false" {% if not conta.principal %}selected{% endif %}>Não</option>
+                                <option value="true" {% if conta.principal %}selected{% endif %}>Sim</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">Status da Conta</label>
+                            <select name="ativo_bancario" class="nexport-input">
+                                <option value="true" {% if conta.ativo %}selected{% endif %}>Ativa</option>
+                                <option value="false" {% if not conta.ativo %}selected{% endif %}>Inativa</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
 
         </div>
     </div>
@@ -106,37 +225,17 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Telefone
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="telefone"
-                    type="text"
-                    placeholder="Telefone"
-                    value="{{ transportador.telefone if transportador and transportador.telefone else '' }}"
-                >
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Telefone</label>
+                <input class="nexport-input" name="telefone" type="text" placeholder="Telefone" value="{{ transportador.telefone if transportador and transportador.telefone else '' }}">
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    E-mail
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="email"
-                    type="email"
-                    placeholder="E-mail"
-                    value="{{ transportador.email if transportador and transportador.email else '' }}"
-                >
+                <label class="block text-sm font-semibold text-slate-700 mb-2">E-mail</label>
+                <input class="nexport-input" name="email" type="email" placeholder="E-mail" value="{{ transportador.email if transportador and transportador.email else '' }}">
             </div>
 
             <div class="relative">
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Município
-                </label>
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Município</label>
 
                 <input
                     type="text"
@@ -148,31 +247,14 @@
                     required
                 >
 
-                <input
-                    type="hidden"
-                    name="municipio_id"
-                    id="municipio_id"
-                    value="{{ municipio.codigo_ibge if municipio else '' }}"
-                >
+                <input type="hidden" name="municipio_id" id="municipio_id" value="{{ municipio.codigo_ibge if municipio else '' }}">
 
-                <div
-                    id="municipio_resultados"
-                    class="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg hidden max-h-60 overflow-auto"
-                ></div>
+                <div id="municipio_resultados" class="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg hidden max-h-60 overflow-auto"></div>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">
-                    Endereço
-                </label>
-
-                <input
-                    class="nexport-input"
-                    name="endereco"
-                    type="text"
-                    placeholder="Endereço"
-                    value="{{ transportador.endereco if transportador and transportador.endereco else '' }}"
-                >
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Endereço</label>
+                <input class="nexport-input" name="endereco" type="text" placeholder="Endereço" value="{{ transportador.endereco if transportador and transportador.endereco else '' }}">
             </div>
 
             <label class="nexport-check flex items-center md:col-span-2">
@@ -231,9 +313,7 @@
 
         input.addEventListener("input", function () {
             const termo = input.value.trim();
-
             hidden.value = "";
-
             clearTimeout(timeoutBusca);
 
             if (termo.length < 2) {
@@ -253,7 +333,6 @@
                     }
 
                     const municipios = await response.json();
-
                     resultados.innerHTML = "";
 
                     if (!municipios.length) {
@@ -296,6 +375,114 @@
                 resultados.classList.add("hidden");
             }, 200);
         });
+    }
+
+    function adicionarContaBancaria() {
+        const container = document.getElementById("contas-bancarias-container");
+
+        container.insertAdjacentHTML(
+            "beforeend",
+            `
+            <div class="conta-bancaria border border-slate-200 rounded-xl p-5 bg-slate-50">
+
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-slate-700">Conta Bancária</h4>
+
+                    <button
+                        type="button"
+                        onclick="this.closest('.conta-bancaria').remove()"
+                        class="text-red-600 text-sm font-semibold"
+                    >
+                        Remover
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Código Banco</label>
+                        <input class="nexport-input" name="banco_codigo" placeholder="001">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Banco</label>
+                        <input class="nexport-input" name="banco_nome" placeholder="Banco do Brasil">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Agência</label>
+                        <input class="nexport-input" name="agencia" placeholder="0000">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Conta</label>
+                        <input class="nexport-input" name="conta" placeholder="00000">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Dígito</label>
+                        <input class="nexport-input" name="digito_conta" placeholder="0">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo Conta</label>
+                        <select name="tipo_conta" class="nexport-input">
+                            <option value="">Selecione...</option>
+                            <option value="CORRENTE">Corrente</option>
+                            <option value="POUPANCA">Poupança</option>
+                            <option value="SALARIO">Salário</option>
+                            <option value="PAGAMENTO">Pagamento</option>
+                            <option value="OUTRA">Outra</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Favorecido</label>
+                        <input class="nexport-input" name="favorecido" placeholder="Nome do favorecido">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">CPF/CNPJ Favorecido</label>
+                        <input class="nexport-input" name="cpf_cnpj_favorecido" placeholder="CPF ou CNPJ">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Tipo PIX</label>
+                        <select name="tipo_pix" class="nexport-input">
+                            <option value="">Selecione...</option>
+                            <option value="CPF">CPF</option>
+                            <option value="CNPJ">CNPJ</option>
+                            <option value="EMAIL">E-mail</option>
+                            <option value="TELEFONE">Telefone</option>
+                            <option value="ALEATORIA">Aleatória</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Chave PIX</label>
+                        <input class="nexport-input" name="chave_pix" placeholder="Chave PIX">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Conta Principal</label>
+                        <select name="principal_bancario" class="nexport-input">
+                            <option value="false">Não</option>
+                            <option value="true">Sim</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Status da Conta</label>
+                        <select name="ativo_bancario" class="nexport-input">
+                            <option value="true">Ativa</option>
+                            <option value="false">Inativa</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+            `
+        );
     }
 
     document.querySelector("form").addEventListener("submit", function (event) {
