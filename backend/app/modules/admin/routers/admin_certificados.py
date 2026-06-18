@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.permissoes import redirecionar_se_nao_logado_ou_sem_permissao
 from app.database.session import get_db
 from app.models.empresa import Empresa
-from app.services import certificado_digital_service
+from app.modules.admin.services import certificado_digital_service
 
 
 router = APIRouter(

@@ -32,18 +32,18 @@ from app.models.perfil_permissao import PerfilPermissao
 from app.models.configuracao_fiscal import ConfiguracaoFiscal
 
 from app.modules.auth.routers.auth import router as auth_router
-from app.routers.empresas import router as empresas_router
+from app.modules.cadastros.routers.empresas import router as empresas_router
 from app.modules.admin.routers.admin_usuarios import router as admin_usuarios_router
 from app.modules.admin.routers.admin_perfis import router as admin_perfis_router
 from app.modules.admin.routers.admin_certificados import router as admin_certificados_router
-from app.routers.rotas import router as rotas_router
-from app.routers.municipios import router as municipios_router
-from app.routers.tipos_veiculo import router as tipos_veiculo_router
-from app.routers.transportadores import router as transportadores_router
-from app.routers.veiculos import router as veiculos_router
-from app.routers.clientes import router as clientes_router
-from app.routers.fornecedores import router as fornecedores_router
-from app.routers.motoristas import router as motoristas_router
+from app.modules.cadastros.routers.rotas import router as rotas_router
+from app.modules.cadastros.routers.municipios import router as municipios_router
+from app.modules.cadastros.routers.tipos_veiculo import router as tipos_veiculo_router
+from app.modules.cadastros.routers.transportadores import router as transportadores_router
+from app.modules.cadastros.routers.veiculos import router as veiculos_router
+from app.modules.cadastros.routers.clientes import router as clientes_router
+from app.modules.cadastros.routers.fornecedores import router as fornecedores_router
+from app.modules.cadastros.routers.motoristas import router as motoristas_router
 from app.modules.mdfe.models.mdfe import Mdfe
 from app.modules.mdfe.models.mdfe_documento import MdfeDocumento
 

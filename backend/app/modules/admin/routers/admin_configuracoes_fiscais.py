@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.permissoes import redirecionar_se_nao_logado_ou_sem_permissao
 from app.database.session import get_db
-from app.services import configuracao_fiscal_service
+from app.modules.admin.services import configuracao_fiscal_service
 
 
 router = APIRouter(

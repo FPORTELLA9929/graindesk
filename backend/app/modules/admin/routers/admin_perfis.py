@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.permissoes import redirecionar_se_nao_logado_ou_sem_permissao
 from app.database.session import get_db
-from app.services import perfil_service
+from app.modules.admin.services import perfil_service
 
 
 router = APIRouter(prefix="/admin/perfis", tags=["Admin - Perfis"])
