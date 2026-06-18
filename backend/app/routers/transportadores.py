@@ -31,11 +31,19 @@ def texto_ou_none(valor: str | None) -> str | None:
         return None
 
     valor = valor.strip()
+    return valor or None
 
-    if not valor:
-        return None
 
-    return valor
+def municipio_existe(db: Session, municipio_id: int | None) -> bool:
+    if not municipio_id:
+        return False
+
+    return (
+        db.query(Municipio.codigo_ibge)
+        .filter(Municipio.codigo_ibge == municipio_id)
+        .first()
+        is not None
+    )
 
 
 def buscar_municipio_por_id(db: Session, municipio_id: int | None):
@@ -66,11 +74,7 @@ def validar_tipo_conta(tipo_conta: str | None):
         return None
 
     tipo = tipo_conta.strip().upper()
-
-    if tipo not in TIPOS_CONTA_VALIDOS:
-        return "OUTRA"
-
-    return tipo
+    return tipo if tipo in TIPOS_CONTA_VALIDOS else "OUTRA"
 
 
 def validar_tipo_pix(tipo_pix: str | None):
@@ -144,7 +148,11 @@ def montar_dados_bancarios(form, transportador_id: int):
             "digito_conta": digitos_conta[index] if index < len(digitos_conta) else None,
             "tipo_conta": tipos_conta[index] if index < len(tipos_conta) else None,
             "favorecido": favorecidos[index] if index < len(favorecidos) else None,
-            "cpf_cnpj_favorecido": documentos_favorecidos[index] if index < len(documentos_favorecidos) else None,
+            "cpf_cnpj_favorecido": (
+                documentos_favorecidos[index]
+                if index < len(documentos_favorecidos)
+                else None
+            ),
             "tipo_pix": tipos_pix[index] if index < len(tipos_pix) else None,
             "chave_pix": chaves_pix[index] if index < len(chaves_pix) else None,
             "principal": principais[index] if index < len(principais) else "false",
@@ -153,9 +161,6 @@ def montar_dados_bancarios(form, transportador_id: int):
 
         if not existe_algum_dado_bancario(item):
             continue
-
-        tipo_pix_validado = validar_tipo_pix(item["tipo_pix"])
-        tipo_conta_validado = validar_tipo_conta(item["tipo_conta"])
 
         principal = str(item["principal"]).lower() == "true"
         ativo = str(item["ativo"]).lower() == "true"
@@ -174,10 +179,10 @@ def montar_dados_bancarios(form, transportador_id: int):
                 agencia=texto_ou_none(item["agencia"]),
                 conta=texto_ou_none(item["conta"]),
                 digito_conta=texto_ou_none(item["digito_conta"]),
-                tipo_conta=tipo_conta_validado,
+                tipo_conta=validar_tipo_conta(item["tipo_conta"]),
                 favorecido=texto_ou_none(item["favorecido"]),
                 cpf_cnpj_favorecido=limpar_documento(item["cpf_cnpj_favorecido"]),
-                tipo_pix=tipo_pix_validado,
+                tipo_pix=validar_tipo_pix(item["tipo_pix"]),
                 chave_pix=texto_ou_none(item["chave_pix"]),
                 principal=principal,
                 ativo=ativo,
@@ -191,10 +196,17 @@ def montar_dados_bancarios(form, transportador_id: int):
 
 
 def salvar_dados_bancarios(db: Session, transportador_id: int, dados_bancarios):
-    transportador_dado_bancario_service.excluir_por_transportador(db, transportador_id)
+    transportador_dado_bancario_service.excluir_por_transportador(
+        db=db,
+        transportador_id=transportador_id,
+        commit=False,
+    )
 
-    for dado in dados_bancarios:
-        transportador_dado_bancario_service.criar_dado_bancario(db, dado)
+    transportador_dado_bancario_service.criar_varios_dados_bancarios(
+        db=db,
+        dados_bancarios=dados_bancarios,
+        commit=False,
+    )
 
 
 @router.get("/")
@@ -224,6 +236,7 @@ def listar_transportadores(
             "page": resultado["page"],
             "per_page": resultado["per_page"],
             "total_pages": resultado["total_pages"],
+            "tem_proxima": resultado.get("tem_proxima", False),
             "filtro_busca": busca or "",
             "filtro_tipo_pessoa": tipo_pessoa or "",
             "filtro_status": status or "",
@@ -252,39 +265,26 @@ def novo_transportador(request: Request):
 
 
 @router.post("/novo")
-async def criar_transportador(
-    request: Request,
-    db: Session = Depends(get_db),
-):
+async def criar_transportador(request: Request, db: Session = Depends(get_db)):
     form = await request.form()
 
     tipo_pessoa = form.get("tipo_pessoa")
     nome_razao_social = form.get("nome_razao_social")
-    nome_fantasia = form.get("nome_fantasia")
     cpf_cnpj = form.get("cpf_cnpj")
-    rg_ie = form.get("rg_ie")
-    rntrc = form.get("rntrc")
-    tipo_transportador = form.get("tipo_transportador")
-    antt_ativa = form.get("antt_ativa") == "true"
-    telefone = form.get("telefone")
-    email = form.get("email")
     municipio_id = form.get("municipio_id")
-    endereco = form.get("endereco")
-    ativo = form.get("ativo") == "true"
 
     if tipo_pessoa not in ["PF", "PJ"]:
         raise HTTPException(status_code=400, detail="Tipo de pessoa inválido.")
 
-    if not nome_razao_social:
+    if not texto_ou_none(nome_razao_social):
         raise HTTPException(status_code=400, detail="Nome/Razão Social é obrigatório.")
 
-    if not cpf_cnpj:
+    if not texto_ou_none(cpf_cnpj):
         raise HTTPException(status_code=400, detail="CPF/CNPJ é obrigatório.")
 
     municipio_id_int = int(municipio_id) if municipio_id else None
-    municipio = buscar_municipio_por_id(db, municipio_id_int)
 
-    if not municipio:
+    if not municipio_existe(db, municipio_id_int):
         raise HTTPException(status_code=400, detail="Município inválido.")
 
     cpf_cnpj_limpo = limpar_documento(cpf_cnpj)
@@ -295,28 +295,40 @@ async def criar_transportador(
             detail="Já existe transportador cadastrado com este CPF/CNPJ.",
         )
 
-    tipo_transportador_validado = validar_tipo_transportador(tipo_transportador)
-
     dados = TransportadorCreate(
         tipo_pessoa=tipo_pessoa,
         nome_razao_social=nome_razao_social.strip(),
-        nome_fantasia=texto_ou_none(nome_fantasia),
+        nome_fantasia=texto_ou_none(form.get("nome_fantasia")),
         cpf_cnpj=cpf_cnpj_limpo,
-        rg_ie=texto_ou_none(rg_ie),
-        rntrc=texto_ou_none(rntrc),
-        tipo_transportador=tipo_transportador_validado,
-        antt_ativa=antt_ativa,
-        telefone=texto_ou_none(telefone),
-        email=texto_ou_none(email),
+        rg_ie=texto_ou_none(form.get("rg_ie")),
+        rntrc=texto_ou_none(form.get("rntrc")),
+        tipo_transportador=validar_tipo_transportador(form.get("tipo_transportador")),
+        antt_ativa=form.get("antt_ativa") == "true",
+        telefone=texto_ou_none(form.get("telefone")),
+        email=texto_ou_none(form.get("email")),
         municipio_id=municipio_id_int,
-        endereco=texto_ou_none(endereco),
-        ativo=ativo,
+        endereco=texto_ou_none(form.get("endereco")),
+        ativo=form.get("ativo") == "true",
     )
 
-    transportador = transportador_service.criar_transportador(db, dados)
+    try:
+        transportador = transportador_service.criar_transportador(
+            db=db,
+            dados=dados,
+            commit=False,
+        )
 
-    dados_bancarios = montar_dados_bancarios(form, transportador.id)
-    salvar_dados_bancarios(db, transportador.id, dados_bancarios)
+        salvar_dados_bancarios(
+            db=db,
+            transportador_id=transportador.id,
+            dados_bancarios=montar_dados_bancarios(form, transportador.id),
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/transportadores/", status_code=303)
 
@@ -335,8 +347,8 @@ def editar_transportador(
     municipio = buscar_municipio_por_id(db, transportador.municipio_id)
 
     dados_bancarios = transportador_dado_bancario_service.listar_por_transportador(
-        db,
-        transportador_id,
+        db=db,
+        transportador_id=transportador_id,
     )
 
     return request.app.state.templates.TemplateResponse(
@@ -369,31 +381,21 @@ async def atualizar_transportador(
 
     tipo_pessoa = form.get("tipo_pessoa")
     nome_razao_social = form.get("nome_razao_social")
-    nome_fantasia = form.get("nome_fantasia")
     cpf_cnpj = form.get("cpf_cnpj")
-    rg_ie = form.get("rg_ie")
-    rntrc = form.get("rntrc")
-    tipo_transportador = form.get("tipo_transportador")
-    antt_ativa = form.get("antt_ativa") == "true"
-    telefone = form.get("telefone")
-    email = form.get("email")
     municipio_id = form.get("municipio_id")
-    endereco = form.get("endereco")
-    ativo = form.get("ativo") == "true"
 
     if tipo_pessoa not in ["PF", "PJ"]:
         raise HTTPException(status_code=400, detail="Tipo de pessoa inválido.")
 
-    if not nome_razao_social:
+    if not texto_ou_none(nome_razao_social):
         raise HTTPException(status_code=400, detail="Nome/Razão Social é obrigatório.")
 
-    if not cpf_cnpj:
+    if not texto_ou_none(cpf_cnpj):
         raise HTTPException(status_code=400, detail="CPF/CNPJ é obrigatório.")
 
     municipio_id_int = int(municipio_id) if municipio_id else None
-    municipio = buscar_municipio_por_id(db, municipio_id_int)
 
-    if not municipio:
+    if not municipio_existe(db, municipio_id_int):
         raise HTTPException(status_code=400, detail="Município inválido.")
 
     cpf_cnpj_limpo = limpar_documento(cpf_cnpj)
@@ -406,37 +408,47 @@ async def atualizar_transportador(
             detail="Já existe outro transportador cadastrado com este CPF/CNPJ.",
         )
 
-    tipo_transportador_validado = validar_tipo_transportador(tipo_transportador)
-
     dados = TransportadorUpdate(
         tipo_pessoa=tipo_pessoa,
         nome_razao_social=nome_razao_social.strip(),
-        nome_fantasia=texto_ou_none(nome_fantasia),
+        nome_fantasia=texto_ou_none(form.get("nome_fantasia")),
         cpf_cnpj=cpf_cnpj_limpo,
-        rg_ie=texto_ou_none(rg_ie),
-        rntrc=texto_ou_none(rntrc),
-        tipo_transportador=tipo_transportador_validado,
-        antt_ativa=antt_ativa,
-        telefone=texto_ou_none(telefone),
-        email=texto_ou_none(email),
+        rg_ie=texto_ou_none(form.get("rg_ie")),
+        rntrc=texto_ou_none(form.get("rntrc")),
+        tipo_transportador=validar_tipo_transportador(form.get("tipo_transportador")),
+        antt_ativa=form.get("antt_ativa") == "true",
+        telefone=texto_ou_none(form.get("telefone")),
+        email=texto_ou_none(form.get("email")),
         municipio_id=municipio_id_int,
-        endereco=texto_ou_none(endereco),
-        ativo=ativo,
+        endereco=texto_ou_none(form.get("endereco")),
+        ativo=form.get("ativo") == "true",
     )
 
-    transportador_service.atualizar_transportador(db, transportador, dados)
+    try:
+        transportador_service.atualizar_transportador(
+            db=db,
+            transportador=transportador,
+            dados=dados,
+            commit=False,
+        )
 
-    dados_bancarios = montar_dados_bancarios(form, transportador.id)
-    salvar_dados_bancarios(db, transportador.id, dados_bancarios)
+        salvar_dados_bancarios(
+            db=db,
+            transportador_id=transportador.id,
+            dados_bancarios=montar_dados_bancarios(form, transportador.id),
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/transportadores/", status_code=303)
 
 
 @router.post("/{transportador_id}/excluir")
-def excluir_transportador(
-    transportador_id: int,
-    db: Session = Depends(get_db),
-):
+def excluir_transportador(transportador_id: int, db: Session = Depends(get_db)):
     transportador = transportador_service.buscar_transportador(db, transportador_id)
 
     if not transportador:

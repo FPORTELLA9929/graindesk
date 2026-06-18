@@ -26,78 +26,19 @@
             </a>
         </div>
 
+        {% if "mdfe" in permissoes %}
         <div>
             <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
                 Operacional
             </div>
 
-            <a href="#" class="{{ normal_class }}">
-                <span>📦</span>
-                <span>Processos de Exportação</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>📄</span>
-                <span>DUE</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>🧾</span>
-                <span>NF-e de Exportação</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>🔗</span>
-                <span>CCT / Siscomex</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>📑</span>
-                <span>Contratos</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>🚢</span>
-                <span>Booking / Embarque</span>
+            <a href="/mdfe/"
+               class="{% if path.startswith('/mdfe') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🚚</span>
+                <span>MDF-e</span>
             </a>
         </div>
-
-        <div>
-            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
-                Documental
-            </div>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>📁</span>
-                <span>Dossiês</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>📎</span>
-                <span>Documentos Anexos</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>🧾</span>
-                <span>XML / DANFE</span>
-            </a>
-        </div>
-
-        <div>
-            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
-                Gestão
-            </div>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>💰</span>
-                <span>Financeiro</span>
-            </a>
-
-            <a href="#" class="{{ normal_class }}">
-                <span>📊</span>
-                <span>Relatórios</span>
-            </a>
-        </div>
+        {% endif %}
 
         <div>
             <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
@@ -159,7 +100,7 @@
             </a>
         </div>
 
-        {% if "usuarios" in permissoes or "perfis" in permissoes %}
+        {% if "usuarios" in permissoes or "perfis" in permissoes or "certificados" in permissoes or "configuracoes_fiscais" in permissoes %}
         <div>
             <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
                 Administração
@@ -178,6 +119,22 @@
                class="{% if path.startswith('/admin/perfis') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
                 <span>🔐</span>
                 <span>Perfis e Permissões</span>
+            </a>
+            {% endif %}
+
+            {% if "certificados" in permissoes %}
+            <a href="/admin/certificados/"
+               class="{% if path.startswith('/admin/certificados') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>📜</span>
+                <span>Certificados Digitais</span>
+            </a>
+            {% endif %}
+
+            {% if "configuracoes_fiscais" in permissoes %}
+            <a href="/admin/configuracoes-fiscais/"
+               class="{% if path.startswith('/admin/configuracoes-fiscais') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>⚙️</span>
+                <span>Configurações Fiscais</span>
             </a>
             {% endif %}
         </div>

@@ -16,6 +16,10 @@ def listar_rotas(
     Origem = aliased(Municipio)
     Destino = aliased(Municipio)
 
+    page = max(page or 1, 1)
+    per_page = max(min(per_page or 25, 50), 10)
+    offset = (page - 1) * per_page
+
     query = (
         db.query(
             Rota,
@@ -37,28 +41,30 @@ def listar_rotas(
     elif status == "inativas":
         query = query.filter(Rota.ativo.is_(False))
 
-    page = max(page, 1)
-    per_page = max(min(per_page, 100), 10)
-
-    total = query.count()
-    offset = (page - 1) * per_page
-
-    rotas = (
+    registros = (
         query
         .order_by(Rota.id.desc())
         .offset(offset)
-        .limit(per_page)
+        .limit(per_page + 1)
         .all()
     )
 
-    total_pages = (total + per_page - 1) // per_page if total else 1
+    tem_proxima = len(registros) > per_page
+    rotas = registros[:per_page]
+
+    total_estimado = offset + len(rotas)
+    if tem_proxima:
+        total_estimado += 1
+
+    total_pages = page + 1 if tem_proxima else page
 
     return {
         "items": rotas,
-        "total": total,
+        "total": total_estimado,
         "page": page,
         "per_page": per_page,
         "total_pages": total_pages,
+        "tem_proxima": tem_proxima,
     }
 
 
@@ -77,7 +83,7 @@ def existe_rota_ativa_duplicada(
     rota_id_ignorar: int | None = None,
 ):
     query = (
-        db.query(Rota)
+        db.query(Rota.id)
         .filter(Rota.municipio_origem_id == municipio_origem_id)
         .filter(Rota.municipio_destino_id == municipio_destino_id)
         .filter(Rota.ativo.is_(True))
@@ -89,11 +95,20 @@ def existe_rota_ativa_duplicada(
     return query.first() is not None
 
 
-def criar_rota(db: Session, dados: RotaCreate):
+def criar_rota(
+    db: Session,
+    dados: RotaCreate,
+    commit: bool = True,
+):
     rota = Rota(**dados.model_dump())
 
     db.add(rota)
-    db.commit()
+
+    if commit:
+        db.commit()
+        db.refresh(rota)
+    else:
+        db.flush()
 
     return rota
 
@@ -102,11 +117,16 @@ def atualizar_rota(
     db: Session,
     rota: Rota,
     dados: RotaUpdate,
+    commit: bool = True,
 ):
     for campo, valor in dados.model_dump().items():
         setattr(rota, campo, valor)
 
-    db.commit()
+    if commit:
+        db.commit()
+        db.refresh(rota)
+    else:
+        db.flush()
 
     return rota
 
@@ -114,6 +134,11 @@ def atualizar_rota(
 def excluir_rota(
     db: Session,
     rota: Rota,
+    commit: bool = True,
 ):
     db.delete(rota)
-    db.commit()
+
+    if commit:
+        db.commit()
+    else:
+        db.flush()

@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, aliased
 
 from app.models.transportador import Transportador
@@ -16,23 +16,31 @@ def listar_transportadores(
 ):
     MunicipioCadastro = aliased(Municipio)
 
+    page = max(page or 1, 1)
+    per_page = max(min(per_page or 25, 50), 10)
+
     query = (
         db.query(
             Transportador,
             MunicipioCadastro.nome.label("municipio_nome"),
             MunicipioCadastro.codigo_uf.label("municipio_uf"),
         )
-        .join(MunicipioCadastro, Transportador.municipio_id == MunicipioCadastro.codigo_ibge)
+        .outerjoin(
+            MunicipioCadastro,
+            Transportador.municipio_id == MunicipioCadastro.codigo_ibge,
+        )
     )
 
     if busca:
         termo = f"%{busca.strip()}%"
         query = query.filter(
-            Transportador.nome_razao_social.ilike(termo)
-            | Transportador.nome_fantasia.ilike(termo)
-            | Transportador.cpf_cnpj.ilike(termo)
-            | Transportador.rntrc.ilike(termo)
-            | Transportador.tipo_transportador.ilike(termo)
+            or_(
+                Transportador.nome_razao_social.ilike(termo),
+                Transportador.nome_fantasia.ilike(termo),
+                Transportador.cpf_cnpj.ilike(termo),
+                Transportador.rntrc.ilike(termo),
+                Transportador.tipo_transportador.ilike(termo),
+            )
         )
 
     if tipo_pessoa in ["PF", "PJ"]:
@@ -43,28 +51,32 @@ def listar_transportadores(
     elif status == "inativos":
         query = query.filter(Transportador.ativo.is_(False))
 
-    page = max(page, 1)
-    per_page = max(min(per_page, 100), 10)
-
-    total = query.count()
     offset = (page - 1) * per_page
 
-    transportadores = (
+    registros = (
         query
         .order_by(Transportador.id.desc())
         .offset(offset)
-        .limit(per_page)
+        .limit(per_page + 1)
         .all()
     )
 
-    total_pages = (total + per_page - 1) // per_page if total else 1
+    tem_proxima = len(registros) > per_page
+    transportadores = registros[:per_page]
+
+    total_estimado = offset + len(transportadores)
+    if tem_proxima:
+        total_estimado += 1
+
+    total_pages = page + 1 if tem_proxima else page
 
     return {
         "items": transportadores,
-        "total": total,
+        "total": total_estimado,
         "page": page,
         "per_page": per_page,
         "total_pages": total_pages,
+        "tem_proxima": tem_proxima,
     }
 
 
@@ -76,8 +88,14 @@ def buscar_transportador(db: Session, transportador_id: int):
     )
 
 
-def buscar_por_cpf_cnpj(db: Session, cpf_cnpj: str):
+def buscar_por_cpf_cnpj(db: Session, cpf_cnpj: str | None):
+    if not cpf_cnpj:
+        return None
+
     documento_normalizado = cpf_cnpj.strip()
+
+    if not documento_normalizado:
+        return None
 
     return (
         db.query(Transportador)
@@ -86,12 +104,20 @@ def buscar_por_cpf_cnpj(db: Session, cpf_cnpj: str):
     )
 
 
-def criar_transportador(db: Session, dados: TransportadorCreate):
+def criar_transportador(
+    db: Session,
+    dados: TransportadorCreate,
+    commit: bool = True,
+):
     transportador = Transportador(**dados.model_dump())
 
     db.add(transportador)
-    db.commit()
-    db.refresh(transportador)
+
+    if commit:
+        db.commit()
+        db.refresh(transportador)
+    else:
+        db.flush()
 
     return transportador
 
@@ -100,16 +126,28 @@ def atualizar_transportador(
     db: Session,
     transportador: Transportador,
     dados: TransportadorUpdate,
+    commit: bool = True,
 ):
     for campo, valor in dados.model_dump().items():
         setattr(transportador, campo, valor)
 
-    db.commit()
-    db.refresh(transportador)
+    if commit:
+        db.commit()
+        db.refresh(transportador)
+    else:
+        db.flush()
 
     return transportador
 
 
-def excluir_transportador(db: Session, transportador: Transportador):
+def excluir_transportador(
+    db: Session,
+    transportador: Transportador,
+    commit: bool = True,
+):
     db.delete(transportador)
-    db.commit()
+
+    if commit:
+        db.commit()
+    else:
+        db.flush()

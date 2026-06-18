@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.models.tipo_veiculo import TipoVeiculo
+from app.models.transportador import Transportador
 from app.schemas.veiculo import VeiculoCreate, VeiculoUpdate
 
 import app.services.veiculo_service as veiculo_service
-import app.services.transportador_service as transportador_service
 import app.services.tipo_veiculo_service as tipo_veiculo_service
 
 
@@ -22,13 +22,24 @@ router = APIRouter(
 def limpar_placa(valor: str | None) -> str | None:
     if not valor:
         return None
+
     return re.sub(r"[^A-Z0-9]", "", valor.upper().strip())
 
 
 def limpar_documento(valor: str | None) -> str | None:
     if not valor:
         return None
+
     return re.sub(r"\D", "", valor)
+
+
+def texto_ou_none(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    valor = valor.strip()
+
+    return valor or None
 
 
 def placa_valida(placa: str | None) -> bool:
@@ -69,13 +80,48 @@ def descricoes_esperadas(qtd: int) -> list[str]:
 
 
 def carregar_selects(db: Session):
-    transportadores_resultado = transportador_service.listar_transportadores(db)
+    transportadores = (
+        db.query(
+            Transportador.id,
+            Transportador.nome_razao_social,
+        )
+        .filter(Transportador.ativo.is_(True))
+        .order_by(Transportador.nome_razao_social.asc())
+        .all()
+    )
+
     tipos_resultado = tipo_veiculo_service.listar_tipos_veiculo(db)
 
     return {
-        "transportadores": [item[0] for item in transportadores_resultado["items"]],
+        "transportadores": transportadores,
         "tipos_veiculo": tipos_resultado["items"],
     }
+
+
+def buscar_tipo_veiculo(db: Session, tipo_veiculo_id: int | None):
+    if not tipo_veiculo_id:
+        return None
+
+    return (
+        db.query(TipoVeiculo)
+        .filter(TipoVeiculo.id == tipo_veiculo_id)
+        .first()
+    )
+
+
+def transportador_existe(db: Session, transportador_id: int | None) -> bool:
+    if not transportador_id:
+        return False
+
+    return (
+        db.query(Transportador.id)
+        .filter(
+            Transportador.id == transportador_id,
+            Transportador.ativo.is_(True),
+        )
+        .first()
+        is not None
+    )
 
 
 def montar_dados_placas(form, quantidade_placas: int):
@@ -122,7 +168,7 @@ def montar_dados_placas(form, quantidade_placas: int):
                 "descricao": descricao,
                 "placa": placa_limpa,
                 "cpf_cnpj_proprietario": documento_limpo,
-                "rntrc": rntrc.strip() if rntrc else None,
+                "rntrc": texto_ou_none(rntrc),
             }
         )
 
@@ -144,14 +190,14 @@ def listar_veiculos(
         status=status,
     )
 
-    selects = carregar_selects(db)
+    tipos_resultado = tipo_veiculo_service.listar_tipos_veiculo(db)
 
     return request.app.state.templates.TemplateResponse(
         request=request,
         name="cadastros/veiculos.html",
         context={
             "veiculos": veiculos,
-            "tipos_veiculo": selects["tipos_veiculo"],
+            "tipos_veiculo": tipos_resultado["items"],
             "filtros": {
                 "busca": busca or "",
                 "tipo_veiculo_id": tipo_veiculo_id or "",
@@ -196,7 +242,7 @@ async def salvar_veiculo(
 
     transportador_id = form.get("transportador_id")
     tipo_veiculo_id = form.get("tipo_veiculo_id")
-    observacao = form.get("observacao") or None
+    observacao = form.get("observacao")
 
     if not transportador_id:
         raise HTTPException(status_code=400, detail="Transportador é obrigatório.")
@@ -204,7 +250,13 @@ async def salvar_veiculo(
     if not tipo_veiculo_id:
         raise HTTPException(status_code=400, detail="Tipo de veículo é obrigatório.")
 
-    tipo_veiculo = db.query(TipoVeiculo).filter(TipoVeiculo.id == int(tipo_veiculo_id)).first()
+    transportador_id_int = int(transportador_id)
+    tipo_veiculo_id_int = int(tipo_veiculo_id)
+
+    if not transportador_existe(db, transportador_id_int):
+        raise HTTPException(status_code=400, detail="Transportador inválido.")
+
+    tipo_veiculo = buscar_tipo_veiculo(db, tipo_veiculo_id_int)
 
     if not tipo_veiculo:
         raise HTTPException(status_code=400, detail="Tipo de veículo inválido.")
@@ -213,23 +265,31 @@ async def salvar_veiculo(
     dados_placas = montar_dados_placas(form, quantidade_placas)
 
     dados_veiculo = VeiculoCreate(
-        transportador_id=int(transportador_id),
-        tipo_veiculo_id=int(tipo_veiculo_id),
-        observacao=observacao.strip() if observacao else None,
+        transportador_id=transportador_id_int,
+        tipo_veiculo_id=tipo_veiculo_id_int,
+        observacao=texto_ou_none(observacao),
         ativo=True,
     )
 
-    veiculo = veiculo_service.criar_veiculo(db, dados_veiculo)
+    try:
+        veiculo = veiculo_service.criar_veiculo(
+            db=db,
+            dados=dados_veiculo,
+            commit=False,
+        )
 
-    for item in dados_placas:
-        veiculo_service.criar_placa(
+        veiculo_service.criar_varias_placas(
             db=db,
             veiculo_id=veiculo.id,
-            descricao=item["descricao"],
-            placa=item["placa"],
-            cpf_cnpj_proprietario=item["cpf_cnpj_proprietario"],
-            rntrc=item["rntrc"],
+            placas=dados_placas,
+            commit=False,
         )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/veiculos/", status_code=303)
 
@@ -279,7 +339,7 @@ async def atualizar_veiculo(
 
     transportador_id = form.get("transportador_id")
     tipo_veiculo_id = form.get("tipo_veiculo_id")
-    observacao = form.get("observacao") or None
+    observacao = form.get("observacao")
     ativo = form.get("ativo") == "on"
 
     if not transportador_id:
@@ -288,7 +348,13 @@ async def atualizar_veiculo(
     if not tipo_veiculo_id:
         raise HTTPException(status_code=400, detail="Tipo de veículo é obrigatório.")
 
-    tipo_veiculo = db.query(TipoVeiculo).filter(TipoVeiculo.id == int(tipo_veiculo_id)).first()
+    transportador_id_int = int(transportador_id)
+    tipo_veiculo_id_int = int(tipo_veiculo_id)
+
+    if not transportador_existe(db, transportador_id_int):
+        raise HTTPException(status_code=400, detail="Transportador inválido.")
+
+    tipo_veiculo = buscar_tipo_veiculo(db, tipo_veiculo_id_int)
 
     if not tipo_veiculo:
         raise HTTPException(status_code=400, detail="Tipo de veículo inválido.")
@@ -297,25 +363,38 @@ async def atualizar_veiculo(
     dados_placas = montar_dados_placas(form, quantidade_placas)
 
     dados_veiculo = VeiculoUpdate(
-        transportador_id=int(transportador_id),
-        tipo_veiculo_id=int(tipo_veiculo_id),
-        observacao=observacao.strip() if observacao else None,
+        transportador_id=transportador_id_int,
+        tipo_veiculo_id=tipo_veiculo_id_int,
+        observacao=texto_ou_none(observacao),
         ativo=ativo,
     )
 
-    veiculo_service.atualizar_veiculo(db, veiculo, dados_veiculo)
+    try:
+        veiculo_service.atualizar_veiculo(
+            db=db,
+            veiculo=veiculo,
+            dados=dados_veiculo,
+            commit=False,
+        )
 
-    veiculo_service.excluir_placas_veiculo(db, veiculo.id)
-
-    for item in dados_placas:
-        veiculo_service.criar_placa(
+        veiculo_service.excluir_placas_veiculo(
             db=db,
             veiculo_id=veiculo.id,
-            descricao=item["descricao"],
-            placa=item["placa"],
-            cpf_cnpj_proprietario=item["cpf_cnpj_proprietario"],
-            rntrc=item["rntrc"],
+            commit=False,
         )
+
+        veiculo_service.criar_varias_placas(
+            db=db,
+            veiculo_id=veiculo.id,
+            placas=dados_placas,
+            commit=False,
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/veiculos/", status_code=303)
 

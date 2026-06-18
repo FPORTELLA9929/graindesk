@@ -14,6 +14,26 @@ from app.services import rota_service
 router = APIRouter(prefix="/cadastros/rotas", tags=["Rotas"])
 
 
+def texto_ou_none(valor: str | None) -> str | None:
+    if not valor:
+        return None
+
+    valor = valor.strip()
+    return valor or None
+
+
+def municipio_existe(db: Session, municipio_id: int | None) -> bool:
+    if not municipio_id:
+        return False
+
+    return (
+        db.query(Municipio.codigo_ibge)
+        .filter(Municipio.codigo_ibge == municipio_id)
+        .first()
+        is not None
+    )
+
+
 def buscar_municipio_por_id(db: Session, municipio_id: int | None):
     if not municipio_id:
         return None
@@ -29,17 +49,105 @@ def decimal_ou_none(valor: str | None):
     if not valor:
         return None
 
+    valor = valor.strip()
+
+    if not valor:
+        return None
+
     try:
         return Decimal(valor.replace(",", "."))
     except InvalidOperation:
-        return None
+        raise HTTPException(status_code=400, detail="Valor decimal inválido.")
 
 
 def date_ou_none(valor: str | None):
     if not valor:
         return None
 
-    return date.fromisoformat(valor)
+    valor = valor.strip()
+
+    if not valor:
+        return None
+
+    try:
+        return date.fromisoformat(valor)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Data inválida.")
+
+
+def validar_rota_base(
+    db: Session,
+    municipio_origem_id: int,
+    municipio_destino_id: int,
+    ativo: bool,
+    vigencia_inicio: str | None,
+    vigencia_fim: str | None,
+    rota_id_ignorar: int | None = None,
+):
+    if not municipio_existe(db, municipio_origem_id):
+        raise HTTPException(status_code=400, detail="Município de origem inválido.")
+
+    if not municipio_existe(db, municipio_destino_id):
+        raise HTTPException(status_code=400, detail="Município de destino inválido.")
+
+    if municipio_origem_id == municipio_destino_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Origem e destino não podem ser iguais.",
+        )
+
+    inicio = date_ou_none(vigencia_inicio)
+    fim = date_ou_none(vigencia_fim)
+
+    if inicio and fim and fim < inicio:
+        raise HTTPException(
+            status_code=400,
+            detail="Vigência final não pode ser menor que a inicial.",
+        )
+
+    if ativo and rota_service.existe_rota_ativa_duplicada(
+        db=db,
+        municipio_origem_id=municipio_origem_id,
+        municipio_destino_id=municipio_destino_id,
+        rota_id_ignorar=rota_id_ignorar,
+    ):
+        mensagem = (
+            "Já existe outra rota ativa cadastrada para esta origem e destino."
+            if rota_id_ignorar
+            else "Já existe uma rota ativa cadastrada para esta origem e destino."
+        )
+
+        raise HTTPException(status_code=400, detail=mensagem)
+
+    return inicio, fim
+
+
+def montar_dados_rota(
+    municipio_origem_id: int,
+    municipio_destino_id: int,
+    distancia_km: str | None,
+    tarifa: str | None,
+    possui_pedagio: bool,
+    valor_pedagio_por_eixo: str | None,
+    observacao: str | None,
+    inicio,
+    fim,
+    ativo: bool,
+):
+    return {
+        "municipio_origem_id": municipio_origem_id,
+        "municipio_destino_id": municipio_destino_id,
+        "distancia_km": decimal_ou_none(distancia_km),
+        "tarifa": decimal_ou_none(tarifa),
+        "possui_pedagio": possui_pedagio,
+        "valor_pedagio_por_eixo": (
+            decimal_ou_none(valor_pedagio_por_eixo) if possui_pedagio else None
+        ),
+        "observacao": texto_ou_none(observacao),
+        "vigencia_inicio": inicio,
+        "vigencia_fim": fim,
+        "ativo": ativo,
+    }
 
 
 @router.get("/")
@@ -69,6 +177,7 @@ def listar_rotas(
             "page": resultado["page"],
             "per_page": resultado["per_page"],
             "total_pages": resultado["total_pages"],
+            "tem_proxima": resultado.get("tem_proxima", False),
             "filtro_origem": origem or "",
             "filtro_destino": destino or "",
             "filtro_status": status or "",
@@ -108,48 +217,40 @@ def criar_rota(
     ativo: bool = Form(False),
     db: Session = Depends(get_db),
 ):
-    origem = buscar_municipio_por_id(db, municipio_origem_id)
-    destino = buscar_municipio_por_id(db, municipio_destino_id)
-
-    if not origem:
-        raise HTTPException(status_code=400, detail="Município de origem inválido.")
-
-    if not destino:
-        raise HTTPException(status_code=400, detail="Município de destino inválido.")
-
-    if municipio_origem_id == municipio_destino_id:
-        raise HTTPException(status_code=400, detail="Origem e destino não podem ser iguais.")
-
-    inicio = date_ou_none(vigencia_inicio)
-    fim = date_ou_none(vigencia_fim)
-
-    if inicio and fim and fim < inicio:
-        raise HTTPException(status_code=400, detail="Vigência final não pode ser menor que a inicial.")
-
-    if ativo and rota_service.existe_rota_ativa_duplicada(
+    inicio, fim = validar_rota_base(
         db=db,
         municipio_origem_id=municipio_origem_id,
         municipio_destino_id=municipio_destino_id,
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Já existe uma rota ativa cadastrada para esta origem e destino.",
-        )
+        ativo=ativo,
+        vigencia_inicio=vigencia_inicio,
+        vigencia_fim=vigencia_fim,
+    )
 
-    dados = RotaCreate(
+    dados_dict = montar_dados_rota(
         municipio_origem_id=municipio_origem_id,
         municipio_destino_id=municipio_destino_id,
-        distancia_km=decimal_ou_none(distancia_km),
-        tarifa=decimal_ou_none(tarifa),
+        distancia_km=distancia_km,
+        tarifa=tarifa,
         possui_pedagio=possui_pedagio,
-        valor_pedagio_por_eixo=decimal_ou_none(valor_pedagio_por_eixo) if possui_pedagio else None,
-        observacao=observacao.strip() if observacao else None,
-        vigencia_inicio=inicio,
-        vigencia_fim=fim,
+        valor_pedagio_por_eixo=valor_pedagio_por_eixo,
+        observacao=observacao,
+        inicio=inicio,
+        fim=fim,
         ativo=ativo,
     )
 
-    rota_service.criar_rota(db, dados)
+    try:
+        rota_service.criar_rota(
+            db=db,
+            dados=RotaCreate(**dados_dict),
+            commit=False,
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/rotas/", status_code=303)
 
@@ -197,49 +298,42 @@ def atualizar_rota(
     if not rota:
         raise HTTPException(status_code=404, detail="Rota não encontrada.")
 
-    origem = buscar_municipio_por_id(db, municipio_origem_id)
-    destino = buscar_municipio_por_id(db, municipio_destino_id)
-
-    if not origem:
-        raise HTTPException(status_code=400, detail="Município de origem inválido.")
-
-    if not destino:
-        raise HTTPException(status_code=400, detail="Município de destino inválido.")
-
-    if municipio_origem_id == municipio_destino_id:
-        raise HTTPException(status_code=400, detail="Origem e destino não podem ser iguais.")
-
-    inicio = date_ou_none(vigencia_inicio)
-    fim = date_ou_none(vigencia_fim)
-
-    if inicio and fim and fim < inicio:
-        raise HTTPException(status_code=400, detail="Vigência final não pode ser menor que a inicial.")
-
-    if ativo and rota_service.existe_rota_ativa_duplicada(
+    inicio, fim = validar_rota_base(
         db=db,
         municipio_origem_id=municipio_origem_id,
         municipio_destino_id=municipio_destino_id,
+        ativo=ativo,
+        vigencia_inicio=vigencia_inicio,
+        vigencia_fim=vigencia_fim,
         rota_id_ignorar=rota_id,
-    ):
-        raise HTTPException(
-            status_code=400,
-            detail="Já existe outra rota ativa cadastrada para esta origem e destino.",
-        )
+    )
 
-    dados = RotaUpdate(
+    dados_dict = montar_dados_rota(
         municipio_origem_id=municipio_origem_id,
         municipio_destino_id=municipio_destino_id,
-        distancia_km=decimal_ou_none(distancia_km),
-        tarifa=decimal_ou_none(tarifa),
+        distancia_km=distancia_km,
+        tarifa=tarifa,
         possui_pedagio=possui_pedagio,
-        valor_pedagio_por_eixo=decimal_ou_none(valor_pedagio_por_eixo) if possui_pedagio else None,
-        observacao=observacao.strip() if observacao else None,
-        vigencia_inicio=inicio,
-        vigencia_fim=fim,
+        valor_pedagio_por_eixo=valor_pedagio_por_eixo,
+        observacao=observacao,
+        inicio=inicio,
+        fim=fim,
         ativo=ativo,
     )
 
-    rota_service.atualizar_rota(db, rota, dados)
+    try:
+        rota_service.atualizar_rota(
+            db=db,
+            rota=rota,
+            dados=RotaUpdate(**dados_dict),
+            commit=False,
+        )
+
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
 
     return RedirectResponse(url="/cadastros/rotas/", status_code=303)
 

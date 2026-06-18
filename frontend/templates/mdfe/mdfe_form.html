@@ -1,0 +1,472 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+{% set documento = mdfe.documentos[0] if mdfe and mdfe.documentos else None %}
+
+<div class="space-y-6">
+
+    {% if erro %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl">
+        {{ erro }}
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+
+        <h2 class="font-bold text-slate-800 text-lg mb-6">
+            {% if modo_edicao %}Editar MDF-e{% else %}Novo MDF-e{% endif %}
+        </h2>
+
+        <form
+            method="post"
+            action="{% if modo_edicao %}/mdfe/{{ mdfe.id }}/editar{% else %}/mdfe/novo{% endif %}"
+            enctype="multipart/form-data"
+            class="space-y-6"
+        >
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Número</label>
+                    <input
+                        type="number"
+                        name="numero"
+                        value="{{ numero_padrao }}"
+                        required
+                        {% if not admin %}readonly{% endif %}
+                        class="w-full border border-slate-300 rounded-xl px-4 py-3 {% if not admin %}bg-slate-100 text-slate-500 cursor-not-allowed{% endif %}"
+                    >
+                    {% if not admin %}
+                    <div class="text-xs text-slate-500 mt-1">
+                        Numeração automática. Apenas administrador pode alterar.
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Série</label>
+                    <input
+                        type="number"
+                        name="serie"
+                        value="{{ serie_padrao }}"
+                        required
+                        {% if not admin %}readonly{% endif %}
+                        class="w-full border border-slate-300 rounded-xl px-4 py-3 {% if not admin %}bg-slate-100 text-slate-500 cursor-not-allowed{% endif %}"
+                    >
+                    {% if not admin %}
+                    <div class="text-xs text-slate-500 mt-1">
+                        Série padrão automática.
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">UF Início</label>
+                    <select name="uf_inicio" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        {% for uf in ["PR", "SP", "SC", "RS", "MS", "MT", "GO"] %}
+                        <option value="{{ uf }}" {% if mdfe and mdfe.uf_inicio == uf %}selected{% endif %}>{{ uf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">UF Destino</label>
+                    <select name="uf_fim" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        {% for uf in ["PR", "SP", "SC", "RS", "MS", "MT", "GO"] %}
+                        <option value="{{ uf }}" {% if mdfe and mdfe.uf_fim == uf %}selected{% endif %}>{{ uf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Empresa Emitente</label>
+                    <select name="empresa_id" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        <option value="">Selecione</option>
+                        {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}" {% if mdfe and mdfe.empresa_id == empresa.id %}selected{% endif %}>
+                            {{ empresa.razao_social }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Transportador</label>
+                    <select name="transportador_id" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        <option value="">Selecione</option>
+                        {% for transportador in transportadores %}
+                        <option value="{{ transportador.id }}" {% if mdfe and mdfe.transportador_id == transportador.id %}selected{% endif %}>
+                            {{ transportador.nome_razao_social }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Motorista</label>
+                    <select name="motorista_id" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        <option value="">Selecione</option>
+                        {% for motorista in motoristas %}
+                        <option value="{{ motorista.id }}" {% if mdfe and mdfe.motorista_id == motorista.id %}selected{% endif %}>
+                            {{ motorista.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Veículo</label>
+                    <select name="veiculo_id" id="veiculo_id" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        <option value="">Selecione</option>
+                        {% for veiculo in veiculos %}
+                        <option value="{{ veiculo.id }}" {% if mdfe and mdfe.veiculo_id == veiculo.id %}selected{% endif %}>
+                            {{ veiculo.descricao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Rota</label>
+                    <select name="rota_id" id="rota_id" required class="w-full border border-slate-300 rounded-xl px-4 py-3">
+                        <option value="" data-tarifa="" data-pedagio="">Selecione</option>
+                        {% for rota in rotas %}
+                        <option
+                            value="{{ rota.id }}"
+                            data-tarifa="{{ rota.tarifa }}"
+                            data-pedagio="{{ rota.pedagio_por_eixo }}"
+                            {% if mdfe and mdfe.rota_id == rota.id %}selected{% endif %}
+                        >
+                            {{ rota.descricao }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">XML da NF-e</label>
+                    <input
+                        type="file"
+                        id="arquivo_xml"
+                        name="arquivo_xml"
+                        accept=".xml"
+                        {% if not modo_edicao %}required{% endif %}
+                        class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white"
+                    >
+                    <div class="text-xs text-slate-500 mt-1">
+                        {% if modo_edicao %}
+                            Envie outro XML apenas se quiser substituir/adicionar nova NF-e.
+                        {% else %}
+                            O sistema irá ler automaticamente o produto, peso líquido e calcular o frete.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm text-slate-600 mb-2">Tarifa de Frete</label>
+                    <input
+                        type="text"
+                        id="tarifa_frete"
+                        readonly
+                        value="{% if documento and documento.tarifa_rota %}R$ {{ "%.2f"|format(documento.tarifa_rota)|replace(".", ",") }}{% endif %}"
+                        placeholder="Selecione uma rota"
+                        class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-slate-100 text-slate-700"
+                    >
+                </div>
+
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5">
+
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-800">Memória de Cálculo</h3>
+                        <p class="text-sm text-slate-500">
+                            Campos calculados automaticamente após a leitura do XML da NF-e.
+                        </p>
+                    </div>
+
+                    <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
+                        Somente leitura
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Produto</label>
+                        <input
+                            type="text"
+                            id="produto_xml"
+                            readonly
+                            value="{{ documento.produto if documento else '' }}"
+                            placeholder="Preenchido após importar XML"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Peso Líquido</label>
+                        <input
+                            type="text"
+                            id="peso_liquido_xml"
+                            readonly
+                            value="{% if documento and documento.peso_liquido %}{{ "%.2f"|format(documento.peso_liquido)|replace(".", ",") }} KG{% endif %}"
+                            placeholder="KG"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Tarifa da Rota</label>
+                        <input
+                            type="text"
+                            id="memoria_tarifa_rota"
+                            readonly
+                            value="{% if documento and documento.tarifa_rota %}R$ {{ "%.2f"|format(documento.tarifa_rota)|replace(".", ",") }}{% endif %}"
+                            placeholder="R$ 0,00"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Pedágio por Eixo</label>
+                        <input
+                            type="text"
+                            id="memoria_pedagio_eixo"
+                            readonly
+                            value="{% if documento and documento.pedagio_por_eixo %}R$ {{ "%.2f"|format(documento.pedagio_por_eixo)|replace(".", ",") }}{% endif %}"
+                            placeholder="R$ 0,00"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Frete Base</label>
+                        <input
+                            type="text"
+                            id="frete_base_xml"
+                            readonly
+                            value="{% if documento and documento.frete_base %}R$ {{ "%.2f"|format(documento.frete_base)|replace(".", ",") }}{% endif %}"
+                            placeholder="Calculado após XML"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Pedágio Total</label>
+                        <input
+                            type="text"
+                            id="pedagio_total_xml"
+                            readonly
+                            value="{% if documento and documento.pedagio_total %}R$ {{ "%.2f"|format(documento.pedagio_total)|replace(".", ",") }}{% endif %}"
+                            placeholder="Calculado após XML"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-600"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-600 mb-2">Frete Total</label>
+                        <input
+                            type="text"
+                            id="frete_total_xml"
+                            readonly
+                            value="{% if documento and documento.frete_total %}R$ {{ "%.2f"|format(documento.frete_total)|replace(".", ",") }}{% endif %}"
+                            placeholder="Calculado após XML"
+                            class="w-full border border-slate-300 rounded-xl px-4 py-3 bg-white text-slate-800 font-semibold"
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div>
+                <label class="block text-sm text-slate-600 mb-2">Observações</label>
+                <textarea
+                    name="observacoes"
+                    rows="4"
+                    class="w-full border border-slate-300 rounded-xl px-4 py-3"
+                >{{ mdfe.observacoes if mdfe and mdfe.observacoes else '' }}</textarea>
+            </div>
+
+            <div class="border-t border-slate-200 pt-5 flex justify-end gap-3">
+
+                <a href="/mdfe/" class="px-5 py-3 border border-slate-300 rounded-xl">
+                    Cancelar
+                </a>
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold"
+                >
+                    {% if modo_edicao %}Salvar Alterações{% else %}Salvar MDF-e{% endif %}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const rotaSelect = document.getElementById("rota_id");
+        const veiculoSelect = document.getElementById("veiculo_id");
+        const arquivoXml = document.getElementById("arquivo_xml");
+
+        const tarifaInput = document.getElementById("tarifa_frete");
+        const memoriaTarifa = document.getElementById("memoria_tarifa_rota");
+        const memoriaPedagio = document.getElementById("memoria_pedagio_eixo");
+
+        const produtoXml = document.getElementById("produto_xml");
+        const pesoLiquidoXml = document.getElementById("peso_liquido_xml");
+        const freteBaseXml = document.getElementById("frete_base_xml");
+        const pedagioTotalXml = document.getElementById("pedagio_total_xml");
+        const freteTotalXml = document.getElementById("frete_total_xml");
+
+        function formatarMoeda(valor) {
+            if (valor === null || valor === undefined || valor === "") {
+                return "";
+            }
+
+            const numero = Number(String(valor).replace(",", "."));
+
+            if (Number.isNaN(numero)) {
+                return "";
+            }
+
+            return numero.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
+        function formatarPeso(valor) {
+            const numero = Number(valor || 0);
+
+            return numero.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }) + " KG";
+        }
+
+        function limparMemoriaXml() {
+            produtoXml.value = "";
+            pesoLiquidoXml.value = "";
+            freteBaseXml.value = "";
+            pedagioTotalXml.value = "";
+            freteTotalXml.value = "";
+        }
+
+        function atualizarTarifa(sobrescreverMemoria = true) {
+            const option = rotaSelect.options[rotaSelect.selectedIndex];
+
+            if (!option) {
+                tarifaInput.value = "";
+                memoriaTarifa.value = "";
+                memoriaPedagio.value = "";
+                return;
+            }
+
+            const tarifa = option.getAttribute("data-tarifa");
+            const pedagio = option.getAttribute("data-pedagio");
+
+            tarifaInput.value = formatarMoeda(tarifa);
+
+            if (sobrescreverMemoria) {
+                memoriaTarifa.value = formatarMoeda(tarifa);
+                memoriaPedagio.value = formatarMoeda(pedagio);
+            }
+        }
+
+        async function lerXmlAutomaticamente() {
+            if (!arquivoXml.files.length) {
+                return;
+            }
+
+            if (!rotaSelect.value) {
+                alert("Selecione a rota antes de importar o XML.");
+                arquivoXml.value = "";
+                return;
+            }
+
+            if (!veiculoSelect.value) {
+                alert("Selecione o veículo antes de importar o XML.");
+                arquivoXml.value = "";
+                return;
+            }
+
+            limparMemoriaXml();
+
+            const formData = new FormData();
+            formData.append("arquivo_xml", arquivoXml.files[0]);
+            formData.append("rota_id", rotaSelect.value);
+            formData.append("veiculo_id", veiculoSelect.value);
+
+            try {
+                const response = await fetch("/mdfe/ler-xml", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const dados = await response.json();
+
+                if (!response.ok) {
+                    alert(dados.erro || "Erro ao ler XML da NF-e.");
+                    arquivoXml.value = "";
+                    return;
+                }
+
+                produtoXml.value = dados.produto || "";
+                pesoLiquidoXml.value = formatarPeso(dados.peso_liquido);
+
+                memoriaTarifa.value = formatarMoeda(dados.tarifa_rota);
+                memoriaPedagio.value = formatarMoeda(dados.pedagio_por_eixo);
+
+                freteBaseXml.value = formatarMoeda(dados.frete_base);
+                pedagioTotalXml.value = formatarMoeda(dados.pedagio_total);
+                freteTotalXml.value = formatarMoeda(dados.frete_total);
+
+            } catch (erro) {
+                console.error(erro);
+                alert("Erro ao processar XML da NF-e.");
+                arquivoXml.value = "";
+            }
+        }
+
+        rotaSelect.addEventListener("change", function () {
+            atualizarTarifa(true);
+            limparMemoriaXml();
+        });
+
+        veiculoSelect.addEventListener("change", function () {
+            limparMemoriaXml();
+        });
+
+        arquivoXml.addEventListener("change", lerXmlAutomaticamente);
+
+        atualizarTarifa(false);
+    });
+</script>
+
+{% endblock %}

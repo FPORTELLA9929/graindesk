@@ -1,0 +1,1 @@
+from app.models.certificado_digital import CertificadoDigital

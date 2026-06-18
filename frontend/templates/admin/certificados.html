@@ -1,0 +1,291 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    {% if erro %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl">
+        {{ erro }}
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+
+        <h2 class="font-bold text-slate-800 text-lg mb-6">
+            Novo Certificado Digital
+        </h2>
+
+        <form
+            method="post"
+            action="/admin/certificados/novo"
+            enctype="multipart/form-data"
+            class="space-y-5"
+        >
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Empresa / Filial
+                    </label>
+
+                    <select
+                        name="empresa_id"
+                        required
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="">Selecione</option>
+
+                        {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}">
+                            {{ empresa.razao_social }} - {{ empresa.cnpj }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Senha do Certificado
+                    </label>
+
+                    <input
+                        type="password"
+                        name="senha"
+                        required
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Arquivo .PFX / .P12
+                    </label>
+
+                    <input
+                        type="file"
+                        name="arquivo"
+                        accept=".pfx,.p12"
+                        required
+                        class="block w-full h-12 border border-slate-300 rounded-xl px-3 py-2 bg-white text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Tipo do Certificado
+                    </label>
+
+                    <select
+                        name="tipo_certificado"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="A1">A1</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+
+                <label class="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                        type="checkbox"
+                        name="ativo"
+                        value="true"
+                        checked
+                        class="w-4 h-4"
+                    >
+                    Certificado ativo
+                </label>
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-10 py-3 min-w-[240px]"
+                >
+                    Salvar Certificado
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <h2 class="font-bold text-slate-800">
+                Certificados Cadastrados
+            </h2>
+
+            <span class="text-sm text-slate-500">
+                {{ certificados|length }} registro(s)
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+                <thead>
+                    <tr class="bg-slate-50">
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700 w-[28%]">
+                            Empresa
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700">
+                            CNPJ
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700 w-[18%]">
+                            Autoridade
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700">
+                            Validade
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700">
+                            Dias
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700">
+                            Status
+                        </th>
+
+                        <th class="text-left px-5 py-4 text-sm font-semibold text-slate-700">
+                            Ações
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for certificado in certificados %}
+
+                    {% set dias = certificado.dias_para_vencimento %}
+
+                    <tr class="border-b border-slate-100 hover:bg-slate-50">
+
+                        <td class="px-5 py-4 align-middle">
+                            <div class="font-semibold text-slate-800">
+                                {{ certificado.razao_social_certificado or certificado.empresa.razao_social }}
+                            </div>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                Raiz: {{ certificado.cnpj_raiz }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4 align-middle text-slate-700">
+                            {{ certificado.cnpj_certificado }}
+                        </td>
+
+                        <td class="px-5 py-4 align-middle text-slate-700">
+                            {{ certificado.emissor or "-" }}
+                        </td>
+
+                        <td class="px-5 py-4 align-middle text-slate-700">
+                            {% if certificado.data_validade %}
+                                {{ certificado.data_validade.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4 align-middle">
+                            {% if dias is none %}
+                                <span class="text-slate-500">-</span>
+                            {% elif dias < 0 %}
+                                <span class="text-red-700 font-semibold">
+                                    Vencido
+                                </span>
+                            {% else %}
+                                <span class="text-slate-700">
+                                    {{ dias }} dia(s)
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4 align-middle">
+                            {% if not certificado.ativo %}
+                                <span class="bg-slate-200 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Inativo
+                                </span>
+                            {% elif dias is not none and dias < 0 %}
+                                <span class="bg-red-200 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Vencido
+                                </span>
+                            {% elif dias is not none and dias <= 30 %}
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Vence em breve
+                                </span>
+                            {% elif dias is not none and dias <= 60 %}
+                                <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Atenção
+                                </span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Válido
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4 align-middle">
+                            <div class="flex gap-2 flex-wrap">
+
+                                {% if certificado.ativo %}
+                                <form method="post" action="/admin/certificados/{{ certificado.id }}/inativar">
+                                    <button class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-xs font-semibold">
+                                        Inativar
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="post" action="/admin/certificados/{{ certificado.id }}/ativar">
+                                    <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-xs font-semibold">
+                                        Ativar
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <form method="post" action="/admin/certificados/{{ certificado.id }}/excluir">
+                                    <button
+                                        onclick="return confirm('Deseja excluir este certificado?')"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-xs font-semibold"
+                                    >
+                                        Excluir
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                {% if certificados|length == 0 %}
+                <tr>
+                    <td colspan="7" class="px-5 py-8 text-center text-slate-500">
+                        Nenhum certificado cadastrado.
+                    </td>
+                </tr>
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

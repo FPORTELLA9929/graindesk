@@ -1,0 +1,176 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+
+            <div>
+                <h2 class="font-bold text-slate-800 text-lg">
+                    MDF-e
+                </h2>
+
+                <p class="text-sm text-slate-500 mt-1">
+                    Gerenciamento dos Manifestos Eletrônicos.
+                </p>
+            </div>
+
+            <a
+                href="/mdfe/novo"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold"
+            >
+                Novo MDF-e
+            </a>
+
+        </div>
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full">
+
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200">
+                        <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                            MDF-e
+                        </th>
+
+                        <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                            Empresa
+                        </th>
+
+                        <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                            Status
+                        </th>
+
+                        <th class="text-left px-6 py-4 text-sm font-semibold text-slate-700">
+                            Cadastro
+                        </th>
+
+                        <th class="text-right px-6 py-4 text-sm font-semibold text-slate-700">
+                            Ações
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for mdfe in mdfes %}
+
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+
+                        <td class="px-6 py-5 align-middle">
+                            <div class="font-bold text-slate-800">
+                                MDF-e nº {{ mdfe.numero }}
+                            </div>
+
+                            <div class="text-xs text-slate-500 mt-1">
+                                Série {{ mdfe.serie }}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-5 align-middle">
+                            <div class="font-semibold text-slate-800">
+                                {{ mdfe.empresa.razao_social }}
+                            </div>
+
+                            {% if mdfe.empresa.nome_fantasia %}
+                            <div class="text-xs text-slate-500 mt-1">
+                                {{ mdfe.empresa.nome_fantasia }}
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-5 align-middle">
+                            {% if mdfe.status == "rascunho" %}
+                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Rascunho
+                                </span>
+                            {% elif mdfe.status == "autorizado" %}
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Autorizado
+                                </span>
+                            {% elif mdfe.status == "encerrado" %}
+                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Encerrado
+                                </span>
+                            {% elif mdfe.status == "cancelado" %}
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    Cancelado
+                                </span>
+                            {% else %}
+                                <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                    {{ mdfe.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-5 align-middle text-slate-700">
+                            {{ mdfe.criado_em.strftime('%d/%m/%Y') }}
+                        </td>
+
+                        <td class="px-6 py-5 align-middle">
+                            <div class="flex justify-end gap-2 flex-wrap">
+
+                                {% if mdfe.status == "rascunho" %}
+
+                                <a
+                                    href="/mdfe/{{ mdfe.id }}/editar"
+                                    class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-xl text-sm font-semibold"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="post"
+                                    action="/mdfe/{{ mdfe.id }}/excluir"
+                                    onsubmit="return confirm('Deseja excluir este MDF-e em rascunho?')"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-xl text-sm font-semibold"
+                                    >
+                                        Excluir
+                                    </button>
+                                </form>
+
+                                {% else %}
+
+                                <span class="text-xs text-slate-400">
+                                    Sem ações disponíveis
+                                </span>
+
+                                {% endif %}
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                {% if mdfes|length == 0 %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-slate-500">
+                            Nenhum MDF-e cadastrado.
+                        </td>
+                    </tr>
+                {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="px-6 py-4 border-t border-slate-200 text-sm text-slate-500">
+            Exibindo {{ mdfes|length }} registro(s)
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

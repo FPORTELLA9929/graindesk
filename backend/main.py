@@ -22,15 +22,20 @@ from app.models.veiculo import Veiculo, VeiculoPlaca
 from app.models.cliente import Cliente
 from app.models.fornecedor import Fornecedor
 from app.models.motorista import Motorista
+from app.models.certificado_digital import CertificadoDigital
+from app.routers.admin_configuracoes_fiscais import router as admin_configuracoes_fiscais_router
+from app.modules.mdfe.routers.mdfes import router as mdfes_router
 
 from app.models.perfil import Perfil
 from app.models.permissao import Permissao
 from app.models.perfil_permissao import PerfilPermissao
+from app.models.configuracao_fiscal import ConfiguracaoFiscal
 
 from app.routers.auth import router as auth_router
 from app.routers.empresas import router as empresas_router
 from app.routers.admin_usuarios import router as admin_usuarios_router
 from app.routers.admin_perfis import router as admin_perfis_router
+from app.routers.admin_certificados import router as admin_certificados_router
 from app.routers.rotas import router as rotas_router
 from app.routers.municipios import router as municipios_router
 from app.routers.tipos_veiculo import router as tipos_veiculo_router
@@ -39,6 +44,8 @@ from app.routers.veiculos import router as veiculos_router
 from app.routers.clientes import router as clientes_router
 from app.routers.fornecedores import router as fornecedores_router
 from app.routers.motoristas import router as motoristas_router
+from app.modules.mdfe.models.mdfe import Mdfe
+from app.modules.mdfe.models.mdfe_documento import MdfeDocumento
 
 
 load_dotenv()
@@ -77,6 +84,7 @@ app.include_router(auth_router)
 app.include_router(empresas_router)
 app.include_router(admin_usuarios_router)
 app.include_router(admin_perfis_router)
+app.include_router(admin_certificados_router)
 app.include_router(rotas_router)
 app.include_router(municipios_router)
 app.include_router(tipos_veiculo_router)
@@ -85,7 +93,8 @@ app.include_router(veiculos_router)
 app.include_router(clientes_router)
 app.include_router(fornecedores_router)
 app.include_router(motoristas_router)
-
+app.include_router(admin_configuracoes_fiscais_router)
+app.include_router(mdfes_router)
 
 @app.get("/")
 async def home():

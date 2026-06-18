@@ -71,14 +71,34 @@ def listar_veiculos(
     elif status == "inativo":
         query = query.filter(Veiculo.ativo.is_(False))
 
-    registros = query.order_by(Veiculo.id.desc()).distinct().all()
+    registros = (
+        query
+        .order_by(Veiculo.id.desc())
+        .distinct()
+        .limit(100)
+        .all()
+    )
+
+    veiculo_ids = [registro[0].id for registro in registros]
+
+    placas_por_veiculo = {}
+
+    if veiculo_ids:
+        placas = (
+            db.query(VeiculoPlaca)
+            .filter(VeiculoPlaca.veiculo_id.in_(veiculo_ids))
+            .order_by(VeiculoPlaca.veiculo_id.asc(), VeiculoPlaca.id.asc())
+            .all()
+        )
+
+        for placa in placas:
+            placas_por_veiculo.setdefault(placa.veiculo_id, []).append(placa)
 
     itens = []
 
     for registro in registros:
         veiculo = registro[0]
-        placas = buscar_placas_veiculo(db, veiculo.id)
-        placas_dict = montar_placas_dict(placas)
+        placas_dict = montar_placas_dict(placas_por_veiculo.get(veiculo.id, []))
 
         itens.append(
             {
@@ -96,7 +116,11 @@ def listar_veiculos(
 
 
 def buscar_veiculo(db: Session, veiculo_id: int):
-    return db.query(Veiculo).filter(Veiculo.id == veiculo_id).first()
+    return (
+        db.query(Veiculo)
+        .filter(Veiculo.id == veiculo_id)
+        .first()
+    )
 
 
 def buscar_placas_veiculo(db: Session, veiculo_id: int):
@@ -108,12 +132,20 @@ def buscar_placas_veiculo(db: Session, veiculo_id: int):
     )
 
 
-def criar_veiculo(db: Session, dados: VeiculoCreate):
+def criar_veiculo(
+    db: Session,
+    dados: VeiculoCreate,
+    commit: bool = True,
+):
     veiculo = Veiculo(**dados.model_dump())
 
     db.add(veiculo)
-    db.commit()
-    db.refresh(veiculo)
+
+    if commit:
+        db.commit()
+        db.refresh(veiculo)
+    else:
+        db.flush()
 
     return veiculo
 
@@ -125,6 +157,7 @@ def criar_placa(
     placa: str,
     cpf_cnpj_proprietario: str | None,
     rntrc: str | None,
+    commit: bool = True,
 ):
     placa_obj = VeiculoPlaca(
         veiculo_id=veiculo_id,
@@ -135,27 +168,97 @@ def criar_placa(
     )
 
     db.add(placa_obj)
-    db.commit()
+
+    if commit:
+        db.commit()
+        db.refresh(placa_obj)
+    else:
+        db.flush()
 
     return placa_obj
 
 
-def atualizar_veiculo(db: Session, veiculo: Veiculo, dados: VeiculoUpdate):
+def criar_varias_placas(
+    db: Session,
+    veiculo_id: int,
+    placas: list[dict],
+    commit: bool = True,
+):
+    objetos = []
+
+    for item in placas:
+        objetos.append(
+            VeiculoPlaca(
+                veiculo_id=veiculo_id,
+                descricao=item["descricao"],
+                placa=item["placa"].upper().strip(),
+                cpf_cnpj_proprietario=item.get("cpf_cnpj_proprietario"),
+                rntrc=item.get("rntrc"),
+            )
+        )
+
+    if objetos:
+        db.add_all(objetos)
+
+    if commit:
+        db.commit()
+        for objeto in objetos:
+            db.refresh(objeto)
+    else:
+        db.flush()
+
+    return objetos
+
+
+def atualizar_veiculo(
+    db: Session,
+    veiculo: Veiculo,
+    dados: VeiculoUpdate,
+    commit: bool = True,
+):
     for campo, valor in dados.model_dump().items():
         setattr(veiculo, campo, valor)
 
-    db.commit()
-    db.refresh(veiculo)
+    if commit:
+        db.commit()
+        db.refresh(veiculo)
+    else:
+        db.flush()
 
     return veiculo
 
 
-def excluir_placas_veiculo(db: Session, veiculo_id: int):
-    db.query(VeiculoPlaca).filter(VeiculoPlaca.veiculo_id == veiculo_id).delete()
-    db.commit()
+def excluir_placas_veiculo(
+    db: Session,
+    veiculo_id: int,
+    commit: bool = True,
+):
+    (
+        db.query(VeiculoPlaca)
+        .filter(VeiculoPlaca.veiculo_id == veiculo_id)
+        .delete(synchronize_session=False)
+    )
+
+    if commit:
+        db.commit()
+    else:
+        db.flush()
 
 
-def excluir_veiculo(db: Session, veiculo: Veiculo):
-    excluir_placas_veiculo(db, veiculo.id)
+def excluir_veiculo(
+    db: Session,
+    veiculo: Veiculo,
+    commit: bool = True,
+):
+    excluir_placas_veiculo(
+        db=db,
+        veiculo_id=veiculo.id,
+        commit=False,
+    )
+
     db.delete(veiculo)
-    db.commit()
+
+    if commit:
+        db.commit()
+    else:
+        db.flush()

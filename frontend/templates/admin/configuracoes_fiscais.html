@@ -1,0 +1,183 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+
+        <h2 class="font-bold text-slate-800 text-lg mb-6">
+            Parâmetros SEFAZ
+        </h2>
+
+        <form
+            method="post"
+            action="/admin/configuracoes-fiscais/"
+            class="space-y-6"
+        >
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Ambiente
+                    </label>
+
+                    <select
+                        name="ambiente"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white"
+                    >
+                        <option value="homologacao"
+                            {% if configuracao.ambiente == "homologacao" %}selected{% endif %}
+                        >
+                            Homologação
+                        </option>
+
+                        <option value="producao"
+                            {% if configuracao.ambiente == "producao" %}selected{% endif %}
+                        >
+                            Produção
+                        </option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        UF Emitente
+                    </label>
+
+                    <select
+                        name="uf_emitente"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white"
+                    >
+
+                        {% for uf in [
+                            'AC','AL','AP','AM','BA','CE','DF','ES',
+                            'GO','MA','MT','MS','MG','PA','PB','PR',
+                            'PE','PI','RJ','RN','RS','RO','RR','SC',
+                            'SP','SE','TO'
+                        ] %}
+
+                        <option
+                            value="{{ uf }}"
+                            {% if configuracao.uf_emitente == uf %}selected{% endif %}
+                        >
+                            {{ uf }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Versão MDF-e
+                    </label>
+
+                    <select
+                        name="versao_mdfe"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white"
+                    >
+                        <option value="3.00"
+                            {% if configuracao.versao_mdfe == "3.00" %}selected{% endif %}
+                        >
+                            3.00
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Versão NF-e
+                    </label>
+
+                    <select
+                        name="versao_nfe"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4 bg-white"
+                    >
+                        <option value="4.00"
+                            {% if configuracao.versao_nfe == "4.00" %}selected{% endif %}
+                        >
+                            4.00
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Timeout SEFAZ (segundos)
+                    </label>
+
+                    <input
+                        type="number"
+                        min="5"
+                        max="300"
+                        name="timeout_sefaz"
+                        value="{{ configuracao.timeout_sefaz }}"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-2">
+                        Tentativas de Envio
+                    </label>
+
+                    <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        name="tentativas_envio"
+                        value="{{ configuracao.tentativas_envio }}"
+                        class="w-full h-12 border border-slate-300 rounded-xl px-4"
+                    >
+                </div>
+
+                <div class="flex items-end">
+
+                    <label class="flex items-center gap-3 pb-3 text-slate-700">
+
+                        <input
+                            type="checkbox"
+                            name="contingencia_automatica"
+                            value="true"
+                            {% if configuracao.contingencia_automatica %}checked{% endif %}
+                            class="w-5 h-5"
+                        >
+
+                        Contingência Automática
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="border-t border-slate-200 pt-5 flex justify-end">
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-10 py-3 min-w-[260px]"
+                >
+                    Salvar Configurações
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
