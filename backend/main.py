@@ -23,7 +23,7 @@ from app.models.cliente import Cliente
 from app.models.fornecedor import Fornecedor
 from app.models.motorista import Motorista
 from app.models.certificado_digital import CertificadoDigital
-from app.routers.admin_configuracoes_fiscais import router as admin_configuracoes_fiscais_router
+from app.modules.admin.routers.admin_configuracoes_fiscais import router as admin_configuracoes_fiscais_router
 from app.modules.mdfe.routers.mdfes import router as mdfes_router
 
 from app.models.perfil import Perfil
@@ -33,9 +33,9 @@ from app.models.configuracao_fiscal import ConfiguracaoFiscal
 
 from app.modules.auth.routers.auth import router as auth_router
 from app.routers.empresas import router as empresas_router
-from app.routers.admin_usuarios import router as admin_usuarios_router
-from app.routers.admin_perfis import router as admin_perfis_router
-from app.routers.admin_certificados import router as admin_certificados_router
+from app.modules.admin.routers.admin_usuarios import router as admin_usuarios_router
+from app.modules.admin.routers.admin_perfis import router as admin_perfis_router
+from app.modules.admin.routers.admin_certificados import router as admin_certificados_router
 from app.routers.rotas import router as rotas_router
 from app.routers.municipios import router as municipios_router
 from app.routers.tipos_veiculo import router as tipos_veiculo_router
