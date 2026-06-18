@@ -31,7 +31,7 @@ from app.models.permissao import Permissao
 from app.models.perfil_permissao import PerfilPermissao
 from app.models.configuracao_fiscal import ConfiguracaoFiscal
 
-from app.routers.auth import router as auth_router
+from app.modules.auth.routers.auth import router as auth_router
 from app.routers.empresas import router as empresas_router
 from app.routers.admin_usuarios import router as admin_usuarios_router
 from app.routers.admin_perfis import router as admin_perfis_router
