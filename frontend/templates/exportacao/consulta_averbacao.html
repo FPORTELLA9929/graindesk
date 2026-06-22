@@ -1,0 +1,87 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+        <h2 class="text-xl font-bold text-slate-800">
+            Consulta de Averbação
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+            Consulta do evento 790700 - Averbação para Exportação
+        </p>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Chaves de Acesso NF-e
+            </label>
+
+            <textarea
+                name="chaves"
+                rows="8"
+                class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Cole uma ou várias chaves de acesso, uma por linha"
+            >{{ chaves }}</textarea>
+        </div>
+
+        <div>
+            <button
+                type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold"
+            >
+                Consultar Averbação
+            </button>
+        </div>
+
+    </form>
+
+    {% if resultados %}
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+
+        <div class="p-5 border-b border-slate-200">
+            <h3 class="font-bold text-slate-800">
+                Resultado da Consulta
+            </h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Chave NF-e</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">DUE</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Item NF-e</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Item DUE</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Qtd. Averbada</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Data Averbação</th>
+                        <th class="text-left px-4 py-3 font-semibold text-slate-700">Situação</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in resultados %}
+                    <tr class="border-t border-slate-100">
+                        <td class="px-4 py-3 font-mono text-xs">{{ item.chave }}</td>
+                        <td class="px-4 py-3">{{ item.numero_due }}</td>
+                        <td class="px-4 py-3">{{ item.item_nfe }}</td>
+                        <td class="px-4 py-3">{{ item.item_due }}</td>
+                        <td class="px-4 py-3 font-semibold">{{ item.quantidade_averbada }}</td>
+                        <td class="px-4 py-3">{{ item.data_averbacao }}</td>
+                        <td class="px-4 py-3">{{ item.situacao }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

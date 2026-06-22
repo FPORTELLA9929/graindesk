@@ -1,11 +1,14 @@
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, aliased
 
-from app.models.veiculo import Veiculo, VeiculoPlaca
-from app.models.transportador import Transportador
-from app.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.models.veiculo import Veiculo, VeiculoPlaca
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
 
-from app.schemas.veiculo import VeiculoCreate, VeiculoUpdate
+from app.modules.cadastros.schemas.veiculo import (
+    VeiculoCreate,
+    VeiculoUpdate,
+)
 
 
 def montar_placas_dict(placas):
@@ -59,6 +62,8 @@ def listar_veiculos(
                     TransportadorAlias.nome_razao_social.ilike(termo),
                     TipoAlias.descricao.ilike(termo),
                     VeiculoPlaca.placa.ilike(termo),
+                    VeiculoPlaca.renavam.ilike(termo),
+                    VeiculoPlaca.rntrc.ilike(termo),
                 )
             )
         )
@@ -157,12 +162,20 @@ def criar_placa(
     placa: str,
     cpf_cnpj_proprietario: str | None,
     rntrc: str | None,
+    renavam: str | None = None,
+    tara_kg: int | None = None,
+    capacidade_kg: int | None = None,
+    capacidade_m3: int | None = None,
     commit: bool = True,
 ):
     placa_obj = VeiculoPlaca(
         veiculo_id=veiculo_id,
         descricao=descricao,
         placa=placa.upper().strip(),
+        renavam=renavam,
+        tara_kg=tara_kg,
+        capacidade_kg=capacidade_kg,
+        capacidade_m3=capacidade_m3,
         cpf_cnpj_proprietario=cpf_cnpj_proprietario,
         rntrc=rntrc,
     )
@@ -192,6 +205,10 @@ def criar_varias_placas(
                 veiculo_id=veiculo_id,
                 descricao=item["descricao"],
                 placa=item["placa"].upper().strip(),
+                renavam=item.get("renavam"),
+                tara_kg=item.get("tara_kg"),
+                capacidade_kg=item.get("capacidade_kg"),
+                capacidade_m3=item.get("capacidade_m3"),
                 cpf_cnpj_proprietario=item.get("cpf_cnpj_proprietario"),
                 rntrc=item.get("rntrc"),
             )

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.configuracao_fiscal import ConfiguracaoFiscal
+from app.modules.cadastros.models.configuracao_fiscal import ConfiguracaoFiscal
 
 
 def obter_configuracao_ativa(db: Session):

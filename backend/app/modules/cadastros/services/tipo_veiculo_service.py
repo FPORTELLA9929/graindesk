@@ -1,8 +1,11 @@
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.models.tipo_veiculo import TipoVeiculo
-from app.schemas.tipo_veiculo import TipoVeiculoCreate, TipoVeiculoUpdate
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.schemas.tipo_veiculo import (
+    TipoVeiculoCreate,
+    TipoVeiculoUpdate,
+)
 
 
 def listar_tipos_veiculo(

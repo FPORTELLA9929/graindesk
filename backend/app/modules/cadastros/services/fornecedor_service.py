@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 
-from app.models.fornecedor import Fornecedor
-from app.schemas.fornecedor import FornecedorCreate, FornecedorUpdate
+from app.modules.cadastros.models.fornecedor import Fornecedor
+from app.modules.cadastros.schemas.fornecedor import (
+    FornecedorCreate,
+    FornecedorUpdate,
+)
 
 
 def listar_fornecedores(db: Session):

@@ -1,9 +1,12 @@
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, aliased
 
-from app.models.transportador import Transportador
-from app.models.municipio import Municipio
-from app.schemas.transportador import TransportadorCreate, TransportadorUpdate
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.schemas.transportador import (
+    TransportadorCreate,
+    TransportadorUpdate,
+)
 
 
 def listar_transportadores(

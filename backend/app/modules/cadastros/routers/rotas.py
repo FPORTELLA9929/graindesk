@@ -6,8 +6,11 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.models.municipio import Municipio
-from app.schemas.rota import RotaCreate, RotaUpdate
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.schemas.rota import (
+    RotaCreate,
+    RotaUpdate,
+)
 from app.modules.cadastros.services import rota_service
 
 

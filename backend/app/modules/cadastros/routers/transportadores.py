@@ -5,9 +5,12 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.models.municipio import Municipio
-from app.schemas.transportador import TransportadorCreate, TransportadorUpdate
-from app.schemas.transportador_dado_bancario import TransportadorDadoBancarioCreate
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.schemas.transportador import (
+    TransportadorCreate,
+    TransportadorUpdate,
+)
+from app.modules.cadastros.schemas.transportador_dado_bancario import TransportadorDadoBancarioCreate
 from app.modules.cadastros.services import transportador_service
 from app.modules.cadastros.services import transportador_dado_bancario_service
 

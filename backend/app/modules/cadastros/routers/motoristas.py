@@ -6,8 +6,11 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.models.transportador import Transportador
-from app.schemas.motorista import MotoristaCreate, MotoristaUpdate
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.schemas.motorista import (
+    MotoristaCreate,
+    MotoristaUpdate,
+)
 from app.modules.cadastros.services import motorista_service
 
 

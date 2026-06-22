@@ -11,31 +11,38 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.database.base import Base
 from app.database.connection import engine
 
-from app.models.usuario import Usuario
-from app.models.empresa import Empresa
-from app.models.municipio import Municipio
-from app.models.rota import Rota
-from app.models.tipo_veiculo import TipoVeiculo
-from app.models.transportador import Transportador
-from app.models.transportador_dado_bancario import TransportadorDadoBancario
-from app.models.veiculo import Veiculo, VeiculoPlaca
-from app.models.cliente import Cliente
-from app.models.fornecedor import Fornecedor
-from app.models.motorista import Motorista
-from app.models.certificado_digital import CertificadoDigital
-from app.modules.admin.routers.admin_configuracoes_fiscais import router as admin_configuracoes_fiscais_router
-from app.modules.mdfe.routers.mdfes import router as mdfes_router
+from app.modules.auth.models.usuario import Usuario
+from app.modules.cadastros.models.empresa import Empresa
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.models.rota import Rota
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.models.transportador_dado_bancario import TransportadorDadoBancario
+from app.modules.cadastros.models.veiculo import Veiculo, VeiculoPlaca
+from app.modules.cadastros.models.cliente import Cliente
+from app.modules.cadastros.models.fornecedor import Fornecedor
+from app.modules.cadastros.models.motorista import Motorista
 
-from app.models.perfil import Perfil
-from app.models.permissao import Permissao
-from app.models.perfil_permissao import PerfilPermissao
-from app.models.configuracao_fiscal import ConfiguracaoFiscal
+from app.modules.admin.models.certificado_digital import CertificadoDigital
+from app.modules.admin.models.perfil import Perfil
+from app.modules.admin.models.permissao import Permissao
+from app.modules.admin.models.perfil_permissao import PerfilPermissao
+
+from app.modules.cadastros.models.configuracao_fiscal import ConfiguracaoFiscal
+
+from app.modules.mdfe.models.mdfe import Mdfe
+from app.modules.mdfe.models.mdfe_documento import MdfeDocumento
 
 from app.modules.auth.routers.auth import router as auth_router
 from app.modules.cadastros.routers.empresas import router as empresas_router
+
 from app.modules.admin.routers.admin_usuarios import router as admin_usuarios_router
 from app.modules.admin.routers.admin_perfis import router as admin_perfis_router
 from app.modules.admin.routers.admin_certificados import router as admin_certificados_router
+from app.modules.admin.routers.admin_configuracoes_fiscais import (
+    router as admin_configuracoes_fiscais_router,
+)
+
 from app.modules.cadastros.routers.rotas import router as rotas_router
 from app.modules.cadastros.routers.municipios import router as municipios_router
 from app.modules.cadastros.routers.tipos_veiculo import router as tipos_veiculo_router
@@ -44,9 +51,11 @@ from app.modules.cadastros.routers.veiculos import router as veiculos_router
 from app.modules.cadastros.routers.clientes import router as clientes_router
 from app.modules.cadastros.routers.fornecedores import router as fornecedores_router
 from app.modules.cadastros.routers.motoristas import router as motoristas_router
-from app.modules.mdfe.models.mdfe import Mdfe
-from app.modules.mdfe.models.mdfe_documento import MdfeDocumento
 
+from app.modules.mdfe.routers.mdfes import router as mdfes_router
+from app.modules.exportacao.routers.consulta_averbacao_router import (
+    router as consulta_averbacao_router,
+)
 
 load_dotenv()
 
@@ -82,9 +91,12 @@ app.mount(
 
 app.include_router(auth_router)
 app.include_router(empresas_router)
+
 app.include_router(admin_usuarios_router)
 app.include_router(admin_perfis_router)
 app.include_router(admin_certificados_router)
+app.include_router(admin_configuracoes_fiscais_router)
+
 app.include_router(rotas_router)
 app.include_router(municipios_router)
 app.include_router(tipos_veiculo_router)
@@ -93,8 +105,10 @@ app.include_router(veiculos_router)
 app.include_router(clientes_router)
 app.include_router(fornecedores_router)
 app.include_router(motoristas_router)
-app.include_router(admin_configuracoes_fiscais_router)
+
 app.include_router(mdfes_router)
+app.include_router(consulta_averbacao_router)
+
 
 @app.get("/")
 async def home():
@@ -103,7 +117,6 @@ async def home():
 
 @app.get("/dashboard")
 async def dashboard(request: Request):
-
     if not request.session.get("usuario_logado"):
         return RedirectResponse(url="/login", status_code=303)
 

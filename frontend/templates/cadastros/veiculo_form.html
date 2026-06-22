@@ -28,15 +28,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
             <div>
-                <label class="block text-sm font-semibold mb-2">
-                    Transportador
-                </label>
+                <label class="block text-sm font-semibold mb-2">Transportador</label>
 
-                <select
-                    class="nexport-input"
-                    name="transportador_id"
-                    required
-                >
+                <select class="nexport-input" name="transportador_id" required>
                     <option value="">Selecione...</option>
 
                     {% for transportador in transportadores %}
@@ -51,9 +45,7 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-2">
-                    Tipo de Veículo
-                </label>
+                <label class="block text-sm font-semibold mb-2">Tipo de Veículo</label>
 
                 <select
                     id="tipo_veiculo"
@@ -95,11 +87,7 @@
 
     </div>
 
-    <div
-        id="placas-container"
-        class="space-y-4"
-    >
-    </div>
+    <div id="placas-container" class="space-y-4"></div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
 
@@ -146,6 +134,10 @@ const placasExistentes = [
     {
         descricao: "{{ placa.descricao }}",
         placa: "{{ placa.placa }}",
+        renavam: "{{ placa.renavam or '' }}",
+        tara_kg: "{{ placa.tara_kg or '' }}",
+        capacidade_kg: "{{ placa.capacidade_kg or '' }}",
+        capacidade_m3: "{{ placa.capacidade_m3 or '' }}",
         cpf_cnpj_proprietario: "{{ placa.cpf_cnpj_proprietario or '' }}",
         rntrc: "{{ placa.rntrc or '' }}"
     },
@@ -153,22 +145,10 @@ const placasExistentes = [
 ];
 
 function obterDescricoesPlacas(qtd) {
-    if (qtd === 1) {
-        return ["Placa Cavalo"];
-    }
-
-    if (qtd === 2) {
-        return ["Placa Cavalo", "Placa Carreta 1"];
-    }
-
-    if (qtd === 3) {
-        return ["Placa Cavalo", "Placa Carreta 1", "Placa Carreta 2"];
-    }
-
-    if (qtd === 4) {
-        return ["Placa Cavalo", "Placa Carreta 1", "Placa Dolly", "Placa Carreta 2"];
-    }
-
+    if (qtd === 1) return ["Placa Cavalo"];
+    if (qtd === 2) return ["Placa Cavalo", "Placa Carreta 1"];
+    if (qtd === 3) return ["Placa Cavalo", "Placa Carreta 1", "Placa Carreta 2"];
+    if (qtd === 4) return ["Placa Cavalo", "Placa Carreta 1", "Placa Dolly", "Placa Carreta 2"];
     return [];
 }
 
@@ -260,13 +240,10 @@ function renderizarPlacas(qtd) {
                     ${descricao}
                 </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
                     <div>
-                        <label class="block text-sm font-semibold mb-2">
-                            Placa
-                        </label>
-
+                        <label class="block text-sm font-semibold mb-2">Placa</label>
                         <input
                             class="nexport-input campo-placa"
                             type="text"
@@ -279,10 +256,47 @@ function renderizarPlacas(qtd) {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold mb-2">
-                            CPF/CNPJ Proprietário
-                        </label>
+                        <label class="block text-sm font-semibold mb-2">RENAVAM</label>
+                        <input
+                            class="nexport-input"
+                            type="text"
+                            name="renavam"
+                            value="${existente.renavam || ''}"
+                        >
+                    </div>
 
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Tara (kg)</label>
+                        <input
+                            class="nexport-input"
+                            type="number"
+                            name="tara_kg"
+                            value="${existente.tara_kg || ''}"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Capacidade (kg)</label>
+                        <input
+                            class="nexport-input"
+                            type="number"
+                            name="capacidade_kg"
+                            value="${existente.capacidade_kg || ''}"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Capacidade (m³)</label>
+                        <input
+                            class="nexport-input"
+                            type="number"
+                            name="capacidade_m3"
+                            value="${existente.capacidade_m3 || ''}"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">CPF/CNPJ Proprietário</label>
                         <input
                             class="nexport-input campo-cpf-cnpj"
                             type="text"
@@ -294,10 +308,7 @@ function renderizarPlacas(qtd) {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold mb-2">
-                            RNTRC
-                        </label>
-
+                        <label class="block text-sm font-semibold mb-2">RNTRC</label>
                         <input
                             class="nexport-input"
                             type="text"

@@ -3,11 +3,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.core.security import gerar_hash_senha, verificar_senha
-from app.models.perfil import Perfil
-from app.models.perfil_permissao import PerfilPermissao
-from app.models.permissao import Permissao
-from app.models.usuario import Usuario
-from app.schemas.usuario import UsuarioCreate
+from app.modules.admin.models.perfil import Perfil
+from app.modules.admin.models.perfil_permissao import PerfilPermissao
+from app.modules.admin.models.permissao import Permissao
+from app.modules.auth.models.usuario import Usuario
+from app.modules.auth.schemas.usuario import UsuarioCreate
 
 
 def normalizar_perfil(nome_perfil: str | None) -> str:
@@ -83,7 +83,6 @@ def autenticar_usuario(db: Session, email: str, senha: str) -> Usuario | None:
 
     usuario.ultimo_login = datetime.utcnow()
     db.commit()
-    db.refresh(usuario)
 
     return usuario
 

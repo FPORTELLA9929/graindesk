@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.usuario import UsuarioCreate
+from app.modules.auth.schemas.usuario import UsuarioCreate
 from app.modules.auth.services import auth_service
 from utils.nomes import iniciais_nome, nome_abreviado
 

@@ -5,9 +5,12 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.models.tipo_veiculo import TipoVeiculo
-from app.models.transportador import Transportador
-from app.schemas.veiculo import VeiculoCreate, VeiculoUpdate
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.schemas.veiculo import (
+    VeiculoCreate,
+    VeiculoUpdate,
+)
 
 import app.modules.cadastros.services.veiculo_service as veiculo_service
 import app.modules.cadastros.services.tipo_veiculo_service as tipo_veiculo_service
@@ -37,9 +40,20 @@ def texto_ou_none(valor: str | None) -> str | None:
     if not valor:
         return None
 
-    valor = valor.strip()
-
+    valor = str(valor).strip()
     return valor or None
+
+
+def inteiro_ou_none(valor: str | None) -> int | None:
+    if not valor:
+        return None
+
+    valor_limpo = re.sub(r"\D", "", str(valor))
+
+    if not valor_limpo:
+        return None
+
+    return int(valor_limpo)
 
 
 def placa_valida(placa: str | None) -> bool:
@@ -127,6 +141,12 @@ def transportador_existe(db: Session, transportador_id: int | None) -> bool:
 def montar_dados_placas(form, quantidade_placas: int):
     descricoes = form.getlist("descricao_placa")
     placas = form.getlist("placa")
+
+    renavams = form.getlist("renavam")
+    taras_kg = form.getlist("tara_kg")
+    capacidades_kg = form.getlist("capacidade_kg")
+    capacidades_m3 = form.getlist("capacidade_m3")
+
     documentos = form.getlist("cpf_cnpj_proprietario")
     rntrcs = form.getlist("rntrc")
 
@@ -142,6 +162,12 @@ def montar_dados_placas(form, quantidade_placas: int):
     for index in range(quantidade_placas):
         descricao = descricoes[index] if index < len(descricoes) else ""
         placa = placas[index] if index < len(placas) else ""
+
+        renavam = renavams[index] if index < len(renavams) else None
+        tara_kg = taras_kg[index] if index < len(taras_kg) else None
+        capacidade_kg = capacidades_kg[index] if index < len(capacidades_kg) else None
+        capacidade_m3 = capacidades_m3[index] if index < len(capacidades_m3) else None
+
         documento = documentos[index] if index < len(documentos) else None
         rntrc = rntrcs[index] if index < len(rntrcs) else None
 
@@ -167,6 +193,10 @@ def montar_dados_placas(form, quantidade_placas: int):
             {
                 "descricao": descricao,
                 "placa": placa_limpa,
+                "renavam": texto_ou_none(renavam),
+                "tara_kg": inteiro_ou_none(tara_kg),
+                "capacidade_kg": inteiro_ou_none(capacidade_kg),
+                "capacidade_m3": inteiro_ou_none(capacidade_m3),
                 "cpf_cnpj_proprietario": documento_limpo,
                 "rntrc": texto_ou_none(rntrc),
             }

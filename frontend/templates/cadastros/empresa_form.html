@@ -68,9 +68,43 @@
             <input class="nexport-input" name="cep" placeholder="CEP" value="{{ empresa.cep if empresa else '' }}">
             <input class="nexport-input md:col-span-2" name="logradouro" placeholder="Logradouro" value="{{ empresa.logradouro if empresa else '' }}">
             <input class="nexport-input" name="numero" placeholder="Número" value="{{ empresa.numero if empresa else '' }}">
-            <input class="nexport-input" name="bairro" placeholder="Bairro" value="{{ empresa.bairro if empresa else '' }}">
-            <input class="nexport-input" name="cidade" placeholder="Cidade" value="{{ empresa.cidade if empresa else '' }}">
-            <input class="nexport-input" name="estado" placeholder="UF" maxlength="2" value="{{ empresa.estado if empresa else '' }}">
+            <input class="nexport-input md:col-span-2" name="bairro" placeholder="Bairro" value="{{ empresa.bairro if empresa else '' }}">
+
+            <div class="md:col-span-3 relative">
+                <input
+                    type="hidden"
+                    name="municipio_id"
+                    id="municipio_id"
+                    value="{{ empresa.municipio_id if empresa and empresa.municipio_id else '' }}"
+                >
+
+                <input
+                    class="nexport-input"
+                    id="municipio_busca"
+                    placeholder="Município"
+                    autocomplete="off"
+                    value="{{ empresa.cidade if empresa and empresa.cidade else '' }}"
+                >
+
+                <div
+                    id="municipio_sugestoes"
+                    class="hidden absolute z-50 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+                ></div>
+            </div>
+
+            <input
+                type="hidden"
+                name="cidade"
+                id="cidade"
+                value="{{ empresa.cidade if empresa else '' }}"
+            >
+
+            <input
+                type="hidden"
+                name="estado"
+                id="estado"
+                value="{{ empresa.estado if empresa else '' }}"
+            >
         </div>
     </div>
 
@@ -101,5 +135,82 @@
     </div>
 
 </form>
+
+<script>
+const CODIGO_UF_PARA_SIGLA = {
+    11: "RO", 12: "AC", 13: "AM", 14: "RR", 15: "PA", 16: "AP", 17: "TO",
+    21: "MA", 22: "PI", 23: "CE", 24: "RN", 25: "PB", 26: "PE", 27: "AL",
+    28: "SE", 29: "BA", 31: "MG", 32: "ES", 33: "RJ", 35: "SP",
+    41: "PR", 42: "SC", 43: "RS", 50: "MS", 51: "MT", 52: "GO", 53: "DF"
+};
+
+const municipioBusca = document.getElementById("municipio_busca");
+const municipioId = document.getElementById("municipio_id");
+const municipioSugestoes = document.getElementById("municipio_sugestoes");
+const cidadeInput = document.getElementById("cidade");
+const estadoInput = document.getElementById("estado");
+
+let timeoutMunicipio = null;
+
+function limparMunicipio() {
+    municipioId.value = "";
+    cidadeInput.value = "";
+    estadoInput.value = "";
+}
+
+function esconderSugestoes() {
+    municipioSugestoes.classList.add("hidden");
+    municipioSugestoes.innerHTML = "";
+}
+
+municipioBusca.addEventListener("input", function () {
+    const termo = municipioBusca.value.trim();
+
+    clearTimeout(timeoutMunicipio);
+
+    if (termo.length < 2) {
+        esconderSugestoes();
+        limparMunicipio();
+        return;
+    }
+
+    timeoutMunicipio = setTimeout(async function () {
+        const resposta = await fetch(`/api/municipios?q=${encodeURIComponent(termo)}`);
+        const municipios = await resposta.json();
+
+        municipioSugestoes.innerHTML = "";
+
+        if (!municipios.length) {
+            esconderSugestoes();
+            return;
+        }
+
+        municipios.forEach(function (municipio) {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "w-full text-left px-4 py-3 hover:bg-slate-100 text-sm";
+            item.textContent = `${municipio.nome} - ${CODIGO_UF_PARA_SIGLA[municipio.codigo_uf] || ""}`;
+
+            item.addEventListener("click", function () {
+                municipioId.value = municipio.codigo_ibge;
+                municipioBusca.value = municipio.nome;
+                cidadeInput.value = municipio.nome;
+                estadoInput.value = CODIGO_UF_PARA_SIGLA[municipio.codigo_uf] || "";
+                esconderSugestoes();
+            });
+
+            municipioSugestoes.appendChild(item);
+        });
+
+        municipioSugestoes.classList.remove("hidden");
+    }, 300);
+});
+
+document.addEventListener("click", function (event) {
+    if (!municipioSugestoes.contains(event.target) && event.target !== municipioBusca) {
+        esconderSugestoes();
+    }
+});
+</script>
 
 {% endblock %}

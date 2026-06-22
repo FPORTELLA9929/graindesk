@@ -7,7 +7,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.empresa import EmpresaCreate, EmpresaUpdate
+from app.modules.cadastros.schemas.empresa import EmpresaCreate, EmpresaUpdate
 from app.modules.cadastros.services import empresa_service
 
 
@@ -107,6 +107,7 @@ def criar_empresa(
     logradouro: str | None = Form(None),
     numero: str | None = Form(None),
     bairro: str | None = Form(None),
+    municipio_id: int | None = Form(None),
     cidade: str | None = Form(None),
     estado: str | None = Form(None),
     cep: str | None = Form(None),
@@ -127,6 +128,7 @@ def criar_empresa(
         logradouro=logradouro,
         numero=numero,
         bairro=bairro,
+        municipio_id=municipio_id,
         cidade=cidade,
         estado=estado,
         cep=cep,
@@ -179,6 +181,7 @@ def atualizar_empresa(
     logradouro: str | None = Form(None),
     numero: str | None = Form(None),
     bairro: str | None = Form(None),
+    municipio_id: int | None = Form(None),
     cidade: str | None = Form(None),
     estado: str | None = Form(None),
     cep: str | None = Form(None),
@@ -201,6 +204,7 @@ def atualizar_empresa(
         logradouro=logradouro,
         numero=numero,
         bairro=bairro,
+        municipio_id=municipio_id,
         cidade=cidade,
         estado=estado,
         cep=cep,

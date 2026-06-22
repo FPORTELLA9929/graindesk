@@ -9,8 +9,8 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from app.models.certificado_digital import CertificadoDigital
-from app.models.empresa import Empresa
+from app.modules.admin.models.certificado_digital import CertificadoDigital
+from app.modules.cadastros.models.empresa import Empresa
 
 
 UPLOAD_DIR = Path("static/uploads/certificados")

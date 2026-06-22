@@ -2,9 +2,9 @@ from fastapi import Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.models.perfil import Perfil
-from app.models.perfil_permissao import PerfilPermissao
-from app.models.permissao import Permissao
+from app.modules.admin.models.perfil import Perfil
+from app.modules.admin.models.perfil_permissao import PerfilPermissao
+from app.modules.admin.models.permissao import Permissao
 
 
 def usuario_logado(request: Request) -> bool:

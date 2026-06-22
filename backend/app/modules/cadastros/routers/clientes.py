@@ -3,7 +3,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.cliente import ClienteCreate, ClienteUpdate
+from app.modules.cadastros.schemas.cliente import (
+    ClienteCreate,
+    ClienteUpdate,
+)
 from app.modules.cadastros.services import cliente_service
 
 

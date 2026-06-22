@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models.empresa import Empresa
-from app.schemas.empresa import EmpresaCreate, EmpresaUpdate
+from app.modules.cadastros.models.empresa import Empresa
+from app.modules.cadastros.schemas.empresa import EmpresaCreate, EmpresaUpdate
 
 
 def listar_empresas(db: Session):

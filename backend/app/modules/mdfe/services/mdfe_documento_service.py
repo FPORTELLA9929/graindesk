@@ -3,9 +3,9 @@ from decimal import Decimal, ROUND_HALF_UP
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
-from app.models.rota import Rota
-from app.models.veiculo import Veiculo
-from app.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.models.rota import Rota
+from app.modules.cadastros.models.veiculo import Veiculo
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
 
 from app.modules.mdfe.models.mdfe import Mdfe
 from app.modules.mdfe.models.mdfe_documento import MdfeDocumento
@@ -14,6 +14,19 @@ from app.modules.mdfe.services.mdfe_xml_service import importar_xml_nfe
 
 def moeda(valor: Decimal) -> Decimal:
     return valor.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def buscar_documento_por_chave(
+    db: Session,
+    mdfe_id: int,
+    chave_nfe: str,
+):
+    return (
+        db.query(MdfeDocumento)
+        .filter(MdfeDocumento.mdfe_id == mdfe_id)
+        .filter(MdfeDocumento.chave_nfe == chave_nfe)
+        .first()
+    )
 
 
 def importar_documento_xml_no_mdfe(
@@ -47,6 +60,20 @@ def importar_documento_xml_no_mdfe(
 
     dados_xml = importar_xml_nfe(arquivo_xml)
 
+    chave_nfe = dados_xml.get("chave_nfe")
+
+    if not chave_nfe:
+        raise ValueError("Chave da NF-e não encontrada no XML.")
+
+    documento_existente = buscar_documento_por_chave(
+        db=db,
+        mdfe_id=mdfe.id,
+        chave_nfe=chave_nfe,
+    )
+
+    if documento_existente:
+        return documento_existente
+
     peso_liquido = dados_xml.get("peso_liquido") or Decimal("0")
     tarifa_rota = rota.tarifa or Decimal("0")
     pedagio_por_eixo = rota.valor_pedagio_por_eixo or Decimal("0")
@@ -65,7 +92,7 @@ def importar_documento_xml_no_mdfe(
 
     documento = MdfeDocumento(
         mdfe_id=mdfe.id,
-        chave_nfe=dados_xml.get("chave_nfe"),
+        chave_nfe=chave_nfe,
         numero_nfe=dados_xml.get("numero_nfe"),
         produto=dados_xml.get("produto"),
         quantidade=dados_xml.get("quantidade"),

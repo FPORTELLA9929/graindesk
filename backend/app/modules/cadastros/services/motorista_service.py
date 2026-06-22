@@ -3,9 +3,12 @@ import re
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 
-from app.models.motorista import Motorista
-from app.models.transportador import Transportador
-from app.schemas.motorista import MotoristaCreate, MotoristaUpdate
+from app.modules.cadastros.models.motorista import Motorista
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.schemas.motorista import (
+    MotoristaCreate,
+    MotoristaUpdate,
+)
 
 
 def somente_numeros(valor: str | None):

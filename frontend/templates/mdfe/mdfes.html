@@ -123,6 +123,15 @@
                                     Editar
                                 </a>
 
+                                {% if usuario_admin %}
+                                <a
+                                    href="/mdfe/{{ mdfe.id }}/baixar-xml"
+                                    class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-semibold"
+                                >
+                                    XML
+                                </a>
+                                {% endif %}
+
                                 <form
                                     method="post"
                                     action="/mdfe/{{ mdfe.id }}/excluir"
@@ -138,9 +147,18 @@
 
                                 {% else %}
 
-                                <span class="text-xs text-slate-400">
-                                    Sem ações disponíveis
-                                </span>
+                                    {% if usuario_admin %}
+                                    <a
+                                        href="/mdfe/{{ mdfe.id }}/baixar-xml"
+                                        class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2 rounded-xl text-sm font-semibold"
+                                    >
+                                        XML
+                                    </a>
+                                    {% else %}
+                                    <span class="text-xs text-slate-400">
+                                        Sem ações disponíveis
+                                    </span>
+                                    {% endif %}
 
                                 {% endif %}
 

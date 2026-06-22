@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 
-from app.models.cliente import Cliente
-from app.schemas.cliente import ClienteCreate, ClienteUpdate
+from app.modules.cadastros.models.cliente import Cliente
+from app.modules.cadastros.schemas.cliente import (
+    ClienteCreate,
+    ClienteUpdate,
+)
 
 
 def listar_clientes(db: Session):

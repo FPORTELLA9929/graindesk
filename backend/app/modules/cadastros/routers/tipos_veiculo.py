@@ -5,7 +5,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.tipo_veiculo import TipoVeiculoCreate, TipoVeiculoUpdate
+from app.modules.cadastros.schemas.tipo_veiculo import (
+    TipoVeiculoCreate,
+    TipoVeiculoUpdate,
+)
 from app.modules.cadastros.services import tipo_veiculo_service
 
 

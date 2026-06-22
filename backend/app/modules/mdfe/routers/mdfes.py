@@ -1,26 +1,30 @@
 from decimal import Decimal, ROUND_HALF_UP
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from sqlalchemy import func
 from sqlalchemy.orm import Session, aliased
 
 from app.core.permissoes import redirecionar_se_nao_logado_ou_sem_permissao
 from app.database.session import get_db
 
-from app.models.empresa import Empresa
-from app.models.transportador import Transportador
-from app.models.motorista import Motorista
-from app.models.veiculo import Veiculo, VeiculoPlaca
-from app.models.rota import Rota
-from app.models.municipio import Municipio
-from app.models.tipo_veiculo import TipoVeiculo
+from app.modules.cadastros.models.empresa import Empresa
+from app.modules.cadastros.models.transportador import Transportador
+from app.modules.cadastros.models.motorista import Motorista
+from app.modules.cadastros.models.veiculo import Veiculo, VeiculoPlaca
+from app.modules.cadastros.models.rota import Rota
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.models.tipo_veiculo import TipoVeiculo
 
 from app.modules.mdfe.models.mdfe import Mdfe
 from app.modules.mdfe.schemas.mdfe import MdfeCreate, MdfeUpdate
 from app.modules.mdfe.services import mdfe_service
 from app.modules.mdfe.services.mdfe_documento_service import importar_documento_xml_no_mdfe
 from app.modules.mdfe.services.mdfe_xml_service import importar_xml_nfe
+from app.modules.mdfe.services import mdfe_xml_gerador_service
+from app.modules.mdfe.services import mdfe_validador_xsd_service
+from app.modules.mdfe.services import mdfe_assinador_service
+from app.modules.mdfe.services import mdfe_emissao_service
 
 
 router = APIRouter(prefix="/mdfe", tags=["MDF-e"])
@@ -200,6 +204,7 @@ async def listar_mdfes(request: Request, db: Session = Depends(get_db)):
             "titulo_pagina": "MDF-e",
             "subtitulo_pagina": "Manifestos Eletrônicos cadastrados.",
             "mdfes": mdfes,
+            "usuario_admin": usuario_eh_administrador(request),
         },
     )
 
@@ -363,7 +368,7 @@ async def editar_mdfe(
     if not mdfe:
         raise HTTPException(status_code=404, detail="MDF-e não encontrado.")
 
-    if mdfe.status != "rascunho":
+    if mdfe.status not in ["rascunho", "erro", "validado"]:
         return RedirectResponse(url="/mdfe/", status_code=303)
 
     admin = usuario_eh_administrador(request)
@@ -375,14 +380,14 @@ async def editar_mdfe(
         context={
             "page_title": "Editar MDF-e - GrainDesk",
             "titulo_pagina": "Editar MDF-e",
-            "subtitulo_pagina": "Edição permitida apenas para MDF-e em rascunho.",
+            "subtitulo_pagina": "Edição permitida apenas antes da autorização.",
             **contexto,
             "mdfe": mdfe,
             "admin": admin,
             "modo_edicao": True,
             "numero_padrao": mdfe.numero,
             "serie_padrao": mdfe.serie,
-            "erro": None,
+            "erro": mdfe.mensagem_retorno,
         },
     )
 
@@ -415,7 +420,7 @@ async def atualizar_mdfe(
     if not mdfe_atual:
         raise HTTPException(status_code=404, detail="MDF-e não encontrado.")
 
-    if mdfe_atual.status != "rascunho":
+    if mdfe_atual.status not in ["rascunho", "erro", "validado"]:
         return RedirectResponse(url="/mdfe/", status_code=303)
 
     admin = usuario_eh_administrador(request)
@@ -444,6 +449,130 @@ async def atualizar_mdfe(
             db=db,
             mdfe_id=mdfe_id,
             arquivo_xml=arquivo_xml,
+        )
+
+    return RedirectResponse(url="/mdfe/", status_code=303)
+
+
+@router.get("/{mdfe_id}/baixar-xml")
+async def baixar_xml_mdfe(
+    mdfe_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    redirect = redirecionar_se_nao_logado_ou_sem_permissao(
+        db=db,
+        request=request,
+        codigo_permissao="mdfe",
+    )
+    if redirect:
+        return redirect
+
+    if not usuario_eh_administrador(request):
+        return RedirectResponse(url="/mdfe/", status_code=303)
+
+    try:
+        xml = mdfe_xml_gerador_service.gerar_xml_mdfe(
+            db=db,
+            mdfe_id=mdfe_id,
+        )
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+
+    return Response(
+        content=xml,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="mdfe_{mdfe_id}.xml"'
+        },
+    )
+
+
+@router.get("/{mdfe_id}/validar-xml")
+async def validar_xml_mdfe(
+    mdfe_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    redirect = redirecionar_se_nao_logado_ou_sem_permissao(
+        db=db,
+        request=request,
+        codigo_permissao="mdfe",
+    )
+    if redirect:
+        return redirect
+
+    if not usuario_eh_administrador(request):
+        return RedirectResponse(url="/mdfe/", status_code=303)
+
+    try:
+        resultado = mdfe_validador_xsd_service.validar_xml_mdfe(mdfe_id)
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+
+    return resultado
+
+
+@router.get("/{mdfe_id}/assinar-xml")
+async def assinar_xml_mdfe(
+    mdfe_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    redirect = redirecionar_se_nao_logado_ou_sem_permissao(
+        db=db,
+        request=request,
+        codigo_permissao="mdfe",
+    )
+    if redirect:
+        return redirect
+
+    if not usuario_eh_administrador(request):
+        return RedirectResponse(url="/mdfe/", status_code=303)
+
+    try:
+        xml = mdfe_assinador_service.assinar_xml_mdfe(
+            db=db,
+            mdfe_id=mdfe_id,
+        )
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+
+    return Response(
+        content=xml,
+        media_type="application/xml",
+        headers={
+            "Content-Disposition": f'attachment; filename="mdfe_{mdfe_id}_assinado.xml"'
+        },
+    )
+
+
+@router.get("/{mdfe_id}/emitir")
+async def emitir_mdfe(
+    mdfe_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    redirect = redirecionar_se_nao_logado_ou_sem_permissao(
+        db=db,
+        request=request,
+        codigo_permissao="mdfe",
+    )
+    if redirect:
+        return redirect
+
+    try:
+        resultado = mdfe_emissao_service.emitir_mdfe(
+            db=db,
+            mdfe_id=mdfe_id,
+        )
+    except ValueError as erro:
+        raise HTTPException(status_code=400, detail=str(erro))
+
+    if not resultado.get("sucesso"):
+        return RedirectResponse(
+            url=f"/mdfe/{mdfe_id}/editar",
+            status_code=303,
         )
 
     return RedirectResponse(url="/mdfe/", status_code=303)

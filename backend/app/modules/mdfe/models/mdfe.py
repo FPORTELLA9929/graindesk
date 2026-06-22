@@ -75,6 +75,59 @@ class Mdfe(Base):
         default="rascunho",
     )
 
+    # =========================
+    # CHAVE MDF-E
+    # =========================
+
+    chave_acesso = Column(
+        String(44),
+        nullable=True,
+        index=True,
+    )
+
+    codigo_mdf = Column(
+        String(8),
+        nullable=True,
+    )
+
+    digito_verificador = Column(
+        String(1),
+        nullable=True,
+    )
+
+    # =========================
+    # XML
+    # =========================
+
+    xml_path = Column(
+        String(500),
+        nullable=True,
+    )
+
+    xml_assinado_path = Column(
+        String(500),
+        nullable=True,
+    )
+
+    # =========================
+    # RETORNO SEFAZ
+    # =========================
+
+    protocolo = Column(
+        String(100),
+        nullable=True,
+    )
+
+    recibo = Column(
+        String(100),
+        nullable=True,
+    )
+
+    mensagem_retorno = Column(
+        Text,
+        nullable=True,
+    )
+
     observacoes = Column(
         Text,
         nullable=True,
@@ -104,6 +157,7 @@ class Mdfe(Base):
             f"<Mdfe("
             f"id={self.id}, "
             f"numero={self.numero}, "
+            f"chave='{self.chave_acesso}', "
             f"status='{self.status}'"
             f")>"
         )

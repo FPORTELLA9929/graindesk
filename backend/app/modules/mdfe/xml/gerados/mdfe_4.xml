@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDFe xmlns="http://www.portalfiscal.inf.br/mdfe">
+    <infMDFe versao="3.00" Id="MDFe41260607670089002862580010000000011659826617">
+        <ide>
+            <cUF>41</cUF>
+            <tpAmb>2</tpAmb>
+            <tpEmit>2</tpEmit>
+            <mod>58</mod>
+            <serie>1</serie>
+            <nMDF>1</nMDF>
+            <cMDF>65982661</cMDF>
+            <cDV>7</cDV>
+            <modal>1</modal>
+            <dhEmi>2026-06-19T17:18:27-03:00</dhEmi>
+            <tpEmis>1</tpEmis>
+            <procEmi>0</procEmi>
+            <verProc>GrainDesk 1.0</verProc>
+            <UFIni>PR</UFIni>
+            <UFFim>PR</UFFim>
+            <infMunCarrega>
+                <cMunCarrega>4102802</cMunCarrega>
+                <xMunCarrega>Bela Vista do Paraíso</xMunCarrega>
+            </infMunCarrega>
+        </ide>
+        <emit>
+            <CNPJ>07670089002862</CNPJ>
+            <IE>9104816140</IE>
+            <xNome>USIMAT DESTILARIA DE ALCOOL LTDA</xNome>
+            <xFant>USIMAT BELA VISTA DO PARAISO</xFant>
+            <enderEmit>
+                <xLgr>RODOVIA PR 090</xLgr>
+                <nro>SN</nro>
+                <xBairro>ZONA RURAL</xBairro>
+                <cMun>4102802</cMun>
+                <xMun>Bela Vista do Paraíso</xMun>
+                <CEP>86130000</CEP>
+                <UF>PR</UF>
+                <fone>4332592304</fone>
+            </enderEmit>
+        </emit>
+        <infModal versaoModal="3.00">
+            <rodo>
+                <infANTT>
+                    <RNTRC>052500344</RNTRC>
+                </infANTT>
+                <veicTracao>
+                    <cInt>2</cInt>
+                    <placa>CMR7D90</placa>
+                    <RENAVAM>00702042358</RENAVAM>
+                    <tara>9000</tara>
+                    <capKG>0</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>052500344</RNTRC>
+                    </prop>
+                    <condutor>
+                        <xNome>RINEU ALEXANDRE VALINI</xNome>
+                        <CPF>05285602980</CPF>
+                    </condutor>
+                    <tpRod>03</tpRod>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicTracao>
+                <veicReboque>
+                    <cInt>25</cInt>
+                    <placa>ALT1B47</placa>
+                    <RENAVAM>00827447930</RENAVAM>
+                    <tara>5350</tara>
+                    <capKG>19000</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>052500344</RNTRC>
+                    </prop>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicReboque>
+                <veicReboque>
+                    <cInt>26</cInt>
+                    <placa>ALT1B48</placa>
+                    <RENAVAM>00827448791</RENAVAM>
+                    <tara>5350</tara>
+                    <capKG>19000</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>052500344</RNTRC>
+                    </prop>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicReboque>
+            </rodo>
+        </infModal>
+        <infDoc>
+            <infMunDescarga>
+                <cMunDescarga>4109807</cMunDescarga>
+                <xMunDescarga>Ibiporã</xMunDescarga>
+                <infNFe>
+                    <chNFe>41250907670089002862550010000012641756523813</chNFe>
+                </infNFe>
+            </infMunDescarga>
+        </infDoc>
+        <tot>
+            <qNFe>1</qNFe>
+            <vCarga>35521.07</vCarga>
+            <cUnid>01</cUnid>
+            <qCarga>41610.0000</qCarga>
+        </tot>
+    </infMDFe>
+</MDFe>

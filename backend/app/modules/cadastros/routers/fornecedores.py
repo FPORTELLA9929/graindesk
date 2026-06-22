@@ -3,7 +3,10 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.schemas.fornecedor import FornecedorCreate, FornecedorUpdate
+from app.modules.cadastros.schemas.fornecedor import (
+    FornecedorCreate,
+    FornecedorUpdate,
+)
 from app.modules.cadastros.services import fornecedor_service
 
 

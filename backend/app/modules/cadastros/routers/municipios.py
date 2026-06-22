@@ -1,8 +1,12 @@
+import unicodedata
+
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
-from app.models.municipio import Municipio
+from app.modules.cadastros.models.municipio import Municipio
+
 
 router = APIRouter(
     prefix="/api",
@@ -10,13 +14,20 @@ router = APIRouter(
 )
 
 
+def remover_acentos(texto: str) -> str:
+    return "".join(
+        caractere
+        for caractere in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(caractere) != "Mn"
+    )
+
+
 @router.get("/municipios")
 def pesquisar_municipios(
-    q: str = Query(...)
-    ,
-    db: Session = Depends(get_db)
+    q: str = Query(...),
+    db: Session = Depends(get_db),
 ):
-    termo = q.strip()
+    termo = remover_acentos(q.strip())
 
     if len(termo) < 2:
         return []
@@ -24,7 +35,9 @@ def pesquisar_municipios(
     municipios = (
         db.query(Municipio)
         .filter(
-            Municipio.nome.ilike(f"%{termo}%")
+            func.unaccent(Municipio.nome).ilike(
+                f"%{termo}%"
+            )
         )
         .order_by(Municipio.nome.asc())
         .limit(20)
@@ -35,7 +48,7 @@ def pesquisar_municipios(
         {
             "codigo_ibge": municipio.codigo_ibge,
             "nome": municipio.nome,
-            "codigo_uf": municipio.codigo_uf
+            "codigo_uf": municipio.codigo_uf,
         }
         for municipio in municipios
     ]

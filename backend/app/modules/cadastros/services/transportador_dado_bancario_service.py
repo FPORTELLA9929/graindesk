@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models.transportador_dado_bancario import TransportadorDadoBancario
-from app.schemas.transportador_dado_bancario import (
+from app.modules.cadastros.models.transportador_dado_bancario import TransportadorDadoBancario
+from app.modules.cadastros.schemas.transportador_dado_bancario import (
     TransportadorDadoBancarioCreate,
 )
 

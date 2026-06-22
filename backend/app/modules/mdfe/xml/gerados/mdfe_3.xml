@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDFe xmlns="http://www.portalfiscal.inf.br/mdfe">
+    <infMDFe versao="3.00" Id="MDFe00000000000000000000000000000000000000000003">
+        <ide>
+            <cUF>41</cUF>
+            <tpAmb>2</tpAmb>
+            <tpEmit>2</tpEmit>
+            <mod>58</mod>
+            <serie>1</serie>
+            <nMDF>2</nMDF>
+            <cMDF>00000003</cMDF>
+            <cDV>0</cDV>
+            <modal>1</modal>
+            <dhEmi>2026-06-17T19:12:53.404707+00:00</dhEmi>
+            <tpEmis>1</tpEmis>
+            <procEmi>0</procEmi>
+            <verProc>GrainDesk 1.0</verProc>
+            <UFIni>PR</UFIni>
+            <UFFim>PR</UFFim>
+        </ide>
+        <emit>
+            <CNPJ>07670089002862</CNPJ>
+            <IE>9104816140</IE>
+            <xNome>USIMAT DESTILARIA DE ALCOOL LTDA</xNome>
+            <xFant>USIMAT BELA VISTA DO PARAISO</xFant>
+            <enderEmit>
+                <xLgr>RODOVIA PR 090</xLgr>
+                <nro>SN</nro>
+                <xBairro>ZONA RURAL</xBairro>
+                <cMun>4102802</cMun>
+                <xMun>Bela Vista do Paraíso</xMun>
+                <CEP>86130000</CEP>
+                <UF>PR</UF>
+                <fone>4332592304</fone>
+            </enderEmit>
+        </emit>
+        <rodo>
+            <infANTT>
+                <RNTRC>052500344</RNTRC>
+            </infANTT>
+            <veicTracao>
+                <cInt>2</cInt>
+                <placa>CMR7D90</placa>
+                <RENAVAM>00702042358</RENAVAM>
+                <tara>9000</tara>
+                <capKG>0</capKG>
+                <capM3>25</capM3>
+                <condutor>
+                    <xNome>RINEU ALEXANDRE VALINI</xNome>
+                    <CPF>05285602980</CPF>
+                </condutor>
+            </veicTracao>
+            <veicReboque>
+                <cInt>22</cInt>
+                <placa>ALT1B47</placa>
+                <RENAVAM>00827447930</RENAVAM>
+                <tara>5350</tara>
+                <capKG>19000</capKG>
+                <capM3>25</capM3>
+            </veicReboque>
+            <veicReboque>
+                <cInt>23</cInt>
+                <placa>ALT1B48</placa>
+                <RENAVAM>00827448791</RENAVAM>
+                <tara>5350</tara>
+                <capKG>19000</capKG>
+                <capM3>25</capM3>
+            </veicReboque>
+        </rodo>
+        <infDoc>
+            <infMunDescarga>
+                <cMunDescarga>4109807</cMunDescarga>
+                <xMunDescarga>Ibiporã</xMunDescarga>
+                <infNFe>
+                    <chNFe>41250907670089002862550010000012641756523813</chNFe>
+                </infNFe>
+                <infNFe>
+                    <chNFe>41250907670089002862550010000012641756523813</chNFe>
+                </infNFe>
+                <infNFe>
+                    <chNFe>41250907670089002862550010000012641756523813</chNFe>
+                </infNFe>
+            </infMunDescarga>
+        </infDoc>
+        <tot>
+            <qNFe>3</qNFe>
+            <vCarga>106563.21</vCarga>
+            <cUnid>01</cUnid>
+            <qCarga>124830.0000</qCarga>
+        </tot>
+    </infMDFe>
+</MDFe>

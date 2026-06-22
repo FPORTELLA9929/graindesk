@@ -1,8 +1,11 @@
 from sqlalchemy.orm import Session, aliased
 
-from app.models.rota import Rota
-from app.models.municipio import Municipio
-from app.schemas.rota import RotaCreate, RotaUpdate
+from app.modules.cadastros.models.rota import Rota
+from app.modules.cadastros.models.municipio import Municipio
+from app.modules.cadastros.schemas.rota import (
+    RotaCreate,
+    RotaUpdate,
+)
 
 
 def listar_rotas(
