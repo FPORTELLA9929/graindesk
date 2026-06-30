@@ -1,0 +1,3 @@
+{% macro volume(valor) -%}
+    {{ "{:,.0f}".format((valor or 0)|float).replace(",", ".") }}
+{%- endmacro %}

@@ -1,0 +1,467 @@
+<div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="p-6 border-b space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                    <h2 class="font-semibold text-slate-800">
+                        Estoque de Exportação
+                    </h2>
+                    <p class="text-sm text-slate-500">
+                        Saldo formado pelas NF-es de entrada equiparada
+                    </p>
+                </div>
+
+                <div class="text-xs text-slate-500">
+                    Totais calculados sobre todos os registros filtrados
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div class="gd-total-card">
+                    <div class="gd-total-label">Original</div>
+                    <div id="totalOriginal" class="gd-total-value">{{ volume(totais_consulta.original) }}</div>
+                </div>
+
+                <div class="gd-total-card">
+                    <div class="gd-total-label">Consumido</div>
+                    <div id="totalConsumido" class="gd-total-value">{{ volume(totais_consulta.consumido) }}</div>
+                </div>
+
+                <div class="gd-total-card">
+                    <div class="gd-total-label">Saldo</div>
+                    <div id="totalSaldo" class="gd-total-value">{{ volume(totais_consulta.saldo) }}</div>
+                </div>
+
+                <div class="gd-total-card">
+                    <div class="gd-total-label">Reservado</div>
+                    <div id="totalReservado" class="gd-total-value text-amber-600">{{ volume(totais_consulta.reservado) }}</div>
+                </div>
+
+                <div class="gd-total-card">
+                    <div class="gd-total-label">Livre</div>
+                    <div id="totalLivre" class="gd-total-value text-emerald-700">{{ volume(totais_consulta.livre) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table id="tabelaEntradas" class="gd-grid w-full">
+                <thead>
+                    <tr>
+                        <th class="px-5 py-4 gd-sticky-col">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="nf" data-label="NF">
+                                <span>NF</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="data" data-label="Data">
+                                <span>Data</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="filial" data-label="Filial">
+                                <span>Filial</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="fornecedor" data-label="Fornecedor">
+                                <span>Fornecedor</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="produto" data-label="Produto">
+                                <span>Produto</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-left" data-sort="ncm" data-label="NCM">
+                                <span>NCM</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th total-th gd-sort gd-sort-right" data-sort="original" data-label="Original" data-total-label="Original">
+                                <span>Original</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th total-th gd-sort gd-sort-right" data-sort="consumido" data-label="Consumido" data-total-label="Consumido">
+                                <span>Consumido</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th total-th gd-sort gd-sort-right" data-sort="saldo" data-label="Saldo" data-total-label="Saldo">
+                                <span>Saldo</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th total-th gd-sort gd-sort-right" data-sort="reservado" data-label="Reservado" data-total-label="Reservado">
+                                <span>Reservado</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th total-th gd-sort gd-sort-right" data-sort="livre" data-label="Livre" data-total-label="Livre">
+                                <span>Livre</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-center" data-sort="prazo" data-label="Prazo 180d">
+                                <span>Prazo 180d</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4">
+                            <button type="button" class="sort-th gd-sort gd-sort-center" data-sort="situacao" data-label="Situação">
+                                <span>Situação</span><span class="gd-sort-icon">↕</span>
+                            </button>
+                        </th>
+
+                        <th class="px-5 py-4 text-center whitespace-nowrap">
+                            Histórico
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody id="entradasBody">
+                {% for entrada in entradas %}
+
+                    {% set consumido = entrada.quantidade_original - entrada.quantidade_saldo %}
+                    {% set reservado = namespace(valor=0) %}
+                    {% for item_reserva in entrada.reservas_itens %}
+                        {% if item_reserva.status == "ativa" and item_reserva.reserva and item_reserva.reserva.status in ["ativa", "parcial"] %}
+                            {% set reservado.valor = reservado.valor + item_reserva.quantidade_reservada - item_reserva.quantidade_consumida %}
+                        {% endif %}
+                    {% endfor %}
+                    {% set saldo_livre = entrada.quantidade_saldo - reservado.valor %}
+                    {% set historico_id = "historico-" ~ entrada.id %}
+
+                    <tr
+                        class="entrada-row border-b hover:bg-slate-50"
+                        data-grupo="{{ entrada.id }}"
+                        data-nf="{{ entrada.numero_nfe or '' }}"
+                        data-data="{% if entrada.data_emissao %}{{ entrada.data_emissao.strftime('%Y%m%d') }}{% else %}0{% endif %}"
+                        data-filial="{{ entrada.empresa.razao_social if entrada.empresa else '' }}"
+                        data-fornecedor="{{ entrada.fornecedor_nome or '' }}"
+                        data-produto="{{ entrada.produto or '' }}"
+                        data-ncm="{{ entrada.ncm or '' }}"
+                        data-original="{{ (entrada.quantidade_original or 0)|float }}"
+                        data-consumido="{{ (consumido or 0)|float }}"
+                        data-saldo="{{ (entrada.quantidade_saldo or 0)|float }}"
+                        data-reservado="{{ (reservado.valor or 0)|float }}"
+                        data-livre="{{ (saldo_livre or 0)|float }}"
+                        data-prazo="{% if entrada.prazo_exportacao.dias_restantes is not none %}{{ entrada.prazo_exportacao.dias_restantes }}{% else %}999999{% endif %}"
+                        data-situacao="{{ entrada.status or '' }}"
+                    >
+                        <td class="gd-sticky-col px-5 py-4 font-semibold text-slate-800">
+                            {{ entrada.numero_nfe or "-" }}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-600">
+                            {% if entrada.data_emissao %}
+                                {{ entrada.data_emissao.strftime("%d/%m/%Y") }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="font-medium text-slate-800">
+                                {{ entrada.empresa.razao_social if entrada.empresa else "-" }}
+                            </div>
+
+                            <div class="text-xs text-slate-500">
+                                {% if entrada.empresa %}
+                                    {{ entrada.empresa.cidade or "-" }}
+                                    {% if entrada.empresa.estado %}
+                                        - {{ entrada.empresa.estado }}
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="font-medium text-slate-800">
+                                {{ entrada.fornecedor_nome or "-" }}
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                CNPJ {{ entrada.fornecedor_cnpj or "-" }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {{ entrada.produto or "-" }}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {{ entrada.ncm or "-" }}
+                        </td>
+
+                        <td class="gd-num px-5 py-4">
+                            {{ volume(entrada.quantidade_original) }}
+                        </td>
+
+                        <td class="gd-num px-5 py-4">
+                            {{ volume(consumido) }}
+                        </td>
+
+                        <td class="gd-num px-5 py-4 font-semibold">
+                            {{ volume(entrada.quantidade_saldo) }}
+                        </td>
+
+                        <td class="gd-num px-5 py-4 font-semibold text-amber-600">
+                            {{ volume(reservado.valor) }}
+                        </td>
+
+                        <td class="gd-num px-5 py-4 font-semibold text-emerald-700">
+                            {{ volume(saldo_livre) }}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold {{ entrada.prazo_exportacao.classe_badge }}">
+                                    {{ entrada.prazo_exportacao.texto }}
+                                </span>
+
+                                {% if entrada.prazo_exportacao.dias_restantes is not none %}
+                                    <span class="text-[11px] text-slate-500">
+                                        {% if entrada.prazo_exportacao.dias_restantes < 0 %}
+                                            {{ entrada.prazo_exportacao.dias_restantes|abs }} dia(s) vencida
+                                        {% else %}
+                                            {{ entrada.prazo_exportacao.dias_restantes }} dia(s) restante(s)
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            {% if entrada.status == "disponivel" %}
+                                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                    Disponível
+                                </span>
+                            {% elif entrada.status == "parcial" %}
+                                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                                    Parcial
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                    Consumida
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            <button
+                                type="button"
+                                onclick="document.getElementById('{{ historico_id }}').classList.toggle('hidden')"
+                                class="px-3 py-2 rounded-lg border text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                Ver histórico
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr class="entrada-detail bg-slate-50 border-b" data-grupo="{{ entrada.id }}">
+                        <td colspan="14" class="px-5 py-3 text-xs text-slate-500">
+                            <span class="font-semibold">Chave:</span>
+                            {{ entrada.chave_nfe }}
+
+                            <span class="ml-6 font-semibold">CFOP:</span>
+                            {{ entrada.cfop or "-" }}
+                        </td>
+                    </tr>
+
+                    <tr id="{{ historico_id }}" class="entrada-detail hidden bg-white border-b" data-grupo="{{ entrada.id }}">
+                        <td colspan="14" class="px-5 py-5">
+
+                            <div class="rounded-2xl border bg-slate-50 p-5 space-y-4">
+
+                                <div class="grid grid-cols-1 md:grid-cols-7 gap-4">
+                                    <div>
+                                        <p class="text-xs text-slate-500">NF Entrada</p>
+                                        <p class="font-semibold text-slate-800">{{ entrada.numero_nfe or "-" }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Quantidade Original</p>
+                                        <p class="font-semibold text-slate-800">{{ volume(entrada.quantidade_original) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Consumido</p>
+                                        <p class="font-semibold text-slate-800">{{ volume(consumido) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Saldo Atual</p>
+                                        <p class="font-semibold text-slate-800">{{ volume(entrada.quantidade_saldo) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Reservado</p>
+                                        <p class="font-semibold text-amber-600">{{ volume(reservado.valor) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Livre</p>
+                                        <p class="font-semibold text-emerald-700">{{ volume(saldo_livre) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Data Limite</p>
+                                        <p class="font-semibold text-slate-800">
+                                            {% if entrada.data_limite_exportacao %}
+                                                {{ entrada.data_limite_exportacao.strftime("%d/%m/%Y") }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="font-semibold text-slate-800 mb-3">
+                                        Movimentações de Consumo
+                                    </h3>
+
+                                    {% if entrada.consumos %}
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full bg-white rounded-xl overflow-hidden border">
+                                                <thead class="bg-slate-100">
+                                                    <tr>
+                                                        <th class="text-left px-4 py-3 text-xs">Data</th>
+                                                        <th class="text-left px-4 py-3 text-xs">NF Exportação</th>
+                                                        <th class="text-left px-4 py-3 text-xs">Chave Exportação</th>
+                                                        <th class="text-left px-4 py-3 text-xs">RE</th>
+                                                        <th class="text-right px-4 py-3 text-xs">Quantidade Consumida</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    {% for consumo in entrada.consumos %}
+                                                    <tr class="border-t">
+                                                        <td class="px-4 py-3 text-sm text-slate-600">
+                                                            {% if consumo.criado_em %}
+                                                                {{ consumo.criado_em.strftime("%d/%m/%Y %H:%M") }}
+                                                            {% else %}
+                                                                -
+                                                            {% endif %}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800">
+                                                            {{ consumo.numero_nfe_saida or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-xs text-slate-500">
+                                                            {{ consumo.chave_nfe_saida or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-slate-700">
+                                                            {{ consumo.numero_re or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-right font-semibold text-slate-800">
+                                                            {{ volume(consumo.quantidade_consumida) }}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="bg-white border rounded-xl p-4 text-sm text-slate-500">
+                                            Nenhuma movimentação registrada para esta NF-e.
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <h3 class="font-semibold text-slate-800 mb-3">
+                                        Reservas de Saldo
+                                    </h3>
+
+                                    {% if entrada.reservas_itens %}
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full bg-white rounded-xl overflow-hidden border">
+                                                <thead class="bg-slate-100">
+                                                    <tr>
+                                                        <th class="text-left px-4 py-3 text-xs">Data</th>
+                                                        <th class="text-left px-4 py-3 text-xs">Reserva</th>
+                                                        <th class="text-left px-4 py-3 text-xs">Status</th>
+                                                        <th class="text-right px-4 py-3 text-xs">Reservado</th>
+                                                        <th class="text-right px-4 py-3 text-xs">Consumido</th>
+                                                        <th class="text-right px-4 py-3 text-xs">Saldo Reserva</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    {% for item_reserva in entrada.reservas_itens %}
+                                                    <tr class="border-t">
+                                                        <td class="px-4 py-3 text-sm text-slate-600">
+                                                            {% if item_reserva.criado_em %}
+                                                                {{ item_reserva.criado_em.strftime("%d/%m/%Y %H:%M") }}
+                                                            {% else %}
+                                                                -
+                                                            {% endif %}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800">
+                                                            #{{ item_reserva.reserva_id }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-slate-700">
+                                                            {{ item_reserva.status }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-right font-semibold text-amber-600">
+                                                            {{ volume(item_reserva.quantidade_reservada) }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-right font-semibold text-slate-800">
+                                                            {{ volume(item_reserva.quantidade_consumida) }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-right font-semibold text-emerald-700">
+                                                            {{ volume(item_reserva.quantidade_reservada - item_reserva.quantidade_consumida) }}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="bg-white border rounded-xl p-4 text-sm text-slate-500">
+                                            Nenhuma reserva registrada para esta NF-e.
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        </td>
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+                        <td colspan="14" class="px-5 py-10 text-center text-slate-500">
+                            Nenhuma entrada equiparada importada ainda.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include "components/grid/_pagination.html" %}
+    </div>

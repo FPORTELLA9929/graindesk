@@ -1,0 +1,107 @@
+<form method="get" id="filtroEntradasForm" class="bg-white rounded-2xl border shadow-sm p-5">
+        <input type="hidden" name="pagina" id="paginaAtualFiltro" value="{{ filtros.pagina or 1 }}">
+        <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Filial
+                </label>
+                <select name="empresa_id" class="w-full rounded-xl border px-3 py-3 text-sm">
+                    <option value="">Todas</option>
+                    {% for empresa in empresas %}
+                    <option value="{{ empresa.id }}"
+                        {% if filtros.empresa_id and filtros.empresa_id|int == empresa.id %}selected{% endif %}>
+                        {{ empresa.razao_social }}{% if empresa.cidade %} - {{ empresa.cidade }}{% if empresa.estado %}/{{ empresa.estado }}{% endif %}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Fornecedor
+                </label>
+                <input
+                    type="text"
+                    name="fornecedor"
+                    value="{{ filtros.fornecedor }}"
+                    placeholder="Nome do fornecedor"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Situação
+                </label>
+                <select name="status" class="w-full rounded-xl border px-3 py-3 text-sm">
+                    <option value="">Todas</option>
+                    <option value="disponivel" {% if filtros.status == "disponivel" %}selected{% endif %}>Disponível</option>
+                    <option value="parcial" {% if filtros.status == "parcial" %}selected{% endif %}>Parcial</option>
+                    <option value="consumida" {% if filtros.status == "consumida" %}selected{% endif %}>Consumida</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Prazo
+                </label>
+                <select name="situacao_prazo" class="w-full rounded-xl border px-3 py-3 text-sm">
+                    <option value="">Todos</option>
+                    <option value="normal" {% if filtros.situacao_prazo == "normal" %}selected{% endif %}>Normal</option>
+                    <option value="atencao" {% if filtros.situacao_prazo == "atencao" %}selected{% endif %}>Atenção</option>
+                    <option value="critico" {% if filtros.situacao_prazo == "critico" %}selected{% endif %}>Crítico</option>
+                    <option value="vencendo" {% if filtros.situacao_prazo == "vencendo" %}selected{% endif %}>Vencendo</option>
+                    <option value="vencida" {% if filtros.situacao_prazo == "vencida" %}selected{% endif %}>Vencida</option>
+                    <option value="sem_data" {% if filtros.situacao_prazo == "sem_data" %}selected{% endif %}>Sem data</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Data inicial
+                </label>
+                <input
+                    type="date"
+                    name="data_inicial"
+                    value="{{ filtros.data_inicial }}"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Data final
+                </label>
+                <input
+                    type="date"
+                    name="data_final"
+                    value="{{ filtros.data_final }}"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Exibir
+                </label>
+                <select
+                    name="por_pagina"
+                    class="w-full rounded-xl border px-3 py-3 text-sm"
+                    onchange="document.getElementById('paginaAtualFiltro').value = 1; this.form.submit();">
+                    <option value="10" {% if filtros.por_pagina|int == 10 %}selected{% endif %}>10</option>
+                    <option value="50" {% if filtros.por_pagina|int == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if filtros.por_pagina|int == 100 %}selected{% endif %}>100</option>
+                    <option value="500" {% if filtros.por_pagina|int == 500 %}selected{% endif %}>500</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm w-full">
+                    Filtrar
+                </button>
+
+                <a href="/exportacao/entradas/" class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50">
+                    Limpar
+                </a>
+            </div>
+
+        </div>
+    </form>

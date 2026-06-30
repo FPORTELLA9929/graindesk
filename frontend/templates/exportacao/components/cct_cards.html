@@ -1,0 +1,88 @@
+{% set ns = namespace(
+    total_saldo=0,
+    materiais=[],
+    portos=[]
+) %}
+
+{% for item in saldos_cct %}
+
+    {% set ns.total_saldo = ns.total_saldo + (item.saldo|float) %}
+
+    {% if item.material and item.material not in ns.materiais %}
+        {% set _ = ns.materiais.append(item.material) %}
+    {% endif %}
+
+    {% if item.porto and item.porto not in ns.portos %}
+        {% set _ = ns.portos.append(item.porto) %}
+    {% endif %}
+
+{% endfor %}
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+        <p class="text-sm text-slate-500">
+            NF-es no Estoque
+        </p>
+
+        <p class="mt-2 text-4xl font-bold text-slate-800">
+            {{ saldos_cct|length }}
+        </p>
+
+        <p class="mt-3 text-xs text-slate-400">
+            NF-es recepcionadas no Portal Único.
+        </p>
+    </div>
+
+
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+
+        <p class="text-sm text-slate-500">
+            Saldo Total CCT
+        </p>
+
+        <p class="mt-2 text-4xl font-bold text-emerald-600">
+            {{ "{:,.0f}".format(ns.total_saldo).replace(",", ".") }}
+        </p>
+
+        <p class="mt-3 text-xs text-slate-400">
+            Quilogramas disponíveis.
+        </p>
+
+    </div>
+
+
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+
+        <p class="text-sm text-slate-500">
+            Materiais
+        </p>
+
+        <p class="mt-2 text-4xl font-bold text-blue-600">
+            {{ ns.materiais|length }}
+        </p>
+
+        <p class="mt-3 text-xs text-slate-400">
+            Materiais distintos encontrados.
+        </p>
+
+    </div>
+
+
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+
+        <p class="text-sm text-slate-500">
+            Portos
+        </p>
+
+        <p class="mt-2 text-4xl font-bold text-orange-500">
+            {{ ns.portos|length }}
+        </p>
+
+        <p class="mt-3 text-xs text-slate-400">
+            Portos utilizados.
+        </p>
+
+    </div>
+
+</div>

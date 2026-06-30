@@ -1,0 +1,124 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+                {{ titulo_pagina }}
+            </h1>
+            <p class="text-sm text-slate-500">
+                {{ subtitulo_pagina }}
+            </p>
+        </div>
+
+        <a href="/exportacao/cct/" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm">
+            Nova Consulta
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="p-6 border-b">
+            <h2 class="font-semibold text-slate-800">
+                Consultas Realizadas
+            </h2>
+            <p class="text-sm text-slate-500">
+                Histórico das consultas CCT salvas no GrainDesk.
+            </p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="text-left px-5 py-4">ID</th>
+                        <th class="text-left px-5 py-4">Data/Hora</th>
+                        <th class="text-left px-5 py-4">Usuário</th>
+                        <th class="text-right px-5 py-4">Chaves</th>
+                        <th class="text-right px-5 py-4">OK</th>
+                        <th class="text-right px-5 py-4">Inválidas</th>
+                        <th class="text-right px-5 py-4">Não Encontradas</th>
+                        <th class="text-center px-5 py-4">Status</th>
+                        <th class="text-center px-5 py-4">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for consulta in consultas %}
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="px-5 py-4 font-semibold text-slate-800">
+                            #{{ consulta.id }}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-700">
+                            {% if consulta.criado_em %}
+                                {{ consulta.criado_em.strftime("%d/%m/%Y %H:%M") }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-700">
+                            {{ consulta.usuario_nome or "-" }}
+                        </td>
+
+                        <td class="text-right px-5 py-4">
+                            {{ consulta.quantidade_chaves or 0 }}
+                        </td>
+
+                        <td class="text-right px-5 py-4 text-emerald-700 font-semibold">
+                            {{ consulta.quantidade_ok or 0 }}
+                        </td>
+
+                        <td class="text-right px-5 py-4 text-red-600 font-semibold">
+                            {{ consulta.quantidade_invalidas or 0 }}
+                        </td>
+
+                        <td class="text-right px-5 py-4 text-amber-600 font-semibold">
+                            {{ consulta.quantidade_nao_encontradas or 0 }}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            {% if consulta.status == "concluida" %}
+                                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                    Concluída
+                                </span>
+                            {% elif consulta.status == "processando" %}
+                                <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                                    Processando
+                                </span>
+                            {% elif consulta.status == "erro" %}
+                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                    Erro
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                                    {{ consulta.status or "-" }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            <a href="/exportacao/cct/historico/{{ consulta.id }}"
+                               class="px-3 py-2 rounded-lg border text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                Ver
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="px-5 py-10 text-center text-slate-500">
+                            Nenhuma consulta CCT salva ainda.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

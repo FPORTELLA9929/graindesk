@@ -5,6 +5,7 @@
       <cUF>41</cUF>
       <tpAmb>2</tpAmb>
       <tpEmit>2</tpEmit>
+      <tpTransp>2</tpTransp>
       <mod>58</mod>
       <serie>1</serie>
       <nMDF>1</nMDF>
@@ -41,7 +42,10 @@
     <infModal versaoModal="3.00">
       <rodo>
         <infANTT>
-          <RNTRC>052500344</RNTRC>
+          <RNTRC>52500344</RNTRC>
+          <infContratante>
+            <CNPJ>07670089002862</CNPJ>
+          </infContratante>
         </infANTT>
         <veicTracao>
           <cInt>2</cInt>
@@ -52,7 +56,11 @@
           <capM3>25</capM3>
           <prop>
             <CPF>02236248962</CPF>
-            <RNTRC>052500344</RNTRC>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
           </prop>
           <condutor>
             <xNome>RINEU ALEXANDRE VALINI</xNome>
@@ -71,7 +79,11 @@
           <capM3>25</capM3>
           <prop>
             <CPF>02236248962</CPF>
-            <RNTRC>052500344</RNTRC>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
           </prop>
           <tpCar>00</tpCar>
           <UF>PR</UF>
@@ -85,7 +97,11 @@
           <capM3>25</capM3>
           <prop>
             <CPF>02236248962</CPF>
-            <RNTRC>052500344</RNTRC>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
           </prop>
           <tpCar>00</tpCar>
           <UF>PR</UF>
@@ -118,10 +134,10 @@
           <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
         </ds:Transforms>
         <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
-        <ds:DigestValue>rY2+2BJsRZlswo3YQ+EQ29arKDU=</ds:DigestValue>
+        <ds:DigestValue>WFekHQnq+RtcXG31icCy+IbK7SI=</ds:DigestValue>
       </ds:Reference>
     </ds:SignedInfo>
-    <ds:SignatureValue>bxKwgZNQ1tcINksCtuqmMG/NiqD7o8zYuJc7aGVAV2KTcHs8A8O+S2P7qlV2k5nG9mQNFbywb48yDl1axjNRxQgoFb/7JupdmncLMW4CFLHH7Tg/EHGHZLsMCpJjlhvcy0dEOB2UL+xyii8P23YtQLyWxHesYcw5OD+rWGnLIeP0dWeVSQheU44ZvaDxJy4VbtVkGQ0Nabne7TSxRvSS7CHYnoLAioShqBDW4GPvNyqYdbUeWmyO7BwYcEnZ2M3vbqIiH0++YSRw1nESXwzlsfoiRFFNdtajXWGM+gVwvF7EsCw+QiUo4/j7GI76ULdb9/BNt1w7puZFZRYXpHTkSA==</ds:SignatureValue>
+    <ds:SignatureValue>dufmBGfJvdzUnMhso32kSZE6DA6skQxMn2FEw/Tdm0HT1TfLBOFQF5Muf+HtfhNVxJ2Mh+piUhkHSCUv93HqHbS4Ub66EBAcHhWJMV3gYCAzpzFoewZQWkoSYqHK/F8rtjYgKAm2g4AUl/3/gzKyrXMM2tx+bAnJGQKovuhWtqqK2gNgIG/Et7BPQUGSb4vEtslf3NL5B3g1HcEfDByK2s5Zac5hwQgJWO9XhjsXcohHwgZLqtOv35Sm5CC5Q+f+m4WLAUkVSatXdeyqjvNJxahZkgBszJWb2Cb3EY5ur3QtspgIn7menksCMBcTZIuliosStn1+IgZcLezM6xA4Sw==</ds:SignatureValue>
     <ds:KeyInfo>
       <ds:X509Data>
         <ds:X509Certificate>MIIHaTCCBVGgAwIBAgIIaxBM2mpdez8wDQYJKoZIhvcNAQELBQAwTzELMAkGA1UE

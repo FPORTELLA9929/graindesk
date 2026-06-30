@@ -8,19 +8,11 @@ from app.modules.cadastros.models.municipio import Municipio
 
 
 def listar_mdfes(db: Session):
-    return (
-        db.query(Mdfe)
-        .order_by(Mdfe.id.desc())
-        .all()
-    )
+    return db.query(Mdfe).order_by(Mdfe.id.desc()).all()
 
 
 def buscar_mdfe(db: Session, mdfe_id: int):
-    return (
-        db.query(Mdfe)
-        .filter(Mdfe.id == mdfe_id)
-        .first()
-    )
+    return db.query(Mdfe).filter(Mdfe.id == mdfe_id).first()
 
 
 def _buscar_municipio_origem(db: Session, mdfe: Mdfe):
@@ -88,7 +80,6 @@ def criar_mdfe(db: Session, dados: MdfeCreate):
     garantir_chave_mdfe(db, mdfe.id)
 
     db.refresh(mdfe)
-
     return mdfe
 
 
@@ -126,6 +117,11 @@ def atualizar_mdfe(db: Session, mdfe_id: int, dados: MdfeUpdate):
         mdfe.xml_path = None
         mdfe.xml_assinado_path = None
         mdfe.mensagem_retorno = None
+        mdfe.protocolo = None
+        mdfe.recibo = None
+
+        if hasattr(mdfe, "xml_retorno"):
+            mdfe.xml_retorno = None
 
     db.commit()
     db.refresh(mdfe)
@@ -133,7 +129,6 @@ def atualizar_mdfe(db: Session, mdfe_id: int, dados: MdfeUpdate):
     garantir_chave_mdfe(db, mdfe.id)
 
     db.refresh(mdfe)
-
     return mdfe
 
 
@@ -167,6 +162,7 @@ def atualizar_retorno_sefaz(
     mensagem_retorno: str | None = None,
     protocolo: str | None = None,
     recibo: str | None = None,
+    xml_retorno: str | None = None,
 ):
     mdfe = buscar_mdfe(db, mdfe_id)
 
@@ -181,6 +177,9 @@ def atualizar_retorno_sefaz(
 
     if recibo is not None:
         mdfe.recibo = recibo
+
+    if xml_retorno is not None and hasattr(mdfe, "xml_retorno"):
+        mdfe.xml_retorno = xml_retorno
 
     db.commit()
     db.refresh(mdfe)

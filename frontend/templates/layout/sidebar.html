@@ -1,5 +1,6 @@
 {% set path = request.url.path %}
 {% set permissoes = request.session.get("permissoes", []) %}
+{% set perfil = request.session.get("usuario_perfil", "") %}
 
 {% set active_class = "flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-lg shadow-blue-900/30" %}
 {% set normal_class = "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition" %}
@@ -39,6 +40,24 @@
             </a>
         </div>
         {% endif %}
+
+        <div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Exportação
+            </div>
+
+            <a href="/exportacao/"
+               class="{% if path == '/exportacao/' or path == '/exportacao' %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🌎</span>
+                <span>Controle de Exportação</span>
+            </a>
+
+            <a href="/exportacao/averbacao/"
+               class="{% if path.startswith('/exportacao/averbacao') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>📦</span>
+                <span>Averbação NF-e</span>
+            </a>
+        </div>
 
         <div>
             <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
@@ -100,7 +119,21 @@
             </a>
         </div>
 
-        {% if "usuarios" in permissoes or "perfis" in permissoes or "certificados" in permissoes or "configuracoes_fiscais" in permissoes %}
+        {% if perfil == "administrador" %}
+        <div>
+            <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
+                Ferramentas
+            </div>
+
+            <a href="/ferramentas/"
+               class="{% if path.startswith('/ferramentas') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🧰</span>
+                <span>Ferramentas</span>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if "usuarios" in permissoes or "perfis" in permissoes or "certificados" in permissoes or "configuracoes_fiscais" in permissoes or perfil == "administrador" %}
         <div>
             <div class="text-[11px] uppercase tracking-[3px] text-blue-300 font-semibold mb-2">
                 Administração
@@ -135,6 +168,14 @@
                class="{% if path.startswith('/admin/configuracoes-fiscais') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
                 <span>⚙️</span>
                 <span>Configurações Fiscais</span>
+            </a>
+            {% endif %}
+
+            {% if perfil == "administrador" %}
+            <a href="/admin/portal-unico/"
+               class="{% if path.startswith('/admin/portal-unico') %}{{ active_class }}{% else %}{{ normal_class }}{% endif %}">
+                <span>🌎</span>
+                <span>Portal Único</span>
             </a>
             {% endif %}
         </div>

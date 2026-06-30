@@ -1,6 +1,9 @@
 from pathlib import Path
+import base64
+import gzip
 
 import requests
+from lxml import etree
 from requests_pkcs12 import Pkcs12Adapter
 from sqlalchemy.orm import Session
 
@@ -19,32 +22,35 @@ SOAP_ACTION_RECEPCAO = (
     "http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcaoSinc/mdfeRecepcao"
 )
 
-
-def _remover_declaracao_xml(xml: str) -> str:
-    xml = xml.replace('<?xml version="1.0" encoding="utf-8"?>', "")
-    xml = xml.replace('<?xml version="1.0" encoding="UTF-8"?>', "")
-    xml = xml.replace('<?xml version="1.0"?>', "")
-    return xml.strip()
+PASTA_DEBUG = Path("app/modules/mdfe/xml/assinados")
 
 
-def _montar_xml_lote(xml_mdfe_assinado: str, id_lote: str) -> str:
-    return f"""<enviMDFe xmlns="http://www.portalfiscal.inf.br/mdfe" versao="3.00">
-<idLote>{id_lote}</idLote>
-{xml_mdfe_assinado}
-</enviMDFe>"""
+def _compactar_base64(xml: str) -> str:
+    dados = xml.encode("utf-8")
+    compactado = gzip.compress(dados, compresslevel=9, mtime=0)
+    return base64.b64encode(compactado).decode("ascii")
 
 
-def _montar_envelope_recepcao(xml_lote: str) -> str:
+def _descompactar_base64(conteudo: str) -> str:
+    try:
+        dados = base64.b64decode(conteudo)
+        descompactado = gzip.decompress(dados)
+        return descompactado.decode("utf-8")
+    except Exception:
+        return conteudo
+
+
+def _montar_envelope_recepcao(dados_compactados_base64: str) -> str:
     return f"""<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-    <soap:Body>
-        <mdfeRecepcao xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcaoSinc">
-            <mdfeDadosMsg><![CDATA[{xml_lote}]]></mdfeDadosMsg>
-        </mdfeRecepcao>
-    </soap:Body>
-</soap:Envelope>"""
+<soap12:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                 xmlns:soap12="http://www.w3.org/2003/05/soap-envelope">
+    <soap12:Body>
+        <mdfeDadosMsg xmlns="http://www.portalfiscal.inf.br/mdfe/wsdl/MDFeRecepcaoSinc">
+            {dados_compactados_base64}
+        </mdfeDadosMsg>
+    </soap12:Body>
+</soap12:Envelope>"""
 
 
 def _carregar_xml_assinado(mdfe: Mdfe) -> str:
@@ -56,8 +62,115 @@ def _carregar_xml_assinado(mdfe: Mdfe) -> str:
     if not caminho.exists():
         raise ValueError("Arquivo XML assinado não encontrado no servidor.")
 
-    xml = caminho.read_text(encoding="utf-8")
-    return _remover_declaracao_xml(xml)
+    parser = etree.XMLParser(
+        remove_blank_text=True,
+        remove_comments=True,
+        resolve_entities=False,
+    )
+
+    raiz = etree.parse(str(caminho), parser).getroot()
+
+    xml = etree.tostring(
+        raiz,
+        encoding="unicode",
+        xml_declaration=False,
+        pretty_print=False,
+    )
+
+    return xml.strip()
+
+
+def _extrair_texto_por_tag(raiz, nome_tag: str) -> str | None:
+    elementos = raiz.xpath(f"//*[local-name()='{nome_tag}']")
+    if not elementos:
+        return None
+
+    texto = elementos[0].text
+    return texto.strip() if texto else None
+
+
+def _extrair_elemento_por_tag(raiz, nome_tag: str):
+    elementos = raiz.xpath(f"//*[local-name()='{nome_tag}']")
+    if not elementos:
+        return None
+
+    return elementos[0]
+
+
+def _xml_do_elemento(elemento) -> str:
+    return etree.tostring(
+        elemento,
+        encoding="unicode",
+        xml_declaration=False,
+        pretty_print=False,
+    ).strip()
+
+
+def _extrair_xml_retorno(resposta_texto: str) -> str:
+    if not resposta_texto:
+        return ""
+
+    try:
+        raiz_soap = etree.fromstring(resposta_texto.encode("utf-8"))
+
+        resultado_base64 = _extrair_texto_por_tag(raiz_soap, "mdfeResultMsg")
+        if resultado_base64:
+            return _descompactar_base64(resultado_base64)
+
+        mdfe_recepcao_result = _extrair_elemento_por_tag(
+            raiz_soap,
+            "mdfeRecepcaoResult",
+        )
+
+        if mdfe_recepcao_result is not None:
+            ret_mdfe = _extrair_elemento_por_tag(
+                mdfe_recepcao_result,
+                "retMDFe",
+            )
+
+            if ret_mdfe is not None:
+                return _xml_do_elemento(ret_mdfe)
+
+            return _xml_do_elemento(mdfe_recepcao_result)
+
+        ret_mdfe = _extrair_elemento_por_tag(raiz_soap, "retMDFe")
+        if ret_mdfe is not None:
+            return _xml_do_elemento(ret_mdfe)
+
+        return resposta_texto
+
+    except Exception:
+        return resposta_texto
+
+
+def _interpretar_retorno_sefaz(resposta_texto: str) -> dict:
+    xml_retorno = _extrair_xml_retorno(resposta_texto)
+
+    retorno = {
+        "cStat": None,
+        "xMotivo": None,
+        "nRec": None,
+        "protocolo": None,
+        "xml_retorno": xml_retorno,
+    }
+
+    if not xml_retorno:
+        retorno["xMotivo"] = "SEFAZ não retornou conteúdo."
+        return retorno
+
+    try:
+        raiz = etree.fromstring(xml_retorno.encode("utf-8"))
+
+        retorno["cStat"] = _extrair_texto_por_tag(raiz, "cStat")
+        retorno["xMotivo"] = _extrair_texto_por_tag(raiz, "xMotivo")
+        retorno["nRec"] = _extrair_texto_por_tag(raiz, "nRec")
+        retorno["protocolo"] = _extrair_texto_por_tag(raiz, "nProt")
+
+        return retorno
+
+    except Exception:
+        retorno["xMotivo"] = "Não foi possível interpretar o XML de retorno da SEFAZ."
+        return retorno
 
 
 def enviar_mdfe_homologacao(db: Session, mdfe_id: int) -> dict:
@@ -83,14 +196,20 @@ def enviar_mdfe_homologacao(db: Session, mdfe_id: int) -> dict:
 
     xml_assinado = _carregar_xml_assinado(mdfe)
 
-    id_lote = str(mdfe.id).zfill(15)
+    dados_compactados_base64 = _compactar_base64(xml_assinado)
+    envelope = _montar_envelope_recepcao(dados_compactados_base64)
 
-    xml_lote = _montar_xml_lote(
-        xml_mdfe_assinado=xml_assinado,
-        id_lote=id_lote,
+    PASTA_DEBUG.mkdir(parents=True, exist_ok=True)
+
+    (PASTA_DEBUG / "xml_compactado_origem_debug.xml").write_text(
+        xml_assinado,
+        encoding="utf-8",
     )
 
-    envelope = _montar_envelope_recepcao(xml_lote)
+    (PASTA_DEBUG / "envelope_debug.xml").write_text(
+        envelope,
+        encoding="utf-8",
+    )
 
     sessao = requests.Session()
     sessao.verify = False
@@ -104,8 +223,9 @@ def enviar_mdfe_homologacao(db: Session, mdfe_id: int) -> dict:
     )
 
     headers = {
-        "Content-Type": "text/xml; charset=utf-8",
-        "SOAPAction": SOAP_ACTION_RECEPCAO,
+        "Content-Type": (
+            f'application/soap+xml; charset=utf-8; action="{SOAP_ACTION_RECEPCAO}"'
+        ),
     }
 
     resposta = sessao.post(
@@ -115,10 +235,29 @@ def enviar_mdfe_homologacao(db: Session, mdfe_id: int) -> dict:
         timeout=60,
     )
 
+    resposta_texto = resposta.text or ""
+
+    (PASTA_DEBUG / "resposta_debug.xml").write_text(
+        resposta_texto,
+        encoding="utf-8",
+    )
+
+    retorno_interpretado = _interpretar_retorno_sefaz(resposta_texto)
+
+    (PASTA_DEBUG / "retorno_interpretado_debug.xml").write_text(
+        retorno_interpretado.get("xml_retorno") or "",
+        encoding="utf-8",
+    )
+
     return {
         "status_code": resposta.status_code,
         "reason": resposta.reason,
         "headers": dict(resposta.headers),
-        "resposta": resposta.text,
+        "resposta": resposta_texto,
         "envelope_enviado": envelope,
+        "cStat": retorno_interpretado.get("cStat"),
+        "xMotivo": retorno_interpretado.get("xMotivo"),
+        "nRec": retorno_interpretado.get("nRec"),
+        "protocolo": retorno_interpretado.get("protocolo"),
+        "xml_retorno": retorno_interpretado.get("xml_retorno"),
     }

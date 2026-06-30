@@ -1,0 +1,262 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+{% set percentual_consumido = 0 %}
+{% if saldo_original|float > 0 %}
+    {% set percentual_consumido = ((saldo_consumido|float / saldo_original|float) * 100) %}
+{% endif %}
+
+<div class="space-y-8">
+
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800">
+                Controle de Exportação
+            </h1>
+            <p class="text-slate-500 mt-1">
+                Gestão de entradas equiparadas, exportações indiretas, RE, DUE e rastreabilidade.
+            </p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm">
+            <div class="text-xs uppercase tracking-widest text-slate-400 font-semibold">
+                Status da Operação
+            </div>
+            <div class="text-emerald-600 font-bold mt-1">
+                ● Base operacional
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Entradas Equiparadas</p>
+                    <p class="text-4xl font-black text-slate-800 mt-2">{{ total_entradas }}</p>
+                    <p class="text-xs text-slate-400 mt-1">NF-es de entrada</p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-3xl">
+                    📥
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">NF-e de Exportação</p>
+                    <p class="text-4xl font-black text-slate-800 mt-2">{{ total_saidas }}</p>
+                    <p class="text-xs text-slate-400 mt-1">Saídas exportadas</p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl">
+                    🚢
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Consumos</p>
+                    <p class="text-4xl font-black text-slate-800 mt-2">{{ total_consumos }}</p>
+                    <p class="text-xs text-slate-400 mt-1">Vínculos de rastreio</p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-3xl">
+                    🔗
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Registros de Exportação</p>
+                    <p class="text-4xl font-black text-slate-800 mt-2">{{ total_res }}</p>
+                    <p class="text-xs text-slate-400 mt-1">REs vinculados</p>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-3xl">
+                    📄
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">
+                    Estoque para Exportação
+                </h2>
+                <p class="text-sm text-slate-500">
+                    Acompanhamento do volume original, consumido e disponível.
+                </p>
+            </div>
+
+            <div class="text-right">
+                <div class="text-sm text-slate-500">Percentual consumido</div>
+                <div class="text-2xl font-black text-slate-800">
+                    {{ "{:,.2f}".format(percentual_consumido|float).replace(",", "X").replace(".", ",").replace("X", ".") }}%
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
+            <div
+                class="bg-blue-600 h-4 rounded-full"
+                style="width: {{ percentual_consumido if percentual_consumido <= 100 else 100 }}%;"
+            ></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5">
+                <p class="text-sm text-slate-500">Quantidade Original</p>
+                <p class="text-2xl font-black text-slate-800 mt-1">
+                    {{ "{:,.4f}".format(saldo_original|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5">
+                <p class="text-sm text-slate-500">Quantidade Consumida</p>
+                <p class="text-2xl font-black text-slate-800 mt-1">
+                    {{ "{:,.4f}".format(saldo_consumido|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </p>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5">
+                <p class="text-sm text-slate-500">Saldo Disponível</p>
+                <p class="text-2xl font-black text-emerald-700 mt-1">
+                    {{ "{:,.4f}".format(saldo_disponivel|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-4 gap-5">
+
+        <a href="/exportacao/entradas" class="bg-white hover:bg-blue-50 rounded-2xl border border-slate-200 p-6 shadow-sm transition">
+            <div class="text-4xl mb-4">📥</div>
+            <h3 class="font-black text-slate-800 text-lg">Entradas</h3>
+            <p class="text-sm text-slate-500 mt-1">
+                Importar e consultar NF-es de entrada equiparada.
+            </p>
+        </a>
+
+        <a href="/exportacao/saidas" class="bg-white hover:bg-indigo-50 rounded-2xl border border-slate-200 p-6 shadow-sm transition">
+            <div class="text-4xl mb-4">🚢</div>
+            <h3 class="font-black text-slate-800 text-lg">Exportações</h3>
+            <p class="text-sm text-slate-500 mt-1">
+                Importar NF-es de exportação e gerar rastreabilidade.
+            </p>
+        </a>
+
+        <a href="/exportacao/rastreabilidade" class="bg-white hover:bg-emerald-50 rounded-2xl border border-slate-200 p-6 shadow-sm transition">
+            <div class="text-4xl mb-4">🔎</div>
+            <h3 class="font-black text-slate-800 text-lg">Rastreabilidade</h3>
+            <p class="text-sm text-slate-500 mt-1">
+                Consultar vínculos por NF, chave de acesso ou RE.
+            </p>
+        </a>
+
+        <a href="/exportacao/cct/" class="bg-white hover:bg-cyan-50 rounded-2xl border border-slate-200 p-6 shadow-sm transition">
+            <div class="text-4xl mb-4">🌎</div>
+            <h3 class="font-black text-slate-800 text-lg">Recepção CCT</h3>
+            <p class="text-sm text-slate-500 mt-1">
+                Consultar recepção e saldo das NF-es no Siscomex CCT.
+            </p>
+        </a>
+
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-lg font-bold text-slate-800">Últimas Entradas</h2>
+                <p class="text-sm text-slate-500">NF-es equiparadas importadas recentemente.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="text-left px-5 py-3 font-semibold text-slate-600">NF</th>
+                            <th class="text-left px-5 py-3 font-semibold text-slate-600">Fornecedor</th>
+                            <th class="text-right px-5 py-3 font-semibold text-slate-600">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entradas_recentes %}
+                        <tr class="border-t border-slate-100">
+                            <td class="px-5 py-3 font-semibold text-slate-800">
+                                {{ entrada.numero_nfe or "-" }}
+                            </td>
+                            <td class="px-5 py-3 text-slate-600">
+                                {{ entrada.fornecedor_nome or "-" }}
+                            </td>
+                            <td class="px-5 py-3 text-right text-slate-700">
+                                {{ "{:,.4f}".format(entrada.quantidade_original|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="px-5 py-8 text-center text-slate-400">
+                                Nenhuma entrada importada.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div class="p-6 border-b border-slate-200">
+                <h2 class="text-lg font-bold text-slate-800">Últimas Exportações</h2>
+                <p class="text-sm text-slate-500">NF-es de exportação importadas recentemente.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="text-left px-5 py-3 font-semibold text-slate-600">NF</th>
+                            <th class="text-left px-5 py-3 font-semibold text-slate-600">Destinatário</th>
+                            <th class="text-right px-5 py-3 font-semibold text-slate-600">Quantidade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for saida in saidas_recentes %}
+                        <tr class="border-t border-slate-100">
+                            <td class="px-5 py-3 font-semibold text-slate-800">
+                                {{ saida.numero_nfe or "-" }}
+                            </td>
+                            <td class="px-5 py-3 text-slate-600">
+                                {{ saida.destinatario_nome or "-" }}
+                            </td>
+                            <td class="px-5 py-3 text-right text-slate-700">
+                                {{ "{:,.4f}".format(saida.quantidade_exportada|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="px-5 py-8 text-center text-slate-400">
+                                Nenhuma exportação importada.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

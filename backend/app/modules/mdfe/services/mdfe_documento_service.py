@@ -95,6 +95,7 @@ def importar_documento_xml_no_mdfe(
         chave_nfe=chave_nfe,
         numero_nfe=dados_xml.get("numero_nfe"),
         produto=dados_xml.get("produto"),
+        ncm=dados_xml.get("ncm"),
         quantidade=dados_xml.get("quantidade"),
         peso_bruto=dados_xml.get("peso_bruto"),
         peso_liquido=peso_liquido,

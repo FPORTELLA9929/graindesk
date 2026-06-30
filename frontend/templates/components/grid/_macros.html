@@ -1,0 +1,7 @@
+{% macro volume(valor) %}
+  {% if valor is none %}
+    -
+  {% else %}
+    {{ "{:,.3f}".format(valor|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+  {% endif %}
+{% endmacro %}

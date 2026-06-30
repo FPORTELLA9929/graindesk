@@ -1,0 +1,24 @@
+{% extends "layout/base.html" %}
+
+{% from "components/grid/_macros.html" import volume %}
+{% from "components/grid/_sort_button.html" import sort_button %}
+
+{% block content %}
+
+{% include "components/grid/_styles.html" %}
+
+<div class="space-y-6">
+
+    {% include "exportacao/partials/entradas/_header.html" %}
+    {% include "exportacao/partials/entradas/_mensagens.html" %}
+    {% include "exportacao/partials/entradas/_cards_status.html" %}
+    {% include "exportacao/partials/entradas/_filtros.html" %}
+    {% include "exportacao/partials/entradas/_estoque_grid.html" %}
+
+</div>
+
+{% include "exportacao/partials/entradas/_modal_reserva.html" %}
+{% include "exportacao/partials/entradas/_modal_importar.html" %}
+{% include "components/grid/_scripts.html" %}
+
+{% endblock %}

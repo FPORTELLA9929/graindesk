@@ -1,0 +1,120 @@
+<div id="modalReserva" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl">
+
+        <div class="p-6 border-b flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Reservar Saldo de Exportação
+                </h2>
+                <p class="text-sm text-slate-500">
+                    A reserva usa primeiro as notas mais próximas de vencer os 180 dias.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                onclick="document.getElementById('modalReserva').classList.add('hidden')"
+                class="text-slate-400 hover:text-slate-700 text-2xl">
+                ×
+            </button>
+        </div>
+
+        <form method="post" action="/exportacao/entradas/reservas" class="p-6 space-y-6">
+
+            <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+                <div class="font-semibold text-amber-700">
+                    Regra da reserva
+                </div>
+                <p class="text-sm text-amber-700 mt-2">
+                    O GrainDesk reserva automaticamente os saldos pela ordem de vencimento legal:
+                    primeiro as NF-es com menor prazo restante dos 180 dias.
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Filial
+                </label>
+                <select name="empresa_id" required class="w-full rounded-xl border px-4 py-3">
+                    <option value="">Selecione a filial</option>
+                    {% for empresa in empresas %}
+                    <option value="{{ empresa.id }}">
+                        {{ empresa.razao_social }}{% if empresa.cidade %} - {{ empresa.cidade }}{% if empresa.estado %}/{{ empresa.estado }}{% endif %}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Produto / NCM
+                </label>
+                <select name="produto_ncm" class="w-full rounded-xl border px-4 py-3"
+                    onchange="
+                        const option = this.options[this.selectedIndex];
+                        document.getElementById('reservaProduto').value = option.dataset.produto || '';
+                        document.getElementById('reservaNcm').value = option.dataset.ncm || '';
+                    ">
+                    <option value="">Todos os produtos da filial</option>
+                    {% for item in produtos_reserva %}
+                    <option value="{{ item.ncm }}|{{ item.produto }}" data-ncm="{{ item.ncm or '' }}" data-produto="{{ item.produto or '' }}">
+                        {{ item.produto or 'Produto sem descrição' }}{% if item.ncm %} - NCM {{ item.ncm }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <input type="hidden" name="produto" id="reservaProduto">
+                <input type="hidden" name="ncm" id="reservaNcm">
+
+                <p class="text-xs text-slate-500 mt-2">
+                    Se deixar em branco, a reserva poderá considerar todos os produtos disponíveis da filial.
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Volume a reservar
+                </label>
+                <input
+                    type="text"
+                    name="quantidade_solicitada"
+                    required
+                    placeholder="Ex: 2500000"
+                    class="w-full rounded-xl border px-4 py-3">
+                <p class="text-xs text-slate-500 mt-2">
+                    Informe o volume em kg. Exemplo: 2500000.
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    Observações
+                </label>
+                <textarea
+                    name="observacoes"
+                    rows="3"
+                    placeholder="Ex: reserva para contrato/exportação futura"
+                    class="w-full rounded-xl border px-4 py-3"></textarea>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+                Após confirmar, o sistema gera automaticamente o Excel com chave de acesso e volume reservado por NF-e.
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="document.getElementById('modalReserva').classList.add('hidden')"
+                    class="px-5 py-3 rounded-xl border font-semibold">
+                    Cancelar
+                </button>
+
+                <button class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-semibold">
+                    Reservar e Baixar Excel
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>

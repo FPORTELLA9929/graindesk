@@ -1,0 +1,471 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="space-y-6">
+
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+                {{ titulo_pagina }}
+            </h1>
+            <p class="text-sm text-slate-500">
+                {{ subtitulo_pagina }}
+            </p>
+        </div>
+
+        <button
+            onclick="document.getElementById('modalImportarSaida').classList.remove('hidden')"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold">
+            Importar NF-e Exportação
+        </button>
+    </div>
+
+    {% if mensagem %}
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-700">
+        {{ mensagem }}
+    </div>
+    {% endif %}
+
+    {% if erros %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        <p class="font-semibold mb-2">
+            Algumas NF-es de exportação não puderam ser importadas:
+        </p>
+
+        <ul class="list-disc ml-5 space-y-1">
+            {% for erro in erros %}
+            <li>{{ erro }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">NF-es Exportação</p>
+            <p class="text-3xl font-bold text-slate-800">{{ saidas|length }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Processadas</p>
+            <p class="text-3xl font-bold text-emerald-600">
+                {{ saidas|selectattr("status","equalto","processada")|list|length }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Quantidade Exportada</p>
+            <p class="text-3xl font-bold text-blue-600">
+                {{ "%.4f"|format(saidas|sum(attribute="quantidade_exportada")) }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Valor Exportado</p>
+            <p class="text-2xl font-bold text-slate-800">
+                R$ {{ "{:,.2f}".format(saidas|sum(attribute="valor_exportado")|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+            </p>
+        </div>
+
+    </div>
+
+    <form method="get" class="bg-white rounded-2xl border shadow-sm p-5">
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Filial
+                </label>
+                <select name="empresa_id" class="w-full rounded-xl border px-3 py-3 text-sm">
+                    <option value="">Todas</option>
+                    {% for empresa in empresas %}
+                    <option value="{{ empresa.id }}"
+                        {% if filtros.empresa_id and filtros.empresa_id|int == empresa.id %}selected{% endif %}>
+                        {{ empresa.razao_social }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    NF
+                </label>
+                <input
+                    type="text"
+                    name="numero_nfe"
+                    value="{{ filtros.numero_nfe }}"
+                    placeholder="Número"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Destinatário
+                </label>
+                <input
+                    type="text"
+                    name="destinatario"
+                    value="{{ filtros.destinatario }}"
+                    placeholder="Cliente"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Status
+                </label>
+                <select name="status" class="w-full rounded-xl border px-3 py-3 text-sm">
+                    <option value="">Todos</option>
+                    <option value="processada" {% if filtros.status == "processada" %}selected{% endif %}>Processada</option>
+                    <option value="averbada" {% if filtros.status == "averbada" %}selected{% endif %}>Averbada</option>
+                    <option value="pendente" {% if filtros.status == "pendente" %}selected{% endif %}>Pendente</option>
+                    <option value="cancelada" {% if filtros.status == "cancelada" %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Data inicial
+                </label>
+                <input
+                    type="date"
+                    name="data_inicial"
+                    value="{{ filtros.data_inicial }}"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                    Data final
+                </label>
+                <input
+                    type="date"
+                    name="data_final"
+                    value="{{ filtros.data_final }}"
+                    class="w-full rounded-xl border px-3 py-3 text-sm">
+            </div>
+
+            <div class="flex gap-2">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm w-full">
+                    Filtrar
+                </button>
+
+                <a href="/exportacao/saidas/" class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50">
+                    Limpar
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="p-6 border-b">
+            <h2 class="font-semibold text-slate-800">
+                NF-es de Exportação Processadas
+            </h2>
+            <p class="text-sm text-slate-500">
+                Cada NF-e importada gera movimentações de consumo com base no detExport/exportInd.
+            </p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-100">
+                    <tr>
+                        <th class="text-left px-5 py-4">NF</th>
+                        <th class="text-left px-5 py-4">Data</th>
+                        <th class="text-left px-5 py-4">Filial</th>
+                        <th class="text-left px-5 py-4">Destinatário</th>
+                        <th class="text-left px-5 py-4">Produto</th>
+                        <th class="text-right px-5 py-4">Quantidade</th>
+                        <th class="text-right px-5 py-4">Valor</th>
+                        <th class="text-center px-5 py-4">Status</th>
+                        <th class="text-center px-5 py-4">Rastreabilidade</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for saida in saidas %}
+
+                    {% set rastreio_id = "rastreio-saida-" ~ saida.id %}
+
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="px-5 py-4 font-semibold text-slate-800">
+                            {{ saida.numero_nfe or "-" }}
+                        </td>
+
+                        <td class="px-5 py-4 text-slate-600">
+                            {% if saida.data_emissao %}
+                                {{ saida.data_emissao.strftime("%d/%m/%Y") }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="font-medium text-slate-800">
+                                {{ saida.empresa.razao_social if saida.empresa else "-" }}
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {% if saida.empresa %}
+                                    {{ saida.empresa.municipio or "" }}{% if saida.empresa.uf %}/{{ saida.empresa.uf }}{% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            <div class="font-medium text-slate-800">
+                                {{ saida.destinatario_nome or "-" }}
+                            </div>
+                            <div class="text-xs text-slate-500">
+                                {{ saida.destinatario_documento or "" }}
+                            </div>
+                        </td>
+
+                        <td class="px-5 py-4">
+                            {{ saida.produto or "-" }}
+                        </td>
+
+                        <td class="text-right px-5 py-4">
+                            {{ "%.4f"|format(saida.quantidade_exportada) }}
+                        </td>
+
+                        <td class="text-right px-5 py-4">
+                            R$ {{ "{:,.2f}".format(saida.valor_exportado|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            {% if saida.status == "processada" %}
+                                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                    Processada
+                                </span>
+                            {% elif saida.status == "averbada" %}
+                                <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                                    Averbada
+                                </span>
+                            {% elif saida.status == "cancelada" %}
+                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                    Cancelada
+                                </span>
+                            {% else %}
+                                <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                                    {{ saida.status or "Pendente" }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center px-5 py-4">
+                            <button
+                                type="button"
+                                onclick="document.getElementById('{{ rastreio_id }}').classList.toggle('hidden')"
+                                class="px-3 py-2 rounded-lg border text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                Ver rastreio
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr class="bg-slate-50 border-b">
+                        <td colspan="9" class="px-5 py-3 text-xs text-slate-500">
+                            <span class="font-semibold">Chave:</span>
+                            {{ saida.chave_nfe }}
+
+                            <span class="ml-6 font-semibold">CFOP:</span>
+                            {{ saida.cfop or "-" }}
+
+                            <span class="ml-6 font-semibold">NCM:</span>
+                            {{ saida.ncm or "-" }}
+                        </td>
+                    </tr>
+
+                    <tr id="{{ rastreio_id }}" class="hidden bg-white border-b">
+                        <td colspan="9" class="px-5 py-5">
+
+                            <div class="rounded-2xl border bg-slate-50 p-5 space-y-4">
+
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <p class="text-xs text-slate-500">NF Exportação</p>
+                                        <p class="font-semibold text-slate-800">{{ saida.numero_nfe or "-" }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Quantidade Exportada</p>
+                                        <p class="font-semibold text-slate-800">{{ "%.4f"|format(saida.quantidade_exportada) }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Entradas Consumidas</p>
+                                        <p class="font-semibold text-slate-800">{{ saida.consumos|length }}</p>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs text-slate-500">Valor Exportado</p>
+                                        <p class="font-semibold text-slate-800">
+                                            R$ {{ "{:,.2f}".format(saida.valor_exportado|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="font-semibold text-slate-800 mb-3">
+                                        Entradas Consumidas
+                                    </h3>
+
+                                    {% if saida.consumos %}
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full bg-white rounded-xl overflow-hidden border">
+                                                <thead class="bg-slate-100">
+                                                    <tr>
+                                                        <th class="text-left px-4 py-3 text-xs">Data</th>
+                                                        <th class="text-left px-4 py-3 text-xs">NF Entrada</th>
+                                                        <th class="text-left px-4 py-3 text-xs">Chave Entrada</th>
+                                                        <th class="text-left px-4 py-3 text-xs">RE</th>
+                                                        <th class="text-right px-4 py-3 text-xs">Quantidade Consumida</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    {% for consumo in saida.consumos %}
+                                                    <tr class="border-t">
+                                                        <td class="px-4 py-3 text-sm text-slate-600">
+                                                            {% if consumo.criado_em %}
+                                                                {{ consumo.criado_em.strftime("%d/%m/%Y %H:%M") }}
+                                                            {% else %}
+                                                                -
+                                                            {% endif %}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm font-semibold text-slate-800">
+                                                            {{ consumo.numero_nfe_entrada or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-xs text-slate-500">
+                                                            {{ consumo.chave_nfe_entrada or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-slate-700">
+                                                            {{ consumo.numero_re or "-" }}
+                                                        </td>
+
+                                                        <td class="px-4 py-3 text-sm text-right font-semibold text-slate-800">
+                                                            {{ "%.4f"|format(consumo.quantidade_consumida) }}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="bg-white border rounded-xl p-4 text-sm text-slate-500">
+                                            Nenhuma entrada consumida para esta NF-e.
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+
+                        </td>
+                    </tr>
+
+                {% else %}
+                    <tr>
+                        <td colspan="9" class="px-5 py-10 text-center text-slate-500">
+                            Nenhuma NF-e de exportação importada ainda.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div id="modalImportarSaida" class="hidden fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl">
+
+        <div class="p-6 border-b flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Importar NF-e de Exportação
+                </h2>
+                <p class="text-sm text-slate-500">
+                    Selecione uma ou mais NF-es de exportação. A filial será identificada automaticamente pelo CNPJ do emitente da NF-e.
+                </p>
+            </div>
+
+            <button
+                onclick="document.getElementById('modalImportarSaida').classList.add('hidden')"
+                class="text-slate-400 hover:text-slate-700 text-2xl">
+                ×
+            </button>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+                <div class="font-semibold text-emerald-700">
+                    Identificação automática da filial exportadora
+                </div>
+
+                <p class="text-sm text-emerald-600 mt-2">
+                    O GrainDesk identifica automaticamente a empresa exportadora através do
+                    CNPJ do emitente existente no XML da NF-e.
+                </p>
+
+                <p class="text-sm text-emerald-600">
+                    Caso a empresa não esteja cadastrada ou o CNPJ não pertença a
+                    uma filial cadastrada, a importação será bloqueada.
+                </p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2">
+                    XMLs da NF-e de Exportação
+                </label>
+
+                <input
+                    type="file"
+                    name="arquivos_xml"
+                    accept=".xml"
+                    multiple
+                    required
+                    class="w-full rounded-xl border px-4 py-3">
+
+                <p class="text-xs text-slate-500 mt-2">
+                    Você pode selecionar uma ou várias NF-es de exportação ao mesmo tempo.
+                </p>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+                A importação só será concluída para as NF-es em que todas as chaves de entrada informadas no
+                <strong>detExport/exportInd</strong> existirem no estoque da mesma filial e possuírem saldo suficiente.
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+                Cada XML será processado individualmente. NF-es duplicadas serão ignoradas e erros serão exibidos após o processamento.
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="document.getElementById('modalImportarSaida').classList.add('hidden')"
+                    class="px-5 py-3 rounded-xl border font-semibold">
+                    Cancelar
+                </button>
+
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold">
+                    Processar Exportações
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

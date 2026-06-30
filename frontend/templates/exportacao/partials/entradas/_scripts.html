@@ -1,0 +1,143 @@
+<div id="menuTotalizador" class="hidden fixed z-[9999] bg-white border rounded-xl shadow-xl p-3 min-w-64">
+    <p id="menuTotalizadorTitulo" class="text-sm font-semibold text-slate-800 mb-2"></p>
+    <button
+        type="button"
+        id="btnSomarColuna"
+        class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        Somar coluna
+    </button>
+    <div id="resultadoTotalizador" class="hidden mt-3 rounded-lg bg-slate-50 border p-3 text-sm">
+        <p class="text-slate-500">Total</p>
+        <p id="resultadoTotalizadorValor" class="text-lg font-bold text-slate-800"></p>
+    </div>
+</div>
+
+<script>
+(function () {
+    const tabela = document.getElementById("tabelaEntradas");
+    const tbody = document.getElementById("entradasBody");
+    const menu = document.getElementById("menuTotalizador");
+    const menuTitulo = document.getElementById("menuTotalizadorTitulo");
+    const btnSomar = document.getElementById("btnSomarColuna");
+    const resultado = document.getElementById("resultadoTotalizador");
+    const resultadoValor = document.getElementById("resultadoTotalizadorValor");
+
+    let sortState = {};
+    let colunaTotalAtual = null;
+    let colunaTotalLabel = null;
+
+    function numeroBr(valor) {
+        const numero = Number(valor || 0);
+        return numero.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
+    }
+
+    function linhasPrincipais() {
+        return Array.from(tbody.querySelectorAll("tr.entrada-row"));
+    }
+
+    function detalhesDoGrupo(grupo) {
+        return Array.from(tbody.querySelectorAll(`tr.entrada-detail[data-grupo="${grupo}"]`));
+    }
+
+    function valorLinha(row, campo) {
+        const valor = row.dataset[campo] || "";
+
+        if (["original", "consumido", "saldo", "reservado", "livre", "prazo", "data"].includes(campo)) {
+            return Number(valor || 0);
+        }
+
+        return String(valor).toLowerCase();
+    }
+
+    function ordenarTabela(campo) {
+        const linhas = linhasPrincipais();
+        const direcaoAtual = sortState[campo] || "desc";
+        const novaDirecao = direcaoAtual === "asc" ? "desc" : "asc";
+        sortState = {};
+        sortState[campo] = novaDirecao;
+
+        linhas.sort((a, b) => {
+            const va = valorLinha(a, campo);
+            const vb = valorLinha(b, campo);
+
+            if (typeof va === "number" && typeof vb === "number") {
+                return novaDirecao === "asc" ? va - vb : vb - va;
+            }
+
+            return novaDirecao === "asc"
+                ? String(va).localeCompare(String(vb), "pt-BR")
+                : String(vb).localeCompare(String(va), "pt-BR");
+        });
+
+        linhas.forEach(row => {
+            const grupo = row.dataset.grupo;
+            tbody.appendChild(row);
+            detalhesDoGrupo(grupo).forEach(detail => tbody.appendChild(detail));
+        });
+
+        document.querySelectorAll(".sort-th").forEach(btn => {
+            const icon = btn.querySelector(".gd-sort-icon");
+            if (icon) {
+                icon.textContent = "↕";
+            }
+        });
+
+        const btnAtual = document.querySelector(`.sort-th[data-sort="${campo}"]`);
+        if (btnAtual) {
+            const icon = btnAtual.querySelector(".gd-sort-icon");
+            if (icon) {
+                icon.textContent = novaDirecao === "asc" ? "↑" : "↓";
+            }
+        }
+    };
+
+        Object.entries(campos).forEach(([campo, id]) => {
+            const total = linhas.reduce((acc, row) => acc + Number(row.dataset[campo] || 0), 0);
+            const el = document.getElementById(id);
+            if (el) el.textContent = numeroBr(total);
+        });
+    }
+
+    function abrirMenuTotalizador(event, campo, label) {
+        event.preventDefault();
+        colunaTotalAtual = campo;
+        colunaTotalLabel = label;
+
+        menuTitulo.textContent = `Coluna: ${label}`;
+        resultado.classList.add("hidden");
+        resultadoValor.textContent = "";
+
+        menu.style.left = `${event.clientX}px`;
+        menu.style.top = `${event.clientY}px`;
+        menu.classList.remove("hidden");
+    }
+
+    document.querySelectorAll(".sort-th").forEach(btn => {
+        btn.addEventListener("click", () => ordenarTabela(btn.dataset.sort));
+
+        if (btn.classList.contains("total-th")) {
+            btn.addEventListener("contextmenu", (event) => {
+                abrirMenuTotalizador(event, btn.dataset.sort, btn.dataset.totalLabel || btn.dataset.sort);
+            });
+        }
+    });
+
+    btnSomar.addEventListener("click", () => {
+        if (!colunaTotalAtual) return;
+
+        const total = linhasPrincipais().reduce((acc, row) => {
+            return acc + Number(row.dataset[colunaTotalAtual] || 0);
+        }, 0);
+
+        resultadoValor.textContent = `${numeroBr(total)} kg`;
+        resultado.classList.remove("hidden");
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!menu.contains(event.target) && !event.target.closest(".total-th")) {
+            menu.classList.add("hidden");
+        }
+    });
+
+})();
+</script>

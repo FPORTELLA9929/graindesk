@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MDFe xmlns="http://www.portalfiscal.inf.br/mdfe">
+  <infMDFe versao="3.00" Id="MDFe41260607670089002862580010000000021858693630">
+    <ide>
+      <cUF>41</cUF>
+      <tpAmb>2</tpAmb>
+      <tpEmit>2</tpEmit>
+      <tpTransp>2</tpTransp>
+      <mod>58</mod>
+      <serie>1</serie>
+      <nMDF>2</nMDF>
+      <cMDF>85869363</cMDF>
+      <cDV>0</cDV>
+      <modal>1</modal>
+      <dhEmi>2026-06-26T09:03:35-03:00</dhEmi>
+      <tpEmis>1</tpEmis>
+      <procEmi>0</procEmi>
+      <verProc>GrainDesk 1.0</verProc>
+      <UFIni>PR</UFIni>
+      <UFFim>PR</UFFim>
+      <infMunCarrega>
+        <cMunCarrega>4102802</cMunCarrega>
+        <xMunCarrega>Bela Vista do Paraíso</xMunCarrega>
+      </infMunCarrega>
+    </ide>
+    <emit>
+      <CNPJ>07670089002862</CNPJ>
+      <IE>9104816140</IE>
+      <xNome>USIMAT DESTILARIA DE ALCOOL LTDA</xNome>
+      <xFant>USIMAT BELA VISTA DO PARAISO</xFant>
+      <enderEmit>
+        <xLgr>RODOVIA PR 090</xLgr>
+        <nro>SN</nro>
+        <xBairro>ZONA RURAL</xBairro>
+        <cMun>4102802</cMun>
+        <xMun>Bela Vista do Paraíso</xMun>
+        <CEP>86130000</CEP>
+        <UF>PR</UF>
+        <fone>4332592304</fone>
+      </enderEmit>
+    </emit>
+    <infModal versaoModal="3.00">
+      <rodo>
+        <infANTT>
+          <RNTRC>52500344</RNTRC>
+          <infContratante>
+            <CNPJ>07670089002862</CNPJ>
+          </infContratante>
+        </infANTT>
+        <veicTracao>
+          <cInt>2</cInt>
+          <placa>CMR7D90</placa>
+          <RENAVAM>00702042358</RENAVAM>
+          <tara>9000</tara>
+          <capKG>0</capKG>
+          <capM3>25</capM3>
+          <prop>
+            <CPF>02236248962</CPF>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
+          </prop>
+          <condutor>
+            <xNome>RINEU ALEXANDRE VALINI</xNome>
+            <CPF>05285602980</CPF>
+          </condutor>
+          <tpRod>03</tpRod>
+          <tpCar>00</tpCar>
+          <UF>PR</UF>
+        </veicTracao>
+        <veicReboque>
+          <cInt>25</cInt>
+          <placa>ALT1B47</placa>
+          <RENAVAM>00827447930</RENAVAM>
+          <tara>5350</tara>
+          <capKG>19000</capKG>
+          <capM3>25</capM3>
+          <prop>
+            <CPF>02236248962</CPF>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
+          </prop>
+          <tpCar>00</tpCar>
+          <UF>PR</UF>
+        </veicReboque>
+        <veicReboque>
+          <cInt>26</cInt>
+          <placa>ALT1B48</placa>
+          <RENAVAM>00827448791</RENAVAM>
+          <tara>5350</tara>
+          <capKG>19000</capKG>
+          <capM3>25</capM3>
+          <prop>
+            <CPF>02236248962</CPF>
+            <RNTRC>52500344</RNTRC>
+            <xNome>SIMONE REGINA VALLINI</xNome>
+            <IE>73478944</IE>
+            <UF>PR</UF>
+            <tpProp>1</tpProp>
+          </prop>
+          <tpCar>00</tpCar>
+          <UF>PR</UF>
+        </veicReboque>
+      </rodo>
+    </infModal>
+    <infDoc>
+      <infMunDescarga>
+        <cMunDescarga>4109807</cMunDescarga>
+        <xMunDescarga>Ibiporã</xMunDescarga>
+        <infNFe>
+          <chNFe>41260207670089002862550100000001121806629945</chNFe>
+        </infNFe>
+      </infMunDescarga>
+    </infDoc>
+    <prodPred>
+      <tpCarga>01</tpCarga>
+      <xProd>SOJA EM GRAOS GMO</xProd>
+      <NCM>12019000</NCM>
+      <infLotacao>
+        <infLocalCarrega>
+          <CEP>86130000</CEP>
+        </infLocalCarrega>
+        <infLocalDescarrega>
+          <CEP>86130000</CEP>
+        </infLocalDescarrega>
+      </infLotacao>
+    </prodPred>
+    <tot>
+      <qNFe>1</qNFe>
+      <vCarga>58216.68</vCarga>
+      <cUnid>01</cUnid>
+      <qCarga>51570.0000</qCarga>
+    </tot>
+  </infMDFe>
+  <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+    <ds:SignedInfo>
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+      <ds:Reference URI="#MDFe41260607670089002862580010000000021858693630">
+        <ds:Transforms>
+          <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+          <ds:Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+        </ds:Transforms>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+        <ds:DigestValue>ZTv03xgpuxTcLyz99yZroMkVHoM=</ds:DigestValue>
+      </ds:Reference>
+    </ds:SignedInfo>
+    <ds:SignatureValue>UiqI2Bpc3XgBm9kBD49Xt3F2xYJKDV7nD11YhXUzNbBGIYine0rmqZPvdNaeGIhHNyW+g0qiWX4NcBcBAJFrtRfWbhu0anKAig5h344HVkrp+wQ3lcu6dzqEj/+p3pKXrmbAIy2oKz8fe20TBcv8K4uXLZTqIgpMhGlGQ9X5gU9F1Ctl5dJpf545q8eB7mZ61w3qPIjWY/APXgshdD71Tl++zRHXey1JVghMQy+0Z4NPoKy5EdwHfijmJlHuocNNoKFxfLbKH8pJHf6EnnkebBMqe3aZXSx2HnJP+a6D0fm79esah35yH8HV+vduto/yOmBdiSCbkS0ZSS5cQzg+9w==</ds:SignatureValue>
+    <ds:KeyInfo>
+      <ds:X509Data>
+        <ds:X509Certificate>MIIHaTCCBVGgAwIBAgIIaxBM2mpdez8wDQYJKoZIhvcNAQELBQAwTzELMAkGA1UE
+BhMCQlIxEzARBgNVBAoTCklDUC1CcmFzaWwxEzARBgNVBAsTCkFDIFNBRkVXRUIx
+FjAUBgNVBAMTDUFDIFNBRkVXRUIgQ0QwHhcNMjUxMjA0MTgyNjQxWhcNMjYxMjA0
+MTgyNjQxWjCB0jELMAkGA1UEBhMCQlIxEzARBgNVBAoTCklDUC1CcmFzaWwxFjAU
+BgNVBAsTDUFDIFNBRkVXRUIgQ0QxGDAWBgNVBAsTD1NBRkVXRUIgZS1QSiBBMTEX
+MBUGA1UECxMOODEwNDc1MDgwMDAxNDcxEzARBgNVBAsTCnByZXNlbmNpYWwxFDAS
+BgNVBAsTCyhFTSBCUkFOQ08pMTgwNgYDVQQDEy9VU0lNQVQgREVTVElMQVJJQSBE
+RSBBTENPT0wgTFREQTowNzY3MDA4OTAwMDE0MjCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOIker9GUiGNlLlI38tFfouY1OcDUm6SgkSvpWfDxu9Mfz4C
+ItSlh8ro4LvOWGBQ17UokOq9oLjETfIM4jUjPYy0GVPa2r26lRZ9RC11CGvby1Sj
+luM8+AzaMy/X0z6+Xg5mfKQEjrTJkDtAIRBdLO+QiCY4+2oGFXazNr0WOT810yKn
+5LhSSt+GdO7EZHKmPWQcYVWRe3w262vGzB3psbTHz25SKJJbZ/sv19YSLT7AsLXN
+wypCkmXXM6vd5Ov0Hiy61l5/BIloF1hU4dlA3dnzMfZNtog7T6gDSktxH0njz3iF
+Nu4wUicGfXUn2vLR/v59F+6V5XIyMWPLBETGj4kCAwEAAaOCAsMwggK/MB8GA1Ud
+IwQYMBaAFImSelbiu65tGp5CY7Rc7so073YeMA4GA1UdDwEB/wQEAwIF4DBnBgNV
+HSAEYDBeMFwGBmBMAQIBRjBSMFAGCCsGAQUFBwIBFkRodHRwOi8vcmVwb3NpdG9y
+aW8uYWNzYWZld2ViLmNvbS5ici9hYy1zYWZld2ViY2QvZHBjLWFjc2FmZXdlYmNk
+LnBkZjCBpgYDVR0fBIGeMIGbMEugSaBHhkVodHRwOi8vcmVwb3NpdG9yaW8uYWNz
+YWZld2ViLmNvbS5ici9hYy1zYWZld2ViY2QvbGNyLWFjLXNhZmV3ZWJjZC5jcmww
+TKBKoEiGRmh0dHA6Ly9yZXBvc2l0b3JpbzIuYWNzYWZld2ViLmNvbS5ici9hYy1z
+YWZld2ViY2QvbGNyLWFjLXNhZmV3ZWJjZC5jcmwwga8GCCsGAQUFBwEBBIGiMIGf
+ME0GCCsGAQUFBzAChkFodHRwOi8vcmVwb3NpdG9yaW8uYWNzYWZld2ViLmNvbS5i
+ci9hYy1zYWZld2ViY2QvYWMtc2FmZXdlYmNkLnA3YjBOBggrBgEFBQcwAoZCaHR0
+cDovL3JlcG9zaXRvcmlvMi5hY3NhZmV3ZWIuY29tLmJyL2FjLXNhZmV3ZWJjZC9h
+Yy1zYWZld2ViY2QucDdiMIGoBgNVHREEgaAwgZ2BE1dBR05FUkBTSVBBTC5DT00u
+QlKgGAYFYEwBAwKgDxMNV0FHTkVSIFNDSE9MTKAZBgVgTAEDA6AQEw4wNzY3MDA4
+OTAwMDE0MqA4BgVgTAEDBKAvEy0xMzAxMTk4NzA1Njg5MzU5OTM5MDAwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDCgFwYFYEwBAwegDhMMMDAwMDAwMDAwMDAwMB0GA1Ud
+JQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDANBgkqhkiG9w0BAQsFAAOCAgEAAEtq
+SX53lqWQt7KpHmzQTW/aJ1/i0TiEAxWgYpw/UfSP2LogKsCRwnj+PUI5BujT3RD9
+YW+d3sGc/sWnVRVW1zMpDF0F/xPKGYjXY5tDGPJQEmxLSgEcTwbkD0jilraVDYI9
+qTfqeGDwcK4A88rX9/u+TlwfCabU1t8ewtJ0t6S9nhiXDUeWjhzIxV21r0u/hnZG
+ntKl37NmZ2sFd8kH8QDZNgmYrKx1xlcnRRyvAtckol0QVSSEzZJ5Cc9+L6e7MkiF
+TQuGDIxa+/WL4GgqNDJCzEmwokwkdVELIUsRDzKt6Z+anpgS+HJhwE7FblsPaBD/
+Z95n96MSNq2v8dp5ga4Yrzpjl23fC98SkYyPgA0GYn3XdoGRZkWKd3Zfv21qgCw0
+R/dCb1DifVFVYZ+bzrtLLchnU8grnj1VgtTSGi/v+EdxkrlEvZbxD5jjA9q027VA
+goGmJY+gyBzJGXDu7UNqXn+7uH/+QTlMCCP1erfWbLkoZHY9P2JoyndKX7L+03Og
+LO74X4HekEFoSTSAUYKuB3EV+mq5AYfzXsHtz7L6wY+s51sbrSVvZhZOfAwaKLC/
+veLOjEnG7eX+UOlDuI3A+4fi4I8BtTtwRc5WKvWEbnHXr3lskTF3g4U9SOMWWBHg
+rkqsqfTheVXhsAdrot/yyxS2btHBtoim0PJ88E8=
+</ds:X509Certificate>
+      </ds:X509Data>
+    </ds:KeyInfo>
+  </ds:Signature>
+</MDFe>

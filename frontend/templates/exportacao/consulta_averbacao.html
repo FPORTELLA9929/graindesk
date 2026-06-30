@@ -18,6 +18,29 @@
 
         <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
+                Empresa
+            </label>
+
+            <select
+                name="empresa_id"
+                required
+                class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                <option value="">Selecione a empresa</option>
+
+                {% for empresa in empresas %}
+                <option
+                    value="{{ empresa.id }}"
+                    {% if empresa_id|string == empresa.id|string %}selected{% endif %}
+                >
+                    {{ empresa.razao_social }} - {{ empresa.cnpj }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
                 Chaves de Acesso NF-e
             </label>
 

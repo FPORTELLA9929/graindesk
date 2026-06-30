@@ -547,7 +547,7 @@ async def assinar_xml_mdfe(
     )
 
 
-@router.get("/{mdfe_id}/emitir")
+@router.post("/{mdfe_id}/emitir")
 async def emitir_mdfe(
     mdfe_id: int,
     request: Request,
@@ -562,17 +562,23 @@ async def emitir_mdfe(
         return redirect
 
     try:
-        resultado = mdfe_emissao_service.emitir_mdfe(
+        mdfe_emissao_service.emitir_mdfe(
             db=db,
             mdfe_id=mdfe_id,
         )
     except ValueError as erro:
-        raise HTTPException(status_code=400, detail=str(erro))
-
-    if not resultado.get("sucesso"):
-        return RedirectResponse(
-            url=f"/mdfe/{mdfe_id}/editar",
-            status_code=303,
+        mdfe_service.atualizar_retorno_sefaz(
+            db=db,
+            mdfe_id=mdfe_id,
+            status="erro",
+            mensagem_retorno=str(erro),
+        )
+    except Exception as erro:
+        mdfe_service.atualizar_retorno_sefaz(
+            db=db,
+            mdfe_id=mdfe_id,
+            status="erro",
+            mensagem_retorno=f"Erro inesperado ao emitir MDF-e: {erro}",
         )
 
     return RedirectResponse(url="/mdfe/", status_code=303)

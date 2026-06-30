@@ -7,6 +7,27 @@ from app.modules.mdfe.services import mdfe_validador_xsd_service
 from app.modules.mdfe.services import mdfe_sefaz_service
 
 
+STATUS_SEFAZ = {
+    "100": "autorizado",
+    "101": "cancelado",
+    "103": "lote_recebido",
+    "104": "lote_processado",
+    "105": "processando",
+}
+
+
+STATUS_REENVIAVEIS = [
+    "rascunho",
+    "erro",
+    "validado",
+    "enviado",
+    "rejeitado",
+    "lote_recebido",
+    "lote_processado",
+    "processando",
+]
+
+
 def _resumir_resposta_sefaz(resposta: str) -> str:
     if not resposta:
         return "SEFAZ não retornou conteúdo."
@@ -19,15 +40,50 @@ def _resumir_resposta_sefaz(resposta: str) -> str:
     return resposta_limpa
 
 
+def _montar_mensagem_retorno(retorno_sefaz: dict) -> str:
+    cstat = retorno_sefaz.get("cStat")
+    motivo = retorno_sefaz.get("xMotivo")
+    recibo = retorno_sefaz.get("nRec")
+    protocolo = retorno_sefaz.get("protocolo")
+
+    partes = []
+
+    if cstat:
+        partes.append(f"cStat: {cstat}")
+
+    if motivo:
+        partes.append(f"xMotivo: {motivo}")
+
+    if recibo:
+        partes.append(f"nRec: {recibo}")
+
+    if protocolo:
+        partes.append(f"Protocolo: {protocolo}")
+
+    if partes:
+        return " | ".join(partes)
+
+    return _resumir_resposta_sefaz(retorno_sefaz.get("resposta") or "")
+
+
+def _definir_status_por_retorno(retorno_sefaz: dict) -> str:
+    cstat = retorno_sefaz.get("cStat")
+
+    if not cstat:
+        return "erro"
+
+    return STATUS_SEFAZ.get(str(cstat), "rejeitado")
+
+
 def emitir_mdfe(db: Session, mdfe_id: int) -> dict:
     mdfe = mdfe_service.buscar_mdfe(db, mdfe_id)
 
     if not mdfe:
         raise ValueError("MDF-e não encontrado.")
 
-    if mdfe.status not in ["rascunho", "erro", "validado"]:
+    if mdfe.status not in STATUS_REENVIAVEIS:
         raise ValueError(
-            "Somente MDF-e em rascunho, erro ou validado pode ser emitido."
+            "Somente MDF-e em rascunho, erro, validado, enviado, rejeitado ou em processamento pode ser emitido."
         )
 
     try:
@@ -72,13 +128,12 @@ def emitir_mdfe(db: Session, mdfe_id: int) -> dict:
         )
 
         status_code = retorno_sefaz.get("status_code")
-        resposta = retorno_sefaz.get("resposta") or ""
-        mensagem_retorno = _resumir_resposta_sefaz(resposta)
 
         if status_code != 200:
             mensagem = (
                 f"Erro HTTP ao enviar MDF-e para SEFAZ. "
-                f"Status: {status_code}. Retorno: {mensagem_retorno}"
+                f"Status: {status_code}. "
+                f"Retorno: {_resumir_resposta_sefaz(retorno_sefaz.get('resposta') or '')}"
             )
 
             mdfe_service.atualizar_retorno_sefaz(
@@ -96,17 +151,30 @@ def emitir_mdfe(db: Session, mdfe_id: int) -> dict:
                 "sefaz": retorno_sefaz,
             }
 
+        status_final = _definir_status_por_retorno(retorno_sefaz)
+        mensagem_retorno = _montar_mensagem_retorno(retorno_sefaz)
+
         mdfe_service.atualizar_retorno_sefaz(
             db=db,
             mdfe_id=mdfe_id,
-            status="enviado",
+            status=status_final,
             mensagem_retorno=mensagem_retorno,
+            protocolo=retorno_sefaz.get("protocolo"),
+            recibo=retorno_sefaz.get("nRec"),
+            xml_retorno=retorno_sefaz.get("xml_retorno"),
         )
 
+        sucesso = status_final in [
+            "autorizado",
+            "lote_recebido",
+            "lote_processado",
+            "processando",
+        ]
+
         return {
-            "sucesso": True,
-            "status": "enviado",
-            "mensagem": "MDF-e enviado para homologação SEFAZ. Verifique o retorno armazenado.",
+            "sucesso": sucesso,
+            "status": status_final,
+            "mensagem": mensagem_retorno,
             "validacao": validacao,
             "sefaz": retorno_sefaz,
         }

@@ -23,6 +23,7 @@ class MdfeDocumento(Base):
     numero_nfe: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     produto: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    ncm: Mapped[str | None] = mapped_column(String(8), nullable=True)
 
     quantidade: Mapped[Decimal | None] = mapped_column(Numeric(15, 4), nullable=True)
     peso_bruto: Mapped[Decimal | None] = mapped_column(Numeric(15, 4), nullable=True)

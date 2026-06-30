@@ -1,0 +1,46 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+{% set saldos_cct = saldos_cct if saldos_cct is defined else [] %}
+{% set resultados = resultados if resultados is defined else [] %}
+{% set filtros = filtros if filtros is defined else {} %}
+
+<div class="space-y-6">
+
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">{{ titulo_pagina }}</h1>
+            <p class="text-sm text-slate-500">{{ subtitulo_pagina }}</p>
+        </div>
+
+        <div class="flex gap-3">
+            <a href="/exportacao/" class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50">
+                Voltar ao Cockpit
+            </a>
+        </div>
+    </div>
+
+    {% if mensagem %}
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-700">
+        {{ mensagem }}
+    </div>
+    {% endif %}
+
+    {% if erro %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        {{ erro }}
+    </div>
+    {% endif %}
+
+    {% include "exportacao/components/cct_form.html" %}
+
+    {% include "exportacao/components/cct_cards.html" %}
+
+    {% include "exportacao/components/cct_filtros.html" %}
+
+    {% include "exportacao/components/cct_estoque.html" %}
+
+</div>
+
+{% endblock %}

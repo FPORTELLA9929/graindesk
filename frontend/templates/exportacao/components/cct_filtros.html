@@ -1,0 +1,149 @@
+<form method="get" class="bg-white rounded-2xl border shadow-sm p-5">
+
+    <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                NF
+            </label>
+
+            <input
+                type="text"
+                name="numero_nfe"
+                value="{{ filtros.numero_nfe or '' }}"
+                placeholder="Número da NF"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                Centro Origem
+            </label>
+
+            <select
+                name="centro_origem"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+
+                <option value="">Todos</option>
+
+                {% for centro in opcoes_filtros.centros_origem %}
+                    <option
+                        value="{{ centro }}"
+                        {% if filtros.centro_origem == centro %}selected{% endif %}>
+                        {{ centro }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                Material
+            </label>
+
+            <select
+                name="material"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+
+                <option value="">Todos</option>
+
+                {% for material in opcoes_filtros.materiais %}
+                    <option
+                        value="{{ material }}"
+                        {% if filtros.material == material %}selected{% endif %}>
+                        {{ material }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                Porto
+            </label>
+
+            <select
+                name="porto"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+
+                <option value="">Todos</option>
+
+                {% for porto in opcoes_filtros.portos %}
+                    <option
+                        value="{{ porto }}"
+                        {% if filtros.porto == porto %}selected{% endif %}>
+                        {{ porto }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                Recinto
+            </label>
+
+            <select
+                name="recinto"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+
+                <option value="">Todos</option>
+
+                {% for recinto in opcoes_filtros.recintos %}
+                    <option
+                        value="{{ recinto }}"
+                        {% if filtros.recinto == recinto %}selected{% endif %}>
+                        {{ recinto }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-500 mb-2">
+                Situação
+            </label>
+
+            <select
+                name="situacao"
+                class="w-full rounded-xl border px-3 py-3 text-sm">
+
+                <option value="">Todas</option>
+
+                {% for situacao in opcoes_filtros.situacoes %}
+                    <option
+                        value="{{ situacao }}"
+                        {% if filtros.situacao == situacao %}selected{% endif %}>
+                        {{ situacao }}
+                    </option>
+                {% endfor %}
+
+            </select>
+        </div>
+
+        <div class="flex gap-2">
+
+            <button
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm w-full">
+
+                Filtrar
+
+            </button>
+
+            <a
+                href="/exportacao/cct/"
+                class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50">
+
+                Limpar
+
+            </a>
+
+        </div>
+
+    </div>
+
+</form>

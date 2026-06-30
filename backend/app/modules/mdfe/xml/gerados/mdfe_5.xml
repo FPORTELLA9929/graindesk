@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MDFe xmlns="http://www.portalfiscal.inf.br/mdfe">
+    <infMDFe versao="3.00" Id="MDFe41260607670089002862580010000000021858693630">
+        <ide>
+            <cUF>41</cUF>
+            <tpAmb>2</tpAmb>
+            <tpEmit>2</tpEmit>
+            <tpTransp>2</tpTransp>
+            <mod>58</mod>
+            <serie>1</serie>
+            <nMDF>2</nMDF>
+            <cMDF>85869363</cMDF>
+            <cDV>0</cDV>
+            <modal>1</modal>
+            <dhEmi>2026-06-26T09:03:35-03:00</dhEmi>
+            <tpEmis>1</tpEmis>
+            <procEmi>0</procEmi>
+            <verProc>GrainDesk 1.0</verProc>
+            <UFIni>PR</UFIni>
+            <UFFim>PR</UFFim>
+            <infMunCarrega>
+                <cMunCarrega>4102802</cMunCarrega>
+                <xMunCarrega>Bela Vista do Paraíso</xMunCarrega>
+            </infMunCarrega>
+        </ide>
+        <emit>
+            <CNPJ>07670089002862</CNPJ>
+            <IE>9104816140</IE>
+            <xNome>USIMAT DESTILARIA DE ALCOOL LTDA</xNome>
+            <xFant>USIMAT BELA VISTA DO PARAISO</xFant>
+            <enderEmit>
+                <xLgr>RODOVIA PR 090</xLgr>
+                <nro>SN</nro>
+                <xBairro>ZONA RURAL</xBairro>
+                <cMun>4102802</cMun>
+                <xMun>Bela Vista do Paraíso</xMun>
+                <CEP>86130000</CEP>
+                <UF>PR</UF>
+                <fone>4332592304</fone>
+            </enderEmit>
+        </emit>
+        <infModal versaoModal="3.00">
+            <rodo>
+                <infANTT>
+                    <RNTRC>52500344</RNTRC>
+                    <infContratante>
+                        <CNPJ>07670089002862</CNPJ>
+                    </infContratante>
+                </infANTT>
+                <veicTracao>
+                    <cInt>2</cInt>
+                    <placa>CMR7D90</placa>
+                    <RENAVAM>00702042358</RENAVAM>
+                    <tara>9000</tara>
+                    <capKG>0</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
+                    </prop>
+                    <condutor>
+                        <xNome>RINEU ALEXANDRE VALINI</xNome>
+                        <CPF>05285602980</CPF>
+                    </condutor>
+                    <tpRod>03</tpRod>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicTracao>
+                <veicReboque>
+                    <cInt>25</cInt>
+                    <placa>ALT1B47</placa>
+                    <RENAVAM>00827447930</RENAVAM>
+                    <tara>5350</tara>
+                    <capKG>19000</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
+                    </prop>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicReboque>
+                <veicReboque>
+                    <cInt>26</cInt>
+                    <placa>ALT1B48</placa>
+                    <RENAVAM>00827448791</RENAVAM>
+                    <tara>5350</tara>
+                    <capKG>19000</capKG>
+                    <capM3>25</capM3>
+                    <prop>
+                        <CPF>02236248962</CPF>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
+                    </prop>
+                    <tpCar>00</tpCar>
+                    <UF>PR</UF>
+                </veicReboque>
+            </rodo>
+        </infModal>
+        <infDoc>
+            <infMunDescarga>
+                <cMunDescarga>4109807</cMunDescarga>
+                <xMunDescarga>Ibiporã</xMunDescarga>
+                <infNFe>
+                    <chNFe>41260207670089002862550100000001121806629945</chNFe>
+                </infNFe>
+            </infMunDescarga>
+        </infDoc>
+        <prodPred>
+            <tpCarga>01</tpCarga>
+            <xProd>SOJA EM GRAOS GMO</xProd>
+            <NCM>12019000</NCM>
+            <infLotacao>
+                <infLocalCarrega>
+                    <CEP>86130000</CEP>
+                </infLocalCarrega>
+                <infLocalDescarrega>
+                    <CEP>86130000</CEP>
+                </infLocalDescarrega>
+            </infLotacao>
+        </prodPred>
+        <tot>
+            <qNFe>1</qNFe>
+            <vCarga>58216.68</vCarga>
+            <cUnid>01</cUnid>
+            <qCarga>51570.0000</qCarga>
+        </tot>
+    </infMDFe>
+</MDFe>

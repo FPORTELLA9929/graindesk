@@ -1,0 +1,300 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+{% set total_registros = registros|length if registros else 0 %}
+{% set total_ativos = registros|selectattr("ativo", "equalto", true)|list|length if registros else 0 %}
+{% set total_inativos = total_registros - total_ativos %}
+
+<div class="space-y-6">
+
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+                {{ titulo_pagina }}
+            </h1>
+            <p class="text-sm text-slate-500">
+                {{ subtitulo_pagina }}
+            </p>
+        </div>
+
+        <a href="/admin/usuarios" class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50 text-center">
+            Voltar para Administração
+        </a>
+    </div>
+
+    {% if mensagem %}
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-700">
+        {{ mensagem }}
+    </div>
+    {% endif %}
+
+    {% if erro %}
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        {{ erro }}
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Total de Registros</p>
+            <p class="text-3xl font-bold text-slate-800">{{ total_registros }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Ativos</p>
+            <p class="text-3xl font-bold text-emerald-600">{{ total_ativos }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Inativos</p>
+            <p class="text-3xl font-bold text-red-500">{{ total_inativos }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+        <div class="p-6 border-b">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <h2 class="font-semibold text-slate-800">
+                        Cadastros Auxiliares do Portal Único
+                    </h2>
+                    <p class="text-sm text-slate-500">
+                        Manutenção de códigos utilizados nas consultas CCT, URF, recintos e materiais/NCM.
+                    </p>
+                </div>
+
+                <div class="text-xs text-slate-500 bg-slate-50 border rounded-xl px-4 py-3">
+                    Área restrita ao administrador.
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 pt-5 border-b bg-slate-50">
+            <div class="flex flex-wrap gap-2">
+                <a href="/admin/portal-unico/?aba=materiais"
+                   class="px-4 py-3 rounded-t-xl text-sm font-semibold border border-b-0 {% if aba == 'materiais' %}bg-white text-blue-700 border-slate-200{% else %}bg-slate-100 text-slate-600 border-transparent hover:bg-white{% endif %}">
+                    Materiais / NCM
+                </a>
+
+                <a href="/admin/portal-unico/?aba=urfs"
+                   class="px-4 py-3 rounded-t-xl text-sm font-semibold border border-b-0 {% if aba == 'urfs' %}bg-white text-blue-700 border-slate-200{% else %}bg-slate-100 text-slate-600 border-transparent hover:bg-white{% endif %}">
+                    URFs
+                </a>
+
+                <a href="/admin/portal-unico/?aba=recintos"
+                   class="px-4 py-3 rounded-t-xl text-sm font-semibold border border-b-0 {% if aba == 'recintos' %}bg-white text-blue-700 border-slate-200{% else %}bg-slate-100 text-slate-600 border-transparent hover:bg-white{% endif %}">
+                    Recintos
+                </a>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                <div class="xl:col-span-1">
+                    <div class="rounded-2xl border bg-slate-50 p-5">
+                        <h3 class="font-semibold text-slate-800 mb-1">
+                            {% if registro_edicao %}
+                                Editar {{ config.titulo }}
+                            {% else %}
+                                Novo {{ config.titulo }}
+                            {% endif %}
+                        </h3>
+                        <p class="text-sm text-slate-500 mb-5">
+                            Informe o código e a descrição que serão usados na tradução dos retornos do Portal Único.
+                        </p>
+
+                        <form method="post" action="/admin/portal-unico/salvar" class="space-y-4">
+                            <input type="hidden" name="aba" value="{{ aba }}">
+
+                            {% if registro_edicao %}
+                                <input type="hidden" name="registro_id" value="{{ registro_edicao.id }}">
+                            {% endif %}
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                                    {{ config.label_codigo }}
+                                </label>
+                                <input
+                                    type="text"
+                                    name="codigo"
+                                    required
+                                    value="{% if registro_edicao %}{% if aba == 'materiais' %}{{ registro_edicao.ncm }}{% else %}{{ registro_edicao.codigo }}{% endif %}{% endif %}"
+                                    placeholder="{{ config.placeholder_codigo }}"
+                                    class="w-full rounded-xl border px-4 py-3 text-sm font-mono">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                                    Descrição
+                                </label>
+                                <input
+                                    type="text"
+                                    name="descricao"
+                                    required
+                                    value="{{ registro_edicao.descricao if registro_edicao else '' }}"
+                                    placeholder="{{ config.placeholder_descricao }}"
+                                    class="w-full rounded-xl border px-4 py-3 text-sm">
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                                {% if registro_edicao %}
+                                <a href="/admin/portal-unico/?aba={{ aba }}"
+                                   class="px-5 py-3 rounded-xl border font-semibold text-sm text-slate-700 hover:bg-white text-center">
+                                    Cancelar edição
+                                </a>
+                                {% endif %}
+
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold text-sm">
+                                    {% if registro_edicao %}Salvar Alterações{% else %}Cadastrar{% endif %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="rounded-2xl border bg-white p-5 mt-5">
+                        <h3 class="font-semibold text-slate-800 mb-2">
+                            Importação em massa
+                        </h3>
+                        <p class="text-sm text-slate-500">
+                            Estrutura preparada para receber importação CSV/Excel dos cadastros do FPortella.
+                        </p>
+                        <button
+                            type="button"
+                            disabled
+                            class="mt-4 w-full px-5 py-3 rounded-xl border font-semibold text-sm text-slate-400 bg-slate-50 cursor-not-allowed">
+                            Importar CSV/Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-2 space-y-5">
+                    <form method="get" action="/admin/portal-unico/" class="rounded-2xl border bg-white p-5">
+                        <input type="hidden" name="aba" value="{{ aba }}">
+
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
+                            <div class="lg:col-span-4">
+                                <label class="block text-xs font-semibold text-slate-500 mb-2">
+                                    Pesquisar em {{ config.titulo }}
+                                </label>
+                                <input
+                                    type="text"
+                                    name="busca"
+                                    value="{{ busca }}"
+                                    placeholder="Pesquisar por código ou descrição"
+                                    class="w-full rounded-xl border px-4 py-3 text-sm">
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm w-full">
+                                    Filtrar
+                                </button>
+
+                                <a href="/admin/portal-unico/?aba={{ aba }}"
+                                   class="border px-5 py-3 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-50">
+                                    Limpar
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="rounded-2xl border overflow-hidden bg-white">
+                        <div class="p-5 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h3 class="font-semibold text-slate-800">
+                                    {{ config.titulo }} cadastrados
+                                </h3>
+                                <p class="text-sm text-slate-500">
+                                    Lista de registros ativos e inativos para tradução do Portal Único.
+                                </p>
+                            </div>
+
+                            <div class="text-sm text-slate-500">
+                                {{ total_registros }} registro(s)
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="text-left px-5 py-4">{{ config.label_codigo }}</th>
+                                        <th class="text-left px-5 py-4">Descrição</th>
+                                        <th class="text-center px-5 py-4">Status</th>
+                                        <th class="text-center px-5 py-4">Ações</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for registro in registros %}
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="px-5 py-4 font-mono font-semibold text-slate-800">
+                                            {% if aba == 'materiais' %}
+                                                {{ registro.ncm }}
+                                            {% else %}
+                                                {{ registro.codigo }}
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="px-5 py-4 text-slate-700">
+                                            {{ registro.descricao }}
+                                        </td>
+
+                                        <td class="text-center px-5 py-4">
+                                            {% if registro.ativo %}
+                                                <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                                                    Ativo
+                                                </span>
+                                            {% else %}
+                                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                                                    Inativo
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="px-5 py-4">
+                                            <div class="flex justify-center gap-2">
+                                                <a href="/admin/portal-unico/editar/{{ registro.id }}?aba={{ aba }}"
+                                                   class="px-3 py-2 rounded-lg border text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                                                    Editar
+                                                </a>
+
+                                                {% if registro.ativo %}
+                                                <form method="post" action="/admin/portal-unico/inativar/{{ registro.id }}">
+                                                    <input type="hidden" name="aba" value="{{ aba }}">
+                                                    <button class="px-3 py-2 rounded-lg border text-xs font-semibold text-red-700 hover:bg-red-50">
+                                                        Inativar
+                                                    </button>
+                                                </form>
+                                                {% else %}
+                                                <form method="post" action="/admin/portal-unico/ativar/{{ registro.id }}">
+                                                    <input type="hidden" name="aba" value="{{ aba }}">
+                                                    <button class="px-3 py-2 rounded-lg border text-xs font-semibold text-emerald-700 hover:bg-emerald-50">
+                                                        Ativar
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="4" class="px-5 py-10 text-center text-slate-500">
+                                            Nenhum registro encontrado para esta aba.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

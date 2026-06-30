@@ -1,0 +1,190 @@
+<div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
+    <div class="p-6 border-b">
+        <h2 class="font-semibold text-slate-800">Estoque CCT / Portal Único</h2>
+        <p class="text-sm text-slate-500">
+            NF-es consultadas com posição atual de saldo no CCT.
+        </p>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="text-left px-5 py-4">NF</th>
+                    <th class="text-left px-5 py-4">Centro Origem</th>
+                    <th class="text-left px-5 py-4">Material</th>
+                    <th class="text-right px-5 py-4">Peso NF</th>
+                    <th class="text-right px-5 py-4">Saldo CCT</th>
+                    <th class="text-left px-5 py-4">Porto</th>
+                    <th class="text-left px-5 py-4">Recinto</th>
+                    <th class="text-center px-5 py-4">Situação</th>
+                    <th class="text-center px-5 py-4">Histórico</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for item in saldos_cct %}
+                {% set historico_id = "historico-cct-" ~ item.id %}
+                {% set consumos = item.consumos_cct if item.consumos_cct is defined else [] %}
+
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="px-5 py-4 font-semibold text-slate-800">
+                        {{ item.numero_nfe or "-" }}
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-700">
+                        {{ item.centro_origem or "-" }}
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-700">
+                        {{ item.material or "-" }}
+                    </td>
+
+                    <td class="text-right px-5 py-4">
+                        {{ "{:,.0f}".format(item.peso_nf|float).replace(",", ".") }}
+                    </td>
+
+                    <td class="text-right px-5 py-4 font-semibold">
+                        {{ "{:,.0f}".format(item.saldo|float).replace(",", ".") }}
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-700">
+                        {{ item.porto or "-" }}
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-700">
+                        {{ item.recinto or "-" }}
+                    </td>
+
+                    <td class="text-center px-5 py-4">
+                        {% if item.situacao == "OK" %}
+                            <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">OK</span>
+                        {% elif item.situacao == "Inválida" %}
+                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Inválida</span>
+                        {% else %}
+                            <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                                {{ item.situacao or "-" }}
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-center px-5 py-4">
+                        <button
+                            type="button"
+                            onclick="document.getElementById('{{ historico_id }}').classList.toggle('hidden')"
+                            class="px-3 py-2 rounded-lg border text-xs font-semibold text-slate-700 hover:bg-slate-100">
+                            Histórico
+                        </button>
+                    </td>
+                </tr>
+
+                <tr class="bg-slate-50 border-b">
+                    <td colspan="9" class="px-5 py-3 text-xs text-slate-500">
+                        <span class="font-semibold">Chave:</span>
+                        {{ item.chave or "-" }}
+
+                        <span class="ml-6 font-semibold">Mensagem:</span>
+                        {{ item.mensagem or "-" }}
+                    </td>
+                </tr>
+
+                <tr id="{{ historico_id }}" class="hidden bg-white border-b">
+                    <td colspan="9" class="px-5 py-5">
+                        <div class="rounded-2xl border bg-slate-50 p-5 space-y-4">
+
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-xs text-slate-500">NF CCT</p>
+                                    <p class="font-semibold text-slate-800">{{ item.numero_nfe or "-" }}</p>
+                                </div>
+
+                                <div>
+                                    <p class="text-xs text-slate-500">Peso NF</p>
+                                    <p class="font-semibold text-slate-800">
+                                        {{ "{:,.0f}".format(item.peso_nf|float).replace(",", ".") }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p class="text-xs text-slate-500">Saldo CCT</p>
+                                    <p class="font-semibold text-slate-800">
+                                        {{ "{:,.0f}".format(item.saldo|float).replace(",", ".") }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p class="text-xs text-slate-500">Situação</p>
+                                    <p class="font-semibold text-slate-800">{{ item.situacao or "-" }}</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-semibold text-slate-800 mb-3">
+                                    Consumos vinculados à NF CCT
+                                </h3>
+
+                                {% if consumos %}
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full bg-white rounded-xl overflow-hidden border">
+                                            <thead class="bg-slate-100">
+                                                <tr>
+                                                    <th class="text-left px-4 py-3 text-xs">Data</th>
+                                                    <th class="text-left px-4 py-3 text-xs">NF Exportação</th>
+                                                    <th class="text-left px-4 py-3 text-xs">Chave Exportação</th>
+                                                    <th class="text-left px-4 py-3 text-xs">RE</th>
+                                                    <th class="text-right px-4 py-3 text-xs">Quantidade Consumida</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                            {% for consumo in consumos %}
+                                                <tr class="border-t">
+                                                    <td class="px-4 py-3 text-sm text-slate-600">
+                                                        {% if consumo.criado_em %}
+                                                            {{ consumo.criado_em.strftime("%d/%m/%Y %H:%M") }}
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td class="px-4 py-3 text-sm font-semibold text-slate-800">
+                                                        {{ consumo.numero_nfe_saida or "-" }}
+                                                    </td>
+
+                                                    <td class="px-4 py-3 text-xs text-slate-500">
+                                                        {{ consumo.chave_nfe_saida or "-" }}
+                                                    </td>
+
+                                                    <td class="px-4 py-3 text-sm text-slate-700">
+                                                        {{ consumo.numero_re or "-" }}
+                                                    </td>
+
+                                                    <td class="px-4 py-3 text-sm text-right font-semibold text-slate-800">
+                                                        {{ "{:,.4f}".format(consumo.quantidade_consumida|float).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="bg-white border rounded-xl p-4 text-sm text-slate-500">
+                                        Nenhum consumo registrado para esta NF CCT.
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="9" class="px-5 py-10 text-center text-slate-500">
+                        Nenhuma NF-e consultada no CCT ainda.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -5,6 +5,7 @@
             <cUF>41</cUF>
             <tpAmb>2</tpAmb>
             <tpEmit>2</tpEmit>
+            <tpTransp>2</tpTransp>
             <mod>58</mod>
             <serie>1</serie>
             <nMDF>1</nMDF>
@@ -41,7 +42,10 @@
         <infModal versaoModal="3.00">
             <rodo>
                 <infANTT>
-                    <RNTRC>052500344</RNTRC>
+                    <RNTRC>52500344</RNTRC>
+                    <infContratante>
+                        <CNPJ>07670089002862</CNPJ>
+                    </infContratante>
                 </infANTT>
                 <veicTracao>
                     <cInt>2</cInt>
@@ -52,7 +56,11 @@
                     <capM3>25</capM3>
                     <prop>
                         <CPF>02236248962</CPF>
-                        <RNTRC>052500344</RNTRC>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
                     </prop>
                     <condutor>
                         <xNome>RINEU ALEXANDRE VALINI</xNome>
@@ -71,7 +79,11 @@
                     <capM3>25</capM3>
                     <prop>
                         <CPF>02236248962</CPF>
-                        <RNTRC>052500344</RNTRC>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
                     </prop>
                     <tpCar>00</tpCar>
                     <UF>PR</UF>
@@ -85,7 +97,11 @@
                     <capM3>25</capM3>
                     <prop>
                         <CPF>02236248962</CPF>
-                        <RNTRC>052500344</RNTRC>
+                        <RNTRC>52500344</RNTRC>
+                        <xNome>SIMONE REGINA VALLINI</xNome>
+                        <IE>73478944</IE>
+                        <UF>PR</UF>
+                        <tpProp>1</tpProp>
                     </prop>
                     <tpCar>00</tpCar>
                     <UF>PR</UF>
@@ -101,6 +117,18 @@
                 </infNFe>
             </infMunDescarga>
         </infDoc>
+        <prodPred>
+            <tpCarga>01</tpCarga>
+            <xProd>MILHO EM GRAOS</xProd>
+            <infLotacao>
+                <infLocalCarrega>
+                    <CEP>86130000</CEP>
+                </infLocalCarrega>
+                <infLocalDescarrega>
+                    <CEP>86130000</CEP>
+                </infLocalDescarrega>
+            </infLotacao>
+        </prodPred>
         <tot>
             <qNFe>1</qNFe>
             <vCarga>35521.07</vCarga>

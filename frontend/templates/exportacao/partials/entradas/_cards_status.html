@@ -1,0 +1,34 @@
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">NF-es Importadas</p>
+            <p class="text-3xl font-bold text-slate-800">{{ entradas|length }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Disponíveis</p>
+            <p class="text-3xl font-bold text-emerald-600">
+                {{ entradas|selectattr("status","equalto","disponivel")|list|length }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Parciais</p>
+            <p class="text-3xl font-bold text-amber-500">
+                {{ entradas|selectattr("status","equalto","parcial")|list|length }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Consumidas</p>
+            <p class="text-3xl font-bold text-red-500">
+                {{ entradas|selectattr("status","equalto","consumida")|list|length }}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border shadow-sm p-5">
+            <p class="text-sm text-slate-500">Prazo Vencido</p>
+            <p class="text-3xl font-bold text-slate-900">
+                {{ entradas|selectattr("prazo_exportacao.situacao","equalto","vencida")|list|length }}
+            </p>
+        </div>
+    </div>
